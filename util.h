@@ -27,4 +27,6 @@ string GetFileName( const string&);
 BOOL IsNT();
 DWORD GetOsMajorVersion();
 
+VOID CenterWindow(HWND);
+
 #endif

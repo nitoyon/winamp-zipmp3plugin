@@ -97,6 +97,18 @@ BOOL KeyboardDlg::OnInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 	ListView_SetItemText(hwndList, intIndex, 1, (LPTSTR)"ÉAÉãÉoÉÄì‡Ç≈ÇPã»êiÇﬁ");
 	intIndex++;
 
+	item.iItem = intIndex;
+	item.pszText = (LPTSTR)"Å©";
+	ListView_InsertItem(hwndList, &item);
+	ListView_SetItemText(hwndList, intIndex, 1, (LPTSTR)"ÇTïbñﬂÇÈ");
+	intIndex++;
+
+	item.iItem = intIndex;
+	item.pszText = (LPTSTR)"Å®";
+	ListView_InsertItem(hwndList, &item);
+	ListView_SetItemText(hwndList, intIndex, 1, (LPTSTR)"ÇTïbêiÇﬁ");
+	intIndex++;
+
 	return FALSE;
 }
 

@@ -240,6 +240,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	// ウインドウ表示
 	DisplayDlg(0);
 
+	CenterWindow(hDlg);
 	return FALSE;
 }
 

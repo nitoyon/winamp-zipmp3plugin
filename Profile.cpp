@@ -2,7 +2,6 @@
 // Profile.cpp
 // アプリケーションの設定
 //============================================================================//
-// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -21,6 +20,9 @@ string	Profile::strPath = "" ;
 HINSTANCE	Profile::hInstance = 0 ;
 string		Profile::strWinampIniPath = "" ;
 string		Profile::strPluginDir;
+
+// 再生方法
+int	Profile::intRepeat;
 
 // ウインドウ
 BOOL	Profile::blnShowOnlyArchive;
@@ -72,7 +74,6 @@ BOOL	Profile::blnCompact;
 /******************************************************************************/
 // 保存
 //============================================================================//
-// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -99,6 +100,9 @@ void Profile::Save()
 	WriteProfileBln("window", "AttachToWinamp", 		blnAttachToWinamp, 		strPath) ;
 	WriteProfileBln("window", "UseTimebar", 		blnUseTimebar, 			strPath) ;
 	WriteProfileInt("window", "Transparency", 		intTransparency, 		strPath) ;
+
+	// 再生方法
+	WriteProfileInt("play", "repeat", 		intRepeat, 			strPath) ;
 
 	// フォント
 	WriteProfileStr("font", "ListFont",		strListFont, 		strPath);
@@ -150,7 +154,6 @@ void Profile::Save()
 /******************************************************************************/
 // 読みとり
 //============================================================================//
-// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -178,6 +181,9 @@ void Profile::Load()
 	blnAttachToWinamp	= ReadProfileBln("window", "AttachToWinamp", strPath, TRUE);
 	intTransparency		= ReadProfileInt("window", "Transparency", strPath);
 	intTransparency		= (intTransparency >= -1 && intTransparency <= 100 ? intTransparency : 0);
+
+	// 再生方法
+	intRepeat		= ReadProfileInt("play", "repeat", strPath);
 
 	// フォント
 	strListFont		= ReadProfileStr("font", "ListFont",		strPath, "ＭＳ Ｐゴシック");
@@ -260,7 +266,6 @@ void Profile::Load()
 /******************************************************************************/
 // 数字を書き込み
 //============================================================================//
-// 更新：02/10/27(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//

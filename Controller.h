@@ -38,6 +38,8 @@ private:
 	vector<ULONG>	vecSongHeadTime ;
 	ULONG		ulDisplayTime ;
 	BOOL		blnUseHotKey ;
+	BOOL		blnAlbumSoonEnds;
+	int		intCurListPos;
 
 // コンストラクタおよびデストラクタ
 private:

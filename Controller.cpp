@@ -1,7 +1,6 @@
 
 // Controller.cpp
 //============================================================================//
-// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -28,13 +27,13 @@ Controller* Controller::pInstance = NULL ;
 /******************************************************************************/
 // 
 //============================================================================//
-// 更新：02/12/31(火)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 Controller::Controller() 
 : strFilePath( ""), strPrevTmpPath( ""), pArchivePath( NULL), blnUseHotKey( FALSE)
+, blnAlbumSoonEnds(FALSE)
 {
 }
 
@@ -42,7 +41,6 @@ Controller::Controller()
 /******************************************************************************/
 // デストラクタ
 //============================================================================//
-// 更新：02/12/31(火)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -59,7 +57,6 @@ Controller::~Controller()
 /******************************************************************************/
 // 唯一のインスタンス取得
 //============================================================================//
-// 更新：02/12/23(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -80,7 +77,6 @@ Controller* Controller::GetInstance()
 /******************************************************************************/
 // ウインドウ表示の切り替え
 //============================================================================//
-// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -120,7 +116,6 @@ void Controller::SetVisiblity( BOOL blnShow, BOOL blnForce)
 /******************************************************************************/
 // 表示/非表示切り替え
 //============================================================================//
-// 更新：02/12/30(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -145,7 +140,6 @@ void Controller::ToggleVisiblity()
 /******************************************************************************/
 // 再生
 //============================================================================//
-// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -174,7 +168,6 @@ void Controller::Play()
 /******************************************************************************/
 // 移動
 //============================================================================//
-// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -190,9 +183,13 @@ void Controller::Go( UINT u, int intDiff)
 		return;
 	}
 
+	// ジャンプ
 	HWND hwnd = pMainWnd->GetWinampWindow() ;
 	ULONG ulMilisec = pArchivePath->GetSongHead( u) + intDiff;
 	SendMessage( hwnd, WM_WA_IPC, ulMilisec, IPC_JUMPTOTIME) ;
+
+	// 曲番号変更
+	pMainWnd->SetCurSong(u, pArchivePath->GetChildFile(u)->GetPlayLength()) ;
 
 	// 再生中でないならば、手動でファイル番号更新
 	if( SendMessage( hwnd, WM_WA_IPC, 0, IPC_ISPLAYING) != 1)
@@ -210,7 +207,6 @@ void Controller::Go( UINT u, int intDiff)
 /******************************************************************************/
 // 解凍する
 //============================================================================//
-// 更新：02/12/31(火)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -259,7 +255,6 @@ BOOL Controller::Extract( UINT ui, const string& strPath)
 /******************************************************************************/
 // 解凍詳細
 //============================================================================//
-// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -312,7 +307,6 @@ BOOL Controller::ExtractDetail( UINT ui, UINT uiMsg)
 /******************************************************************************/
 // ミニブラウザーで開く
 //============================================================================//
-// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -356,40 +350,78 @@ void Controller::OpenInMiniBrowser( UINT i)
 /******************************************************************************/
 // 時刻設定
 //============================================================================//
-// 更新：02/12/31(火)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 void Controller::SetMp3Pos( const string& s, ULONG ulMil)
 {
-	if( strFilePath != s && s != "")
+	if(strFilePath != s && s != "")
 	{
-		UpdateFileInfo( s) ;
-		SetVisiblity( TRUE) ;
+		// ファイル名が変わったとき
+		if(Profile::intRepeat != 0 && blnAlbumSoonEnds)
+		{
+			// 単曲リピートの場合は、前のファイルの最後の曲に戻る。
+			HWND hwndWinamp = pMainWnd->GetWinampWindow();
+			SendMessage(hwndWinamp, WM_COMMAND, WINAMP_BUTTON4, 0);
+			SendMessage(hwndWinamp, WM_WA_IPC, intCurListPos, IPC_SETPLAYLISTPOS);
+			Go(pMainWnd->GetCurSong());
+			SendMessage(hwndWinamp, WM_COMMAND, WINAMP_BUTTON2, 0);
+			return;
+		}
+		else
+		{
+			// ファイル情報更新
+			UpdateFileInfo( s) ;
+			SetVisiblity( TRUE) ;
+		}
 	}
 
-	if( pArchivePath->GetStatus() == ArchiveFile::Status::UNCOMPRESSED)
+	if(pArchivePath->GetStatus() == ArchiveFile::Status::UNCOMPRESSED)
 	{
-		// ファイル番号更新
-		ULONG ulCurFileNum = pArchivePath->GetSongIndex( ulMil) ;
-		if( pMainWnd->GetCurSong() != ulCurFileNum && ulCurFileNum < pArchivePath->GetChildFileCount())
+		// 単曲リピートの準備
+		if(Profile::intRepeat != 0)
 		{
-			pMainWnd->SetCurSong( ulCurFileNum, pArchivePath->GetChildFile( ulCurFileNum)->GetPlayLength()) ;
+			HWND hwndWinamp = pMainWnd->GetWinampWindow();
+			ULONG ulAlbumLength = SendMessage(hwndWinamp, WM_WA_IPC, 1, IPC_GETOUTPUTTIME);
+			blnAlbumSoonEnds = (ulAlbumLength * 1000 - ulMil < 30 * 1000);	// アルバムがもうすぐ終わるかどうかを確認
+
+			if(blnAlbumSoonEnds)
+			{
+				intCurListPos = SendMessage(hwndWinamp, WM_WA_IPC, 0, IPC_GETLISTPOS);
+			}
+		}
+		
+		// ファイル番号更新
+		ULONG ulCurFileNum = pArchivePath->GetSongIndex(ulMil) ;
+		if(pMainWnd->GetCurSong() != ulCurFileNum && ulCurFileNum < pArchivePath->GetChildFileCount())
+		{
+			// 曲が変わったとき
+			if(Profile::intRepeat == REPEAT_SONG)
+			{
+				// 単曲リピート
+				// pMainWnd の曲番号に飛ぶ。１つ前のはず。
+				Go(pMainWnd->GetCurSong());
+			}
+			else
+			{
+				// 普通に再生中
+				pMainWnd->SetCurSong(ulCurFileNum, pArchivePath->GetChildFile(ulCurFileNum)->GetPlayLength()) ;
+			}
 		}
 
 		// 表示時刻更新
-		ULONG u = pArchivePath->GetSongTime( ulCurFileNum, ulMil) ;
+		ULONG u = pArchivePath->GetSongTime(ulCurFileNum, ulMil) ;
 		u /= 1000 ;
-		if( ulDisplayTime != u)
+		if(ulDisplayTime != u)
 		{
-			pMainWnd->SetTime( u / 60, u % 60) ;
+			pMainWnd->SetTime(u / 60, u % 60) ;
 			ulDisplayTime = u ;
 		}
 	}
 	else
 	{
-		if( Profile::blnShowOnlyArchive)
+		if(Profile::blnShowOnlyArchive)
 		{
 			SetVisiblity( FALSE) ;
 		}
@@ -400,7 +432,6 @@ void Controller::SetMp3Pos( const string& s, ULONG ulMil)
 /******************************************************************************/
 // ファイル情報の更新
 //============================================================================//
-// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//

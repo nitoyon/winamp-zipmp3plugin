@@ -39,7 +39,6 @@ private:
 	MainWnd*	pMainWnd ;
 	HFONT		hFont ;
 	HFONT		hFontSmall ;
-	HMENU		hMenuPopup ;
 
 	int		intWidth  ;
 	int		intHeight ;
@@ -90,6 +89,9 @@ public:
 	int GetSelectedItem() const{ return intSelected ;}
 	const string GetCurrentName() const{ return vecList[ intCurrent];}
 	DWORD GetCurrentLength() const{ return vecTime[ intCurrent];}
+	const string GetItemName(int i) const{ return vecList[i];}
+	DWORD GetItemLength(int i) const{ return vecTime[i];}
+	int GetSize() const{ return vecList.size();}
 	int GetScrollBarPos() const ;
 
 // ƒCƒxƒ“ƒg
