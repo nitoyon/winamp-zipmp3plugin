@@ -8,7 +8,7 @@
 #include "ListDlg.h"
 #include "..\resource.h"
 #include "..\Profile.h"
-#include "..\util.h"
+#include "..\util\uWindow.h"
 
 
 /******************************************************************************/

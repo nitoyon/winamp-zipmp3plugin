@@ -19,6 +19,8 @@
 #define  REPEAT_NORMAL		0
 #define  REPEAT_SONG		1
 #define  REPEAT_ALBUM		2
+#define  REPEAT_ENDLESSRANDOM	3
+#define  REPEAT_RANDOM		4
 
 
 /******************************************************************************/
@@ -87,15 +89,6 @@ public:
 // ì«Ç›èëÇ´
 	static void Save() ;
 	static void Load() ;
-
-private:
-	static void	WriteProfileInt(LPTSTR pszSection, LPTSTR pszName, UINT ui, const string& s);
-	static void	WriteProfileStr(LPTSTR pszSection, LPTSTR pszName, const string&, const string& s) ;
-	static void	WriteProfileBln(LPTSTR pszSection, LPTSTR, BOOL, const string&);
-	static int	ReadProfileInt(LPTSTR pszSection, LPTSTR pszName, const string& s, int intDefault = 0);
-	static string	ReadProfileStr(LPTSTR pszSection, LPTSTR pszName, const string& s, const string& strDefault = "");
-	static BOOL	ReadProfileBln(LPTSTR pszSection, LPTSTR pszName, const string& s, BOOL blnDefault = FALSE);
-	static vector<string>	ReadProfileSection(LPTSTR pszSection, const string& s);
 } ;
 
 

@@ -12,7 +12,7 @@
 #include "resource.h"
 #include <zmouse.h>	// WM_MOUSEWHEEL
 #include "main.h"
-#include "util.h"
+#include "util\uVersion.h"
 
 
 /******************************************************************************/
@@ -371,7 +371,7 @@ LRESULT MainWnd::OnLButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 		case PREV:
 		case NEXT:
-			Controller::GetInstance()->Go( pListWnd->GetCurrentItem() + ( item == PREV ? -1 : 1)) ;
+			Controller::GetInstance()->GoNext(item == NEXT) ;
 			break ;
 
 		case PLAY:
@@ -460,7 +460,7 @@ LRESULT MainWnd::OnRButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	}
 
 	// ƒƒjƒ…[•\Ž¦
-	CheckMenuRadioItem(hMenuPopup, IDM_NORMAL, IDM_ALBUMREPEAT, Profile::intRepeat + IDM_NORMAL, MF_BYCOMMAND);
+	CheckMenuRadioItem(hMenuPopup, IDM_NORMAL, IDM_ALBUMRANDOM, Profile::intRepeat + IDM_NORMAL, MF_BYCOMMAND);
 	DWORD dwID = TrackPopupMenu(hMenuPopup, TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RETURNCMD, 
 		pt.x, pt.y, 0, m_hWnd, NULL) ;
 	DestroyMenu(hMenuPopupMain);
@@ -473,18 +473,17 @@ LRESULT MainWnd::OnRButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		case IDM_SETTING:
 			config() ;
 			break;
-		case IDM_SONGREPEAT:
-			Profile::intRepeat = REPEAT_SONG;
-			break;
 		case IDM_NORMAL:
-			Profile::intRepeat = REPEAT_NORMAL;
-			break;
+		case IDM_SONGREPEAT:
 		case IDM_ALBUMREPEAT:
-			Profile::intRepeat = REPEAT_ALBUM;
+		case IDM_ENDLESSRANDOM:
+		case IDM_ALBUMRANDOM:
+			Profile::intRepeat = dwID - IDM_NORMAL;
 			break;
+
 		case IDM_PREV:
 		case IDM_NEXT:
-			Controller::GetInstance()->Go(pListWnd->GetCurrentItem() + (item == PREV ? -1 : 1));
+			Controller::GetInstance()->GoNext(item == NEXT);
 			break;
 		case IDM_5PREV:
 		case IDM_5NEXT:
@@ -683,7 +682,7 @@ LRESULT MainWnd::OnKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 		case VK_OEM_COMMA:
 		case VK_OEM_PERIOD:
-			Controller::GetInstance()->Go( GetCurSong() + ( wParam == VK_OEM_COMMA ? -1 : 1)) ;
+			Controller::GetInstance()->GoNext(wParam == VK_OEM_PERIOD) ;
 			break ;
 	}
 

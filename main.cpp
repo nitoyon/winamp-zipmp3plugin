@@ -12,6 +12,7 @@
 #include "Dialog\SettingDlg.h"
 #include "Profile.h"
 #include "resource.h"
+#include <time.h>
 
 #ifndef WS_EX_LAYERED
 #define WS_EX_LAYERED 0x80000
@@ -72,6 +73,9 @@ void config()
 
 int init()
 {
+	// 乱数初期化
+	srand(time(NULL));
+
 	// 設定読みとり
 	Profile::hInstance = plugin.hDllInstance ;
 	Profile::Load() ;
@@ -110,7 +114,7 @@ int init()
 
 	if (!hMainWnd) 
 	{
-		MessageBox( plugin.hwndParent,"Error creating window","blah",MB_OK);
+		MessageBox( plugin.hwndParent,"Error creating window","エラー",MB_OK);
 		return 1;
 	}
 
@@ -139,4 +143,19 @@ void quit()
 	Profile::Save() ;
 	delete Controller::GetInstance() ;
 	return ;
+}
+
+
+/******************************************************************************/
+//		DllMain
+/******************************************************************************/
+// DllMain
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+{
+	return TRUE;
 }

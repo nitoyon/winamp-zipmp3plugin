@@ -8,7 +8,6 @@
 #include "ArchiveFile.h"
 #include "Mp3File.h"
 #include "CueFile.h"
-#include "util.h"
 #include "define.h"
 #include "Profile.h"
 

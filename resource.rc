@@ -196,7 +196,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,128,7,19,43
     LTEXT           "ZIP.MP3 再生プラグイソ。(Winamp用)",IDC_STATIC,7,7,108,
                     8
-    LTEXT           "ver. 0.3.4b",IDC_STATIC,7,19,30,8
+    LTEXT           "ver. 0.3.4b",IDC_VERSION,7,19,30,8
     LTEXT           "http://www.nitoyon.com/",IDC_URL,21,39,73,8,SS_NOTIFY
 END
 
@@ -315,8 +315,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,3,4,0
- PRODUCTVERSION 0,3,4,0
+ FILEVERSION 0,3,5,0
+ PRODUCTVERSION 0,3,5,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -334,14 +334,14 @@ BEGIN
             VALUE "Comments", "zip.mp3 の中身を見せろや(ﾟДﾟ)ｺﾞﾙｧ!!\0"
             VALUE "CompanyName", "nitoyon\0"
             VALUE "FileDescription", "ZIP.MP3 再生プラグイソ。\0"
-            VALUE "FileVersion", "0. 3. 4. 0\0"
+            VALUE "FileVersion", "0. 3. 5. 0\0"
             VALUE "InternalName", "gen_zipalbum\0"
             VALUE "LegalCopyright", "Copyright (C) 2003 nitoyon + 協力者募集中\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "gen_zipalbum.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "gen_zipalbum\0"
-            VALUE "ProductVersion", "0. 3. 4. 0\0"
+            VALUE "ProductVersion", "0. 3. 5. 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -363,17 +363,16 @@ IDR_ITEMPOPUP MENU DISCARDABLE
 BEGIN
     POPUP "ListPopup"
     BEGIN
-        MENUITEM "演奏\tEnter",                 IDM_PLAY
+        MENUITEM "演奏(&P)\tEnter",             IDM_PLAY
         MENUITEM SEPARATOR
         MENUITEM "ファイル情報(&I)\tAlt+3",     IDM_DISPTAG, GRAYED
         POPUP "解凍(&E)"
         BEGIN
-            MENUITEM "&ZIP.MP3と同じフォルダに解凍", IDM_EXTRACT_HERE
+            MENUITEM "ZIP.MP3と同じフォルダに解凍(&Z)", IDM_EXTRACT_HERE
             MENUITEM "デスクトップに解凍(&D)",      IDM_EXTRACT_DESKTOP
             MENUITEM "場所を指定して解凍(&S)",      IDM_EXTRACT_SELECT
-            , GRAYED
         END
-        MENUITEM "&MiniBroserで開く",           IDM_OPENMINI
+        MENUITEM "MiniBroserで開く(&M)",        IDM_OPENMINI
     END
     POPUP "MainPopup"
     BEGIN
@@ -382,6 +381,8 @@ BEGIN
         MENUITEM "通常(&N)",                    IDM_NORMAL
         MENUITEM "単曲リピート(&S)",            IDM_SONGREPEAT
         MENUITEM "アルバム内リピート(&A)",      IDM_ALBUMREPEAT
+        MENUITEM "アルバム内で永久ランダム(&R)", IDM_ENDLESSRANDOM
+        MENUITEM "アルバム内ランダム[１順で次へ](&O)", IDM_ALBUMRANDOM
         MENUITEM SEPARATOR
         POPUP "移動(&M)"
         BEGIN

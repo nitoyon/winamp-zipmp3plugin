@@ -33,8 +33,8 @@ RSC=rc.exe
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "Release"
-# PROP BASE Intermediate_Dir "Release"
+# PROP BASE Output_Dir "zipmp3_plugin___Win32_Release"
+# PROP BASE Intermediate_Dir "zipmp3_plugin___Win32_Release"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
@@ -53,12 +53,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 comctl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wininet.lib /nologo /dll /machine:I386 /out:"Release/gen_zipalbum.dll"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib comctl32.lib /nologo /dll /machine:I386 /out:"Debug\gen_zipalbum.dll"
 # Begin Special Build Tool
-TargetPath=.\Release\gen_zipalbum.dll
+TargetPath=.\Debug\gen_zipalbum.dll
 TargetName=gen_zipalbum
 SOURCE="$(InputPath)"
-PostBuild_Desc=install     <winamp>\Plugins\ 
 PostBuild_Cmds=install.js $(TargetPath) $(TargetName)
 # End Special Build Tool
 
@@ -86,9 +85,9 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 comctl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wininet.lib /nologo /dll /debug /machine:I386 /out:"Debug/gen_zipalbum.dll" /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib comctl32.lib /nologo /dll /debug /machine:I386 /out:"N:\soft\Media\winamp\Plugin\gen_zipalbum.dll" /pdbtype:sept
 # Begin Special Build Tool
-TargetPath=.\Debug\gen_zipalbum.dll
+TargetPath=\soft\Media\winamp\Plugin\gen_zipalbum.dll
 TargetName=gen_zipalbum
 SOURCE="$(InputPath)"
 PostBuild_Cmds=install.js $(TargetPath) $(TargetName)
@@ -103,10 +102,6 @@ PostBuild_Cmds=install.js $(TargetPath) $(TargetName)
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
-# Begin Source File
-
-SOURCE=.\Dialog\AboutDlg.cpp
-# End Source File
 # Begin Source File
 
 SOURCE=.\ArchiveFile.cpp
@@ -126,6 +121,10 @@ SOURCE=.\File.cpp
 # Begin Source File
 
 SOURCE=.\Id3tagv2.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\InfoWnd.cpp
 # End Source File
 # Begin Source File
 
@@ -153,20 +152,12 @@ SOURCE=.\resource.rc
 # End Source File
 # Begin Source File
 
-SOURCE=.\util.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\WinampHook.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
-# Begin Source File
-
-SOURCE=.\Dialog\AboutDlg.h
-# End Source File
 # Begin Source File
 
 SOURCE=.\ArchiveFile.h
@@ -178,6 +169,10 @@ SOURCE=.\Controller.h
 # Begin Source File
 
 SOURCE=.\CueFile.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\debug.h
 # End Source File
 # Begin Source File
 
@@ -205,6 +200,10 @@ SOURCE=.\include.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\InfoWnd.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ListWnd.h
 # End Source File
 # Begin Source File
@@ -229,19 +228,19 @@ SOURCE=.\Profile.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util.h
+SOURCE=.\resource.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\vis.h
+SOURCE=.\SettingDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\util2.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\WinampHook.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\zipmp3.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -265,19 +264,11 @@ SOURCE=.\expert.ico
 # End Source File
 # Begin Source File
 
-SOURCE=.\expert1.ico
-# End Source File
-# Begin Source File
-
 SOURCE=.\font.ico
 # End Source File
 # Begin Source File
 
 SOURCE=.\resource\hand.cur
-# End Source File
-# Begin Source File
-
-SOURCE=.\ico00001.ico
 # End Source File
 # Begin Source File
 
@@ -289,27 +280,7 @@ SOURCE=.\list.ico
 # End Source File
 # Begin Source File
 
-SOURCE=.\list1.ico
-# End Source File
-# Begin Source File
-
 SOURCE=.\mp3.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\mp4.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\mp5.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\resource\nocccd1.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\resource\nocccd2.bmp
 # End Source File
 # Begin Source File
 
@@ -317,32 +288,24 @@ SOURCE=.\path.ico
 # End Source File
 # Begin Source File
 
-SOURCE=.\resource\Pledit.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\resource\Posbar.bmp
-# End Source File
-# Begin Source File
-
 SOURCE=.\skin.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\resource\Text.bmp
 # End Source File
 # Begin Source File
 
 SOURCE=.\window.ico
 # End Source File
+# End Group
+# Begin Group "dialog"
+
+# PROP Default_Filter "cpp;h"
 # Begin Source File
 
-SOURCE=.\window1.ico
+SOURCE=.\Dialog\AboutDlg.cpp
 # End Source File
-# End Group
-# Begin Group "Dialog"
+# Begin Source File
 
-# PROP Default_Filter ""
+SOURCE=.\Dialog\AboutDlg.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\Dialog\ChildDlg.cpp
@@ -381,11 +344,23 @@ SOURCE=.\Dialog\ListDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Dialog\ListDlg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Dialog\Mp3Dlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Dialog\Mp3Dlg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Dialog\NullDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\NullDlg.h
 # End Source File
 # Begin Source File
 
@@ -401,7 +376,75 @@ SOURCE=.\Dialog\SkinDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Dialog\SkinDlg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Dialog\WindowDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\WindowDlg.h
+# End Source File
+# End Group
+# Begin Group "util"
+
+# PROP Default_Filter "cpp;h"
+# Begin Source File
+
+SOURCE=.\util\uDebug.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\util\uDebug.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\util\uMsgMap.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\util\uPath.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\util\uPath.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\util\uProfile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\util\uRegistry.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\util\uRegistry.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\util\uTstring.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\util\uTstring.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\util\uVersion.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\util\uVersion.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\util\uWindow.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\util\uWindow.h
 # End Source File
 # End Group
 # End Target

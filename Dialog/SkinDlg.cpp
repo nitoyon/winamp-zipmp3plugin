@@ -8,7 +8,8 @@
 #include "SkinDlg.h"
 #include <ShlObj.h>
 #include "..\Profile.h"
-#include "..\util.h"
+#include "..\util\uWindow.h"
+#include "..\util\uPath.h"
 #include "..\resource.h"
 #include "..\Controller.h"
 #include "..\MainWnd.h"

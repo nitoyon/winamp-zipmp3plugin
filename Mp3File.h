@@ -28,6 +28,7 @@ private:
 	UINT		ulLengthCache ;
 
 	BOOL		blnHasID3Tag ;
+	DWORD		dwId3v2Size;
 	ID3Tag		id3tag ;
 
 public:

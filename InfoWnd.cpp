@@ -1,23 +1,21 @@
 
-// AboutDlg.cpp
+// InfoWnd.cpp
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-#include "AboutDlg.h"
-#include "..\resource.h"
-#include "..\Profile.h"
-#include "..\util\uVersion.h"
-#include "..\util\uPath.h"
-#include "..\util\uWindow.h"
+#include "InfoWnd.h"
+#include "Profile.h"
+#include "ArchiveFile.h"
 
 
 /******************************************************************************/
-//		グローバル変数
+//		定義
 /******************************************************************************/
 
-WNDPROC	wpcStatic ;
+BOOL InfoWnd::blnInit = FALSE;
+#define  INFOWND_CLASS	"info wnd"
 
 
 /******************************************************************************/
@@ -29,7 +27,8 @@ WNDPROC	wpcStatic ;
 // 補足：なし。
 //============================================================================//
 
-AboutDlg::AboutDlg() 
+InfoWnd::InfoWnd() 
+: m_hWnd(NULL)
 {
 }
 
@@ -41,127 +40,146 @@ AboutDlg::AboutDlg()
 // 補足：なし。
 //============================================================================//
 
-AboutDlg::~AboutDlg() 
+InfoWnd::~InfoWnd() 
 {
 }
 
+
+/******************************************************************************/
+// 初期化
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+HWND InfoWnd::Create()
+{
+	if(m_hWnd)
+	{
+		return m_hWnd;
+	}
+
+	if(!blnInit)
+	{
+		WNDCLASS wc;
+		memset(&wc,0,sizeof(wc));
+		wc.lpfnWndProc = (WNDPROC)InfoWndProc;
+		wc.hInstance = Profile::hInstance;
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW) ;
+		wc.style = CS_DBLCLKS ;
+		wc.lpszClassName = INFOWND_CLASS;
+
+		if(!RegisterClass(&wc)) 
+		{
+			return NULL;
+		}
+	}
+
+	HWND m_hWnd = CreateWindow(INFOWND_CLASS, NULL,	WS_OVERLAPPEDWINDOW, 
+		0, 0, 300, 100, NULL, NULL, Profile::hInstance, (LPVOID)this);
+	ShowWindow(m_hWnd, SW_SHOW);
+
+	if (!m_hWnd) 
+	{
+		MessageBox(NULL, "情報ウインドウを作成できませんでした", "エラー", MB_OK);
+		return NULL;
+	}
+
+	return m_hWnd;
+}
+
+
+/******************************************************************************/
+//		アーカイブファイル関係
+/******************************************************************************/
+// アーカイブファイルを設定
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void InfoWnd::SetArchiveFile(ArchiveFile* p)
+{
+	pArchiveFile = p;
+}
 
 
 /******************************************************************************/
 //		メッセージハンドラ
 /******************************************************************************/
-// メッセージマップ
+// メッセージマップ定義
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-BEGIN_DLG_MESSAGE_MAP(AboutDlgProc, AboutDlg)
-	ON_MESSAGE( WM_INITDIALOG	, OnInitDialog)
-	BEGIN_COMMAND_MAP()
-		ON_COMMAND( IDOK		, OnOk)
-		ON_COMMAND( IDCANCEL		, OnOk)
-		ON_COMMAND( IDC_URL		, OnUrlClicked)
-	END_COMMAND_MAP()
-	ON_COMMAND( WM_CTLCOLORSTATIC		, OnCtlColorStatic)
-END_DLG_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP( InfoWndProc, InfoWnd)
+	ON_MESSAGE( WM_CREATE			, OnCreate)
+	ON_MESSAGE( WM_SIZE			, OnSize)
+	ON_MESSAGE( WM_DESTROY			, OnDestroy)
+//	ON_MESSAGE( WM_KEYDOWN			, OnKeyDown)
+//	ON_MESSAGE( WM_SYSKEYDOWN		, OnSysKeyDown)
+END_MESSAGE_MAP()
 
 
 /******************************************************************************/
-// ダイアログ初期化
+// 作成時
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-BOOL AboutDlg::OnInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
+LRESULT InfoWnd::OnCreate(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
-	// サブクラス化
-	wpcStatic = (WNDPROC)GetWindowLong( GetDlgItem( hDlg, IDC_URL), GWL_WNDPROC) ;
-	SetWindowLong( GetDlgItem( hDlg, IDC_URL) , GWL_WNDPROC, 	(LONG)LinkStaticProc) ;
+	// リストウインドウ作成
+	hwndList = CreateWindow(WC_LISTVIEW, "", WS_CHILD | WS_VISIBLE | LVS_REPORT, 
+		0, 0, 0, 0, hWnd, 0, Profile::hInstance, NULL); 
 
-	CheckDlgButton(hDlg, IDC_USE_ID3V2, Profile::blnUseId3v2 ? BST_CHECKED : BST_UNCHECKED);
-	CheckDlgButton(hDlg, IDC_USE_CUE,Profile::blnUseCue ? BST_CHECKED : BST_UNCHECKED);
-	CheckDlgButton(hDlg, IDC_USE_MP3CUE, Profile::blnUseMp3Cue ? BST_CHECKED : BST_UNCHECKED);
+	LVCOLUMN lvc;
+	lvc.mask	= LVCF_WIDTH | LVCF_TEXT;
+	lvc.cx		= 50;
+	lvc.pszText	= "ファイル名";
+	ListView_InsertColumn(hwndList, 0, &lvc);
+	lvc.pszText	= "トラック名";
+	ListView_InsertColumn(hwndList, 1, &lvc);
+	lvc.pszText	= "アーティスト名";
+	ListView_InsertColumn(hwndList, 2, &lvc);
+	lvc.pszText	= "アルバム名";
+	ListView_InsertColumn(hwndList, 3, &lvc);
+	lvc.pszText	= "トラック番号";
+	ListView_InsertColumn(hwndList, 4, &lvc);
+	lvc.pszText	= "年";
+	ListView_InsertColumn(hwndList, 5, &lvc);
+	lvc.pszText	= "コメント";
+	ListView_InsertColumn(hwndList, 6, &lvc);
 
-	tstring s = GetFileVersion(GetModuleFileName(Profile::hInstance));
-	s.Replace(" ", "");
-	s = tstring("ver. ") + s;
-	s = s.Left(s.rfind('.')) + "b";
-	SetDlgString(hDlg, IDC_VERSION, s);
-
-	return FALSE;
+	return 0;
 }
 
 
 /******************************************************************************/
-// OK
+// 廃棄時
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-BOOL AboutDlg::OnOk(HWND hDlg, WPARAM wParam, LPARAM lParam)
+LRESULT InfoWnd::OnDestroy(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
-	EndDialog(hDlg, TRUE);
-	return TRUE;
+	m_hWnd = NULL;
+	return 0;
 }
 
 
 /******************************************************************************/
-// URL をクリック
+// サイズ変更
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-BOOL AboutDlg::OnUrlClicked( HWND hDlg, WPARAM wParam, LPARAM lParam)
+LRESULT InfoWnd::OnSize(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
-	ShellExecute( hDlg, NULL, "http://www.nitoyon.com/", NULL, NULL, SW_SHOWNORMAL) ;
-	return TRUE ;
-}
-
-
-/******************************************************************************/
-// スタティックのカラー
-//============================================================================//
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-BOOL AboutDlg::OnCtlColorStatic( HWND hDlg, WPARAM wParam, LPARAM lParam)
-{
-	HDC hdc = (HDC)wParam ;
-	if( GetDlgItem( hDlg, IDC_URL) == (HWND)lParam)
-	{
-		SetTextColor( hdc, RGB( 0, 0, 255)) ;
-		SetBkMode(hdc, TRANSPARENT);
-		return (BOOL)(HBRUSH)GetStockObject(NULL_BRUSH) ;
-	}
-
-	return FALSE ;
-}
-
-
-/******************************************************************************/
-// リンクのためのサブクラス化
-//============================================================================//
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-LRESULT CALLBACK LinkStaticProc( HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam)
-{
-	switch( uiMsg)
-	{
-		case WM_SETCURSOR :
-		{
-			// 手カーソル読みとり
-			HCURSOR hCurHand	= LoadCursor( Profile::hInstance, MAKEINTRESOURCE( IDC_HANDCUR)) ;
-			SetCursor( hCurHand) ;
-			return 0 ;
-		}
-	}
-
-	return CallWindowProc( wpcStatic, hWnd, uiMsg, wParam, lParam) ;
+	MoveWindow(hwndList, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
+	return 0;
 }

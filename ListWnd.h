@@ -83,6 +83,7 @@ public:
 	void SetSelectedItem( int i) ;
 	void SetCurrentItem( int i) ;
 	void SetSize() ;
+	void EnsureVisible(int i);
 
 // Žæ“¾
 	int GetCurrentItem() const{ return intCurrent ;}

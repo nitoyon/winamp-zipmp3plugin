@@ -67,6 +67,8 @@ BOOL Mp3File::ReadHeader()
 		{
 			CId3tagv2 tagv2 ;
 			tagv2.Load( fzip) ;
+			dwId3v2Size = 0;
+
 			if(tagv2.IsEnable())
 			{
 				blnHasID3Tag = TRUE ;
@@ -76,6 +78,8 @@ BOOL Mp3File::ReadHeader()
 				id3tag.intYear		= atoi( tagv2.GetYear().c_str()) ;
 				id3tag.strComment	= tagv2.GetComment() ;
 				id3tag.intTrackNum	= atoi( tagv2.GetTrackNo().c_str()) ;
+
+				dwId3v2Size = tagv2.GetTotalFrameSize();
 			}
 		}
 	}
@@ -322,7 +326,7 @@ ULONG Mp3File::GetPlayLength()
 	}
 	else if( intBitrate != 0)
 	{
-		return (uiEndPoint - uiStartPoint) * 8 / intBitrate ;
+		return (uiEndPoint - uiStartPoint - dwId3v2Size - (blnHasID3Tag ? 128 : 0)) * 8 / intBitrate ;
 	}
 	else
 	{

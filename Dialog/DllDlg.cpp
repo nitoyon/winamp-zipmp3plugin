@@ -7,7 +7,7 @@
 
 #include "DllDlg.h"
 #include "..\resource.h"
-#include "..\util.h"
+#include "..\util\uPath.h"
 #include "..\Profile.h"
 
 

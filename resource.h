@@ -86,6 +86,7 @@
 #define IDC_TRANSPARENCY                1045
 #define IDD_KEYBOARDLIST                1046
 #define IDC_KEYBOARDLIST                1047
+#define IDC_VERSION                     1048
 #define IDM_DISPTAG                     40001
 #define IDM_EXTRACT                     40002
 #define IDM_PLAY                        40003
@@ -101,18 +102,20 @@
 #define IDM_NORMAL                      40015
 #define IDM_SONGREPEAT                  40016
 #define IDM_ALBUMREPEAT                 40017
-#define IDM_NEXT                        40019
-#define IDM_PREV                        40020
-#define IDM_5PREV                       40021
-#define IDM_5NEXT                       40022
+#define IDM_ENDLESSRANDOM               40018
+#define IDM_ALBUMRANDOM                 40019
+#define IDM_NEXT                        40020
+#define IDM_PREV                        40021
+#define IDM_5PREV                       40022
+#define IDM_5NEXT                       40023
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        130
-#define _APS_NEXT_COMMAND_VALUE         40023
-#define _APS_NEXT_CONTROL_VALUE         1048
+#define _APS_NEXT_COMMAND_VALUE         40025
+#define _APS_NEXT_CONTROL_VALUE         1049
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

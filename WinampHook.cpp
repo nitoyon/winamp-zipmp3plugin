@@ -189,7 +189,7 @@ LRESULT WinampHook::OnKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	// ŽŸ‚Ì‹ÈA‘O‚Ì‹È
 	if( wParam == VK_OEM_COMMA || wParam == VK_OEM_PERIOD)
 	{
-		Controller::GetInstance()->Go( pMainWnd->GetCurSong() + ( wParam == VK_OEM_COMMA ? -1 : 1)) ;
+		Controller::GetInstance()->GoNext(wParam == VK_OEM_PERIOD) ;
 		return 0 ;
 	}
 

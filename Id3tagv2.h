@@ -260,6 +260,8 @@ public:
 
 	DWORD Load(FILE*);	// Ç…Ç∆ÇÊÇÒÇ…ÇÊÇËâ¸ïœ
 
+	DWORD GetTotalFrameSize();
+
 private:
 	DWORD DecodeUnSynchronization(unsigned char *data,DWORD dwSize);
 	DWORD EncodeUnSynchronization(unsigned char *srcData,DWORD dwSize,unsigned char *dstData);
@@ -267,7 +269,6 @@ private:
 	void MakeV2Size(DWORD dwSize,unsigned char size[4]);
 	string GetId3String(const char szId[]);
 	void SetId3String(const char szId[],const char *szString,const char *szDescription = NULL);
-	DWORD GetTotalFrameSize();
 
 	void Release();
 	BOOL m_bEnable;			//ID3v2Ç™ñ≥Ç¢èÍçáÇÕFALSE

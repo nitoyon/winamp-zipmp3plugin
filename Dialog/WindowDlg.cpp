@@ -8,7 +8,7 @@
 #include "WindowDlg.h"
 #include "..\Profile.h"
 #include "..\resource.h"
-#include "..\util.h"
+#include "..\util\uVersion.h"
 #include "..\Controller.h"
 #include "..\MainWnd.h"
 

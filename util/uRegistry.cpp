@@ -1,23 +1,12 @@
 
-// AboutDlg.cpp
+// uRegistry.cpp
+// レジストリラッパークラス
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-#include "AboutDlg.h"
-#include "..\resource.h"
-#include "..\Profile.h"
-#include "..\util\uVersion.h"
-#include "..\util\uPath.h"
-#include "..\util\uWindow.h"
-
-
-/******************************************************************************/
-//		グローバル変数
-/******************************************************************************/
-
-WNDPROC	wpcStatic ;
+#include "uRegistry.h"
 
 
 /******************************************************************************/
@@ -29,7 +18,8 @@ WNDPROC	wpcStatic ;
 // 補足：なし。
 //============================================================================//
 
-AboutDlg::AboutDlg() 
+Registry::Registry()
+: hkey(NULL)
 {
 }
 
@@ -41,127 +31,167 @@ AboutDlg::AboutDlg()
 // 補足：なし。
 //============================================================================//
 
-AboutDlg::~AboutDlg() 
+Registry::~Registry()
 {
+	Close();
 }
 
 
 
 /******************************************************************************/
-//		メッセージハンドラ
+//		レジストリ操作
 /******************************************************************************/
-// メッセージマップ
+// 開く
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-BEGIN_DLG_MESSAGE_MAP(AboutDlgProc, AboutDlg)
-	ON_MESSAGE( WM_INITDIALOG	, OnInitDialog)
-	BEGIN_COMMAND_MAP()
-		ON_COMMAND( IDOK		, OnOk)
-		ON_COMMAND( IDCANCEL		, OnOk)
-		ON_COMMAND( IDC_URL		, OnUrlClicked)
-	END_COMMAND_MAP()
-	ON_COMMAND( WM_CTLCOLORSTATIC		, OnCtlColorStatic)
-END_DLG_MESSAGE_MAP()
-
-
-/******************************************************************************/
-// ダイアログ初期化
-//============================================================================//
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-BOOL AboutDlg::OnInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
+BOOL Registry::Open(HKEY hkeyRoot, PCTSTR pszSubKey, REGSAM sam)
 {
-	// サブクラス化
-	wpcStatic = (WNDPROC)GetWindowLong( GetDlgItem( hDlg, IDC_URL), GWL_WNDPROC) ;
-	SetWindowLong( GetDlgItem( hDlg, IDC_URL) , GWL_WNDPROC, 	(LONG)LinkStaticProc) ;
+	if(hkey)
+	{
+		return FALSE;
+	}
 
-	CheckDlgButton(hDlg, IDC_USE_ID3V2, Profile::blnUseId3v2 ? BST_CHECKED : BST_UNCHECKED);
-	CheckDlgButton(hDlg, IDC_USE_CUE,Profile::blnUseCue ? BST_CHECKED : BST_UNCHECKED);
-	CheckDlgButton(hDlg, IDC_USE_MP3CUE, Profile::blnUseMp3Cue ? BST_CHECKED : BST_UNCHECKED);
+	if(RegOpenKeyEx(hkeyRoot, pszSubKey, 0, sam, &hkey) != ERROR_SUCCESS)
+	{
+		hkey = NULL;
+		return FALSE;
+	}
 
-	tstring s = GetFileVersion(GetModuleFileName(Profile::hInstance));
-	s.Replace(" ", "");
-	s = tstring("ver. ") + s;
-	s = s.Left(s.rfind('.')) + "b";
-	SetDlgString(hDlg, IDC_VERSION, s);
-
-	return FALSE;
-}
-
-
-/******************************************************************************/
-// OK
-//============================================================================//
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-BOOL AboutDlg::OnOk(HWND hDlg, WPARAM wParam, LPARAM lParam)
-{
-	EndDialog(hDlg, TRUE);
 	return TRUE;
 }
 
 
 /******************************************************************************/
-// URL をクリック
+// 閉じる
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-BOOL AboutDlg::OnUrlClicked( HWND hDlg, WPARAM wParam, LPARAM lParam)
+BOOL Registry::Close()
 {
-	ShellExecute( hDlg, NULL, "http://www.nitoyon.com/", NULL, NULL, SW_SHOWNORMAL) ;
-	return TRUE ;
+	if(!hkey)
+	{
+		return TRUE;
+	}
+
+	if(RegCloseKey(hkey) != ERROR_SUCCESS)
+	{
+		return FALSE;
+	}
+
+	hkey = NULL;
+	return TRUE;
 }
 
 
 /******************************************************************************/
-// スタティックのカラー
+// キーの作成
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-BOOL AboutDlg::OnCtlColorStatic( HWND hDlg, WPARAM wParam, LPARAM lParam)
+BOOL Registry::Create(HKEY hkeyRoot, PCTSTR pszSubKey, REGSAM sam)
 {
-	HDC hdc = (HDC)wParam ;
-	if( GetDlgItem( hDlg, IDC_URL) == (HWND)lParam)
+	HKEY hCreatedKey;
+
+	if(RegCreateKeyEx(hkeyRoot, pszSubKey, 0, NULL, 0, sam, NULL, &hCreatedKey, NULL) != ERROR_SUCCESS)
 	{
-		SetTextColor( hdc, RGB( 0, 0, 255)) ;
-		SetBkMode(hdc, TRANSPARENT);
-		return (BOOL)(HBRUSH)GetStockObject(NULL_BRUSH) ;
+		return FALSE;
 	}
 
-	return FALSE ;
+	RegCloseKey(hCreatedKey);
+	return TRUE;
 }
 
 
 /******************************************************************************/
-// リンクのためのサブクラス化
+// キーを削除する
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-LRESULT CALLBACK LinkStaticProc( HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam)
+BOOL Registry::Delete(HKEY hkeyRoot, PCTSTR pszSubKey)
 {
-	switch( uiMsg)
+	if(RegDeleteKey(hkeyRoot, pszSubKey) == ERROR_SUCCESS)
 	{
-		case WM_SETCURSOR :
-		{
-			// 手カーソル読みとり
-			HCURSOR hCurHand	= LoadCursor( Profile::hInstance, MAKEINTRESOURCE( IDC_HANDCUR)) ;
-			SetCursor( hCurHand) ;
-			return 0 ;
-		}
+		return TRUE;
 	}
 
-	return CallWindowProc( wpcStatic, hWnd, uiMsg, wParam, lParam) ;
+	return FALSE;
+}
+
+
+
+/******************************************************************************/
+// 値を読みとり
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL Registry::Read(PCTSTR pszValueName, DWORD* pdwType, BYTE* pByte, DWORD* pdwSize)
+{
+	if(!hkey)
+	{
+		return FALSE;
+	}
+
+	if(RegQueryValueEx(hkey, pszValueName, 0, pdwType, pByte, pdwSize) != ERROR_SUCCESS)
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+/******************************************************************************/
+// 書き込み
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL Registry::Write(PCTSTR pszValueName, DWORD dwType, const BYTE* pByte, DWORD dwSize)
+{
+	if(!hkey)
+	{
+		return FALSE;
+	}
+
+	if(RegSetValueEx(hkey, pszValueName, 0, dwType, pByte, dwSize) != ERROR_SUCCESS)
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+/******************************************************************************/
+// 値を削除
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL Registry::Clear(PCTSTR pszValueName)
+{
+	if(!hkey)
+	{
+		return FALSE;
+	}
+
+	if(RegDeleteValue(hkey, pszValueName) == ERROR_SUCCESS)
+	{
+		return TRUE;
+	}
+
+	return FALSE;
 }

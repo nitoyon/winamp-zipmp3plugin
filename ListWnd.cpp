@@ -245,7 +245,7 @@ void ListWnd::PageUp()
 
 
 /******************************************************************************/
-// 
+// 座標からスクロールバーの場所を計算する
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
@@ -365,11 +365,47 @@ void ListWnd::SetCurrentItem( int i)
 
 	int intPrev = i ;
 	intCurrent = i;
+	EnsureVisible(i);
+
 	InvalidateItem( intPrev) ;
 	if( i != NO_ITEM)
 	{
 		InvalidateItem( i) ;
 	}
+}
+
+
+/******************************************************************************/
+// 見えることを保証する
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void ListWnd::EnsureVisible(int i)
+{
+	if(intScrollPos <= i && i < intScrollPos + intLineCount)
+	{
+		// すでに表示されている
+		return;
+	}
+
+	// もっと前の曲を表示
+	if(intScrollPos > i)
+	{
+		intScrollPos = i - intLineCount / 2;
+	}
+	// もっと先の曲を表示
+	else
+	{
+		intScrollPos = i - (intLineCount + 1) / 2;
+	}
+
+	intScrollPos = (intScrollPos < 0 ? 0 : (intScrollPos > intScrollRange ? intScrollRange : intScrollPos ));
+
+	// 再描画
+	pMainWnd->InvalidateItem( MainWnd::Item::LIST) ;
+	pMainWnd->InvalidateItem( MainWnd::Item::SCROLLBAR) ;
 }
 
 
@@ -450,6 +486,9 @@ LRESULT ListWnd::OnRButtonDown( WPARAM wParam, LPARAM lParam)
 				Controller::GetInstance()->ExtractDetail( i, dwID) ;
 			}
 			break ;
+		case IDM_DISPTAG:
+			Controller::GetInstance()->DisplayInfoWnd();
+			break;
 	}
 
 	return 0 ;
