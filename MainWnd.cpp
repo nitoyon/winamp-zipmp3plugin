@@ -1116,7 +1116,9 @@ void MainWnd::ToggleCompact()
 
 void MainWnd::SetTransparency() const
 {
+#ifdef WS_EX_LAYERED
 	SetLayeredWindowAttributes(m_hWnd, 0, 255 - Profile::intTransparency * 255 / 100, LWA_ALPHA);
+#endif
 }
 
 

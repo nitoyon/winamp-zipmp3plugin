@@ -37,7 +37,7 @@ END
 IDD_WINDOW DIALOGEX 0, 0, 180, 160
 STYLE WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
-FONT 9, "ＭＳ Ｐゴシック"
+FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x1
 BEGIN
     LTEXT           " ZIP.MP3 ウインドウの設定を行います。",IDC_TITLE,0,0,
                     180,14,SS_CENTERIMAGE | SS_SUNKEN
@@ -75,7 +75,7 @@ END
 IDD_SKIN DIALOGEX 0, 0, 180, 152
 STYLE WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
-FONT 9, "ＭＳ Ｐゴシック"
+FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x1
 BEGIN
     LTEXT           " ZIP.MP3 ウインドウのスキンを設定します。",IDC_TITLE,0,
                     0,180,14,SS_CENTERIMAGE | SS_SUNKEN

@@ -58,7 +58,7 @@ LINK32=link.exe
 TargetPath=.\Release\gen_zipalbum.dll
 TargetName=gen_zipalbum
 SOURCE="$(InputPath)"
-PostBuild_Desc=install   <winamp>\Plugins\ 
+PostBuild_Desc=install    <winamp>\Plugins\ 
 PostBuild_Cmds=install.js $(TargetPath) $(TargetName)
 # End Special Build Tool
 

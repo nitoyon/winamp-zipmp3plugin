@@ -6,6 +6,7 @@
 //============================================================================//
 
 #include "ZipFile.h"
+#include <tchar.h>
 
 
 /******************************************************************************/
@@ -53,7 +54,7 @@ UINT WINAPI GetDllType()
 // 補足：この DLL では対応できないファイルのときは FALSE を返す。
 //============================================================================//
 
-BOOL WINAPI ReadHeader(PCTSTR pszBuf)
+BOOL WINAPI ReadHeader(LPCTSTR pszBuf)
 {
 	ZipFile* pZip = ZipFile::GetInstance(pszBuf);
 	return pZip->_ReadHeader();
@@ -86,7 +87,7 @@ UINT WINAPI GetFileCount()
 // 補足：なし。
 //============================================================================//
 
-PCTSTR WINAPI GetFileName(UINT uiIndex)
+LPCTSTR WINAPI GetFileName(UINT uiIndex)
 {
 	ZipFile* pZipFile = ZipFile::GetInstance();
 	if(!pZipFile)

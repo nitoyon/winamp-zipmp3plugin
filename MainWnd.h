@@ -17,6 +17,7 @@
 //		定義
 /******************************************************************************/
 
+// サイズ
 #define  XMIN_BLOCK		5
 #define  YMIN_BLOCK		2
 #define  X_BLOCK_SIZE		25
@@ -27,6 +28,14 @@
 #define  TIMEBAR_WIDTH		94
 
 #define  HOTKEY_SHOW	0
+
+// 仮想キーコード
+#ifndef VK_OEM_COMMA
+#define VK_OEM_COMMA	0xbc
+#endif
+#ifndef VK_OEM_PERIOD
+#define VK_OEM_PERIOD	0xbe
+#endif
 
 class ListWnd ;
 
