@@ -27,6 +27,7 @@ BOOL	Profile::blnShowOnlyArchive;
 BOOL	Profile::blnShowOnlyUncompressed;
 BOOL	Profile::blnAttachToWinamp;
 BOOL	Profile::blnUseTimebar;
+int	Profile::intTransparency;
 
 // フォント
 string	Profile::strListFont;
@@ -97,6 +98,7 @@ void Profile::Save()
 	WriteProfileBln("window", "ShowOnlyUncompressed", 	blnShowOnlyUncompressed, 	strPath) ;
 	WriteProfileBln("window", "AttachToWinamp", 		blnAttachToWinamp, 		strPath) ;
 	WriteProfileBln("window", "UseTimebar", 		blnUseTimebar, 			strPath) ;
+	WriteProfileInt("window", "Transparency", 		intTransparency, 		strPath) ;
 
 	// フォント
 	WriteProfileStr("font", "ListFont",		strListFont, 		strPath);
@@ -174,6 +176,8 @@ void Profile::Load()
 	blnShowOnlyUncompressed	= ReadProfileBln("window", "ShowOnlyUncompressed", strPath, FALSE);
 	blnUseTimebar		= ReadProfileBln("window", "UseTimebar", strPath, TRUE);
 	blnAttachToWinamp	= ReadProfileBln("window", "AttachToWinamp", strPath, TRUE);
+	intTransparency		= ReadProfileInt("window", "Transparency", strPath);
+	intTransparency		= (intTransparency >= 0 && intTransparency <= 100 ? intTransparency : 0);
 
 	// フォント
 	strListFont		= ReadProfileStr("font", "ListFont",		strPath, "ＭＳ Ｐゴシック");
@@ -206,7 +210,7 @@ void Profile::Load()
 	vector<string> vecData = ReadProfileSection("Dll",  strPath);
 	if(vecData.size() == 0)
 	{
-		// 初期化 (<winamp>\Plugin\gen_zipalbum\zip_r.dll をリストに加える)
+		// 初期化 (<winamp>\Plugin\gen_zipalbum\r_zip.dll をリストに加える)
 		char pszPath[ MAX_PATH + 1] ;
 		GetModuleFileName(hInstance, pszPath, MAX_PATH);
 		string strPath = pszPath;

@@ -20,6 +20,7 @@
 class WindowDlg : public ChildDlg
 {
 private:
+	HWND	hwndTransparency;
 
 public:
 // コンストラクタおよびデストラクタ

@@ -51,9 +51,9 @@ BEGIN
             VALUE "InternalName", "r_zip\0"
             VALUE "LegalCopyright", "Copyright (C) 2003 nitoyon\0"
             VALUE "LegalTrademarks", "nitoyon (http://www.nitoyon.com/)\0"
-            VALUE "OriginalFilename", "r_zip.dll\0"
+            VALUE "OriginalFilename", "zip_r.dll\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "r_zip\0"
+            VALUE "ProductName", "zip_r\0"
             VALUE "ProductVersion", "1, 0, 0, 0\0"
             VALUE "SpecialBuild", "\0"
         END

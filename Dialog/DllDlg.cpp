@@ -112,6 +112,7 @@ END_DLG_MESSAGE_MAP()
 
 BOOL DllDlg::OnInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
+	hInstance = Profile::hInstance;
 	hwndList = GetDlgItem(hDlg, IDC_DLL_LIST);
 	ListView_SetExtendedListViewStyleEx(hwndList, LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT, LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT);
 
@@ -125,6 +126,16 @@ BOOL DllDlg::OnInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 	lvcol.pszText = "パス";
 	lvcol.cx = 200;
 	ListView_InsertColumn(hwndList, 1, &lvcol);
+
+	// イメージ追加
+	hImgList = ImageList_Create(16, 16, ILC_COLOR32 | ILC_MASK, 3, 3);
+	HICON hicon;
+	hicon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINDOW));
+	if(hicon) ImageList_AddIcon(hImgList, hicon);
+	hicon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FONT));
+	if(hicon) ImageList_AddIcon(hImgList, hicon);
+	hicon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SKIN));
+	ListView_SetImageList(hwndList, hImgList, LVSIL_SMALL);
 
 	// アイテム追加
 	for(int i = 0; i < Profile::vecHeaderDll.size(); i++)
@@ -372,12 +383,17 @@ BOOL DllDlg::InsertItem(int intIndex, const string& strFileName, BOOL blnChecked
 		}
 	}
 
-	string str = GetFileName(strFileName);
+	string	str = GetFileName(strFileName);
+	BOOL	blnExist = (GetFileAttributes(strFileName.c_str()) != -1);
+
 	LVITEM item;
-	item.mask = LVIF_TEXT | LVIF_PARAM;
+	item.mask = LVIF_TEXT | LVIF_PARAM | LVIF_IMAGE;
 	item.iItem = intIndex;
 	item.iSubItem = 0;
 	item.pszText = (LPTSTR)str.c_str();
+	item.state  = 0;
+	item.stateMask = LVIS_CUT;
+	item.iImage = (blnExist ? 1 : 0);
 	item.lParam = 0;
 	ListView_InsertItem(hwndList, &item);
 	ListView_SetItemText(hwndList, intIndex, 1, (LPTSTR)strFileName.c_str());

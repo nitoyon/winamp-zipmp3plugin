@@ -154,6 +154,8 @@ LRESULT MainWnd::OnCreate( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	hwndWinampPE = FindWindow( "Winamp PE", NULL) ;
 	hwndWinampMB = FindWindow( "Winamp MB", NULL) ;
 
+	// 透明度設定
+	SetTransparency();
 	return 0 ;
 }
 
@@ -1102,6 +1104,19 @@ void MainWnd::ToggleCompact()
 		MoveWindow( m_hWnd, rect.left, rect.top, intWidth, intHeight, TRUE) ;
 		InvalidateRect( m_hWnd, NULL, TRUE) ;
 	}
+}
+
+
+/******************************************************************************/
+// 透明度の設定
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void MainWnd::SetTransparency() const
+{
+	SetLayeredWindowAttributes(m_hWnd, 0, 255 - Profile::intTransparency * 255 / 100, LWA_ALPHA);
 }
 
 

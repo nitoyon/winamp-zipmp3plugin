@@ -220,6 +220,7 @@ BOOL ArchiveFile::ReadHeader()
 
 BOOL ArchiveFile::LoadFunction(HINSTANCE hDll, HeaderDllFunc* pfunc)
 {
+	pfunc->GetDllVersion		= (PGET_DLL_VERSION)		GetProcAddress(hDll, "GetDllVersion");
 	pfunc->GetDllType		= (PGET_DLL_TYPE)		GetProcAddress(hDll, "GetDllType");
 	pfunc->ReadHeader		= (PREAD_HEADER)		GetProcAddress(hDll, "ReadHeader");
 	pfunc->GetFileCount		= (PGET_FILE_COUNT)		GetProcAddress(hDll, "GetFileCount");
@@ -228,7 +229,8 @@ BOOL ArchiveFile::LoadFunction(HINSTANCE hDll, HeaderDllFunc* pfunc)
 	pfunc->GetFileEndPoint		= (PGET_FILE_END_POINT)		GetProcAddress(hDll, "GetFileEndPoint");
 	pfunc->IsCompressed		= (PIS_COMPRESSED)		GetProcAddress(hDll, "IsCompressed");
 
-	if(pfunc->GetDllType		== NULL || 
+	if(pfunc->GetDllVersion		== NULL || 
+	   pfunc->GetDllType		== NULL || 
 	   pfunc->ReadHeader		== NULL || 
 	   pfunc->GetFileCount		== NULL || 
 	   pfunc->GetFileName		== NULL || 
@@ -238,10 +240,13 @@ BOOL ArchiveFile::LoadFunction(HINSTANCE hDll, HeaderDllFunc* pfunc)
 	{
 		return FALSE;
 	}
-	else
+
+	if(pfunc->GetDllVersion() != 0x10)
 	{
-		return TRUE;
+		return FALSE;
 	}
+
+	return TRUE;
 }
 
 

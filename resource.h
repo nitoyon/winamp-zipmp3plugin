@@ -79,6 +79,7 @@
 #define IDC_ONLY_UNCOMPRESSED           1043
 #define IDC_SKIN_BROWSE1                1043
 #define IDC_USE_SKIN_FONT               1044
+#define IDC_TRANSPARENCY                1045
 #define IDM_DISPTAG                     40001
 #define IDM_EXTRACT                     40002
 #define IDM_PLAY                        40003
@@ -98,7 +99,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        127
 #define _APS_NEXT_COMMAND_VALUE         40015
-#define _APS_NEXT_CONTROL_VALUE         1033
+#define _APS_NEXT_CONTROL_VALUE         1046
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

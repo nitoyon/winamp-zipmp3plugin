@@ -3,6 +3,7 @@ LIBRARY	 ZIPMP3
 DESCRIPTION     'archive_header'
 
 EXPORTS
+	GetDllVersion
 	GetDllType
 	ReadHeader
 	GetFileCount

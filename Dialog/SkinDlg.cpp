@@ -6,11 +6,19 @@
 //============================================================================//
 
 #include "SkinDlg.h"
+#include <ShlObj.h>
 #include "..\Profile.h"
 #include "..\util.h"
 #include "..\resource.h"
 #include "..\Controller.h"
 #include "..\MainWnd.h"
+
+
+/******************************************************************************/
+//		プロトタイプ宣言
+/******************************************************************************/
+
+int CALLBACK BrowseProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lpData);
 
 
 /******************************************************************************/
@@ -58,6 +66,8 @@ BEGIN_DLG_MESSAGE_MAP(SkinDlgProc, SkinDlg)
 		ON_COMMAND( IDC_SKIN_WINAMP2	, OnRadioChanged)
 		ON_COMMAND( IDC_SKIN_PLUGIN2	, OnRadioChanged)
 		ON_COMMAND( IDC_SKIN_OTHER2	, OnRadioChanged)
+		ON_COMMAND( IDC_SKIN_BROWSE1	, OnBrowse1)
+		ON_COMMAND( IDC_SKIN_BROWSE2	, OnBrowse2)
 	END_COMMAND_MAP()
 END_DLG_MESSAGE_MAP()
 
@@ -149,4 +159,98 @@ void SkinDlg::DoApply()
 			if(pMainWnd) pMainWnd->UpdateSkin();
 		}
 	}
+}
+
+
+/******************************************************************************/
+// ブラウズボタン１
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL SkinDlg::OnBrowse1(HWND hDlg, WPARAM wParam, LPARAM lParam)
+{
+	string s = DisplayDirList(GetWindowString(GetDlgItem(hDlg, IDC_SKIN_DIR1)));
+	if(s != "")
+	{
+		SetDlgItemText(hDlg, IDC_SKIN_DIR1, s.c_str());
+	}
+
+	return TRUE;
+}
+
+
+/******************************************************************************/
+// ブラウズボタン２
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL SkinDlg::OnBrowse2(HWND hDlg, WPARAM wParam, LPARAM lParam)
+{
+	string s = DisplayDirList(GetWindowString(GetDlgItem(hDlg, IDC_SKIN_DIR2)));
+	if(s != "")
+	{
+		SetDlgItemText(hDlg, IDC_SKIN_DIR2, s.c_str());
+	}
+
+	return TRUE;
+}
+
+
+/******************************************************************************/
+// ブラウズボタン汎用関数
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+string SkinDlg::DisplayDirList(const string& strCurrent)
+{
+	char pszPath[MAX_PATH + 1];
+	strcpy(pszPath, GetDirName(strCurrent).c_str()) ;
+
+	BROWSEINFO bi ;
+	bi.hwndOwner		= m_hWnd;
+	bi.pidlRoot		= NULL ;
+	bi.pszDisplayName	= NULL ;
+	bi.lpszTitle		= "フォルダを選択して下さい" ;
+	bi.ulFlags		= 0x8000 ;//BIF_SHAREABLE ;
+	bi.lpfn			= (BFFCALLBACK)BrowseProc ;
+	bi.lParam		= (LPARAM)pszPath ;
+	bi.iImage		= NULL ;
+
+	LPITEMIDLIST idlist = SHBrowseForFolder( &bi);
+	if( idlist)
+	{
+		char pszPath[MAX_PATH + 1];
+		SHGetPathFromIDList( idlist, pszPath) ;
+		CoTaskMemFree( idlist) ;
+
+		string s = pszPath;
+		return s + '\\';
+	}
+
+	return "";
+}
+
+
+/******************************************************************************/
+// フォルダの選択コールバック
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+int CALLBACK BrowseProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lpData)
+{
+	switch(uMsg)
+	{
+		case BFFM_INITIALIZED:
+			SendMessage(hWnd, BFFM_SETSELECTION, (WPARAM)TRUE, lpData);
+			break;
+	}
+	return 0;
 }

@@ -29,10 +29,11 @@ public:
 	static string strPluginDir ;
 
 // ウインドウ
-	static BOOL blnShowOnlyArchive ;
-	static BOOL blnShowOnlyUncompressed;
-	static BOOL blnAttachToWinamp;
-	static BOOL blnUseTimebar ;
+	static BOOL	blnShowOnlyArchive ;
+	static BOOL	blnShowOnlyUncompressed;
+	static BOOL	blnAttachToWinamp;
+	static BOOL	blnUseTimebar ;
+	static int	intTransparency;
 
 // フォント
 	static string	strListFont;

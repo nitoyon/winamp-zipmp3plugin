@@ -18,6 +18,7 @@
 // ï‚ë´ÅFÇ»ÇµÅB
 //============================================================================//
 
+typedef UINT	(WINAPI *PGET_DLL_VERSION)();
 typedef UINT	(WINAPI *PGET_DLL_TYPE)();
 typedef BOOL	(WINAPI *PREAD_HEADER)(PCTSTR);
 typedef UINT	(WINAPI *PGET_FILE_COUNT)();
@@ -36,6 +37,7 @@ typedef BOOL	(WINAPI *PIS_COMPRESSED)(UINT);
 
 struct HeaderDllFunc
 {
+	PGET_DLL_VERSION	GetDllVersion;
 	PGET_DLL_TYPE		GetDllType;
 	PREAD_HEADER		ReadHeader;
 	PGET_FILE_COUNT		GetFileCount;

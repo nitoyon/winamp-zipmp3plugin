@@ -22,6 +22,8 @@ class DllDlg : public ChildDlg
 private:
 	HWND	hwndList;
 	HWND	hwndToolbar;
+	HIMAGELIST	hImgList;
+	HINSTANCE	hInstance;
 
 public:
 // コンストラクタおよびデストラクタ

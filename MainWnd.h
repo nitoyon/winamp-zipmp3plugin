@@ -129,6 +129,7 @@ public:
 	void ClearList() ;
 	void AddList( const string&, DWORD = 0) ;
 	void ToggleCompact() ;
+	void SetTransparency() const;
 
 // Žæ“¾
 	HWND GetWinampWindow() const{ return hwndWinamp ;}

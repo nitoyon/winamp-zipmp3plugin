@@ -97,7 +97,11 @@ int init()
 	pMainWnd->SetWinampWindow( plugin.hwndParent) ;
 
 	HWND hMainWnd = CreateWindowEx(
-		0,//WS_EX_TOOLWINDOW
+#ifdef WS_EX_LAYERED
+		WS_EX_LAYERED,//WS_EX_TOOLWINDOW
+#else
+		0,
+#endif
 		APP_NAME,
 		NULL,
 		WS_CLIPSIBLINGS, //WS_POPUP, 

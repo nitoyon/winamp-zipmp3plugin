@@ -34,8 +34,11 @@ private:
 
 	BOOL OnInitDialog	(HWND, WPARAM, LPARAM);
 	BOOL OnRadioChanged	(HWND, WPARAM, LPARAM);
+	BOOL OnBrowse1		(HWND, WPARAM, LPARAM);
+	BOOL OnBrowse2		(HWND, WPARAM, LPARAM);
 
 	void SetEnable();
-} ;
+	string DisplayDirList(const string&);
+};
 
 #endif
