@@ -3,6 +3,7 @@
 // Used by resource.rc
 //
 #define IDC_DISPLAY                     3
+#define IDC_APPLY                       3
 #define IDD_DIALOG1                     101
 #define IDD_SETTING                     101
 #define IDR_ITEMPOPUP                   102
@@ -25,6 +26,8 @@
 #define IDI_LIST                        120
 #define IDI_DLL                         121
 #define IDD_MP3                         122
+#define IDI_ICON1                       122
+#define IDD_DLL                         123
 #define IDI_EXPERT                      124
 #define IDI_PATH                        125
 #define IDC_SHOW_ONLY_UNCOMPRESS        1000
@@ -52,6 +55,7 @@
 #define IDC_PANEL                       1026
 #define IDC_COLLAPSE_FONT               1026
 #define IDC_COLLAPSE_FONTSIZE           1027
+#define IDC_DLL_LIST                    1029
 #define IDC_TITLE                       1031
 #define IDC_SKIN_PLUGIN1                1034
 #define IDC_SHOW_ALWAYS                 1035
@@ -87,9 +91,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        116
+#define _APS_NEXT_RESOURCE_VALUE        123
 #define _APS_NEXT_COMMAND_VALUE         40015
-#define _APS_NEXT_CONTROL_VALUE         1029
+#define _APS_NEXT_CONTROL_VALUE         1030
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

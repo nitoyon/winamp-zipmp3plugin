@@ -9,6 +9,9 @@
 #include "..\Profile.h"
 #include "..\util.h"
 #include "..\resource.h"
+#include "..\Controller.h"
+#include "..\MainWnd.h"
+#include "..\ListWnd.h"
 
 
 /******************************************************************************/
@@ -151,10 +154,31 @@ int CALLBACK FontFamEnumProc(ENUMLOGFONTEX* lpelf, NEWTEXTMETRICEX* lpntm, int F
 void FontDlg::DoApply()
 {
 	HWND hDlg = m_hWnd;
+	string	strLF	= Profile::strListFont;
+	string	strCF	= Profile::strCollapseFont;
+	int	intLFS	= Profile::intListFontSize;
+	int	intCFS	= Profile::intCollapseFontSize;
+	BOOL	blnUSF	= Profile::blnUseSkinFont;
 
 	Profile::strListFont		= GetWindowString(GetDlgItem(hDlg, IDC_LIST_FONT));
 	Profile::intListFontSize	= atoi(GetWindowString(GetDlgItem(hDlg, IDC_LIST_FONTSIZE)).c_str());
 	Profile::strCollapseFont	= GetWindowString(GetDlgItem(hDlg, IDC_COLLAPSE_FONT));
 	Profile::intCollapseFontSize	= atoi(GetWindowString(GetDlgItem(hDlg, IDC_COLLAPSE_FONTSIZE)).c_str());
 	Profile::blnUseSkinFont		= IsDlgButtonChecked(hDlg, IDC_USE_SKIN_FONT);
+
+	// •ÏX‚³‚ê‚Ä‚¢‚éê‡
+	if(strLF != Profile::strListFont || strCF != Profile::strCollapseFont
+	|| intLFS != Profile::intListFontSize || intLFS != Profile::intCollapseFontSize || blnUSF != Profile::blnUseSkinFont)
+	{
+		Controller* pController = Controller::GetInstance();
+		if(pController)
+		{
+			MainWnd* pMainWnd = pController->GetWindow();
+			if(pMainWnd)
+			{
+				ListWnd* pListWnd = pMainWnd->GetListWnd();
+				if(pListWnd) pListWnd->SetFont();
+			}
+		}
+	}
 }

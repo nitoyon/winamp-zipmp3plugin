@@ -168,7 +168,7 @@ LRESULT MainWnd::OnCreate( HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 LRESULT MainWnd::OnTimer( HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
-	UpdateSkin() ;
+	UpdateSkin(FALSE) ;
 
 	// çƒê∂íÜÅH
 	if( SendMessage( hwndWinamp, WM_WA_IPC, 0, IPC_ISPLAYING) == 1)

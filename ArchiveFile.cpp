@@ -34,7 +34,6 @@
 ArchiveFile::ArchiveFile( const string& s, UINT u)
 : strArchivePath(s), intKindOfArchive(-1)
 {
-	vecHeaderDll.push_back("n:\\head_zip.dll");
 }
 
 
@@ -81,9 +80,10 @@ BOOL ArchiveFile::ReadHeader()
 	}
 	fclose(file);
 
-	for(i = 0; i < vecHeaderDll.size(); i++)
+	for(i = 0; i < Profile::vecHeaderDll.size(); i++)
 	{
-		hDll = LoadLibrary(vecHeaderDll[i].c_str());
+		string st = Profile::vecHeaderDll[i];
+		hDll = LoadLibrary(Profile::vecHeaderDll[i].c_str());
 		if(hDll == NULL)
 		{
 			continue;
@@ -99,7 +99,7 @@ BOOL ArchiveFile::ReadHeader()
 		intKindOfArchive = i;
 		break;
 	}
-	if(i == vecHeaderDll.size())
+	if(i == Profile::vecHeaderDll.size())
 	{
 		status = Status::NO_HEADER;
 		return FALSE;

@@ -60,9 +60,6 @@ void ListWnd::Init()
 {
 	// フォント作成
 	SetFont() ;
-	hFontSmall = CreateFont( 9, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, 
-		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
-		VARIABLE_PITCH | FF_MODERN, "MS Pゴシック") ;
 
 	hMenuPopup = LoadMenu( Profile::hInstance, MAKEINTRESOURCE( IDR_ITEMPOPUP)) ;
 	hMenuPopup = GetSubMenu( hMenuPopup, 0) ;
@@ -72,7 +69,6 @@ void ListWnd::Init()
 /******************************************************************************/
 // スキンの更新
 //============================================================================//
-// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -100,13 +96,11 @@ void ListWnd::SetSkin( const string& strIni)
 
 void ListWnd::SetFont()
 {
-	if( hFont)
-	{
-		DeleteObject( hFont) ;
-	}
+	if(hFont)	DeleteObject(hFont);
+	if(hFontSmall)	DeleteObject(hFontSmall);
 
 	// フォントサイズ
-	int intFontSize;
+	int intFontSize, intCollapseFontSize;
 	if(Profile::intListFontSize == 0)
 	{
 		intFontSize = GetPrivateProfileInt( "Winamp", "pe_fontsize", 10, Profile::strWinampIniPath.c_str()) ;
@@ -115,6 +109,7 @@ void ListWnd::SetFont()
 	{
 		intFontSize = Profile::intListFontSize;
 	}
+	intCollapseFontSize = Profile::intCollapseFontSize == 0 ? 9 : Profile::intCollapseFontSize;
 
 	// フォント作成
 	hFont = CreateFont(intFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, // DEFAULT_CHARSET
@@ -123,6 +118,16 @@ void ListWnd::SetFont()
 	if(!hFont)
 	{
 		hFont = CreateFont( intFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, 
+			OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
+			VARIABLE_PITCH | FF_MODERN, "ＭＳ Ｐゴシック") ;
+	}
+
+	hFontSmall = CreateFont(intCollapseFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, 
+		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
+		VARIABLE_PITCH | FF_MODERN, Profile::strCollapseFont.c_str()) ;
+	if(!hFontSmall)
+	{
+		hFontSmall = CreateFont(intCollapseFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, 
 			OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
 			VARIABLE_PITCH | FF_MODERN, "ＭＳ Ｐゴシック") ;
 	}
@@ -591,53 +596,51 @@ void ListWnd::DrawCompactText( HDC hdc)
 	for( int i = 0; i < str.size(); i++)
 	{
 		char c = str[ i] ;
-		if( c >= 'A' && c <= 'Z')
+		if(Profile::blnUseSkinFont)
 		{
-			BitBlt( hdc, rc.left, 4, 5, 6, hdcBmp, ( c - 'A') * 5, 0, SRCCOPY) ;
-			rc.left += 5 ;
+			if(c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z')
+			{
+				BitBlt( hdc, rc.left, 4, 5, 6, hdcBmp, (toupper(c) - 'A') * 5, 0, SRCCOPY) ;
+				rc.left += 5 ;
+				continue;
+			}
+			else if(c >= '0' && c <= '9')
+			{
+				BitBlt( hdc, rc.left, 4, 5, 6, hdcBmp, ( c - '0') * 5, 6, SRCCOPY) ;
+				rc.left += 5 ;
+				continue;
+			}
 		}
-		else if( c >= 'a' && c <= 'z')
+
+		char pszBuf[ 3] ;
+		pszBuf[ 0] = str[ i] ;
+		rc.top -= 3;
+		if( i == str.size() - 1)
 		{
-			BitBlt( hdc, rc.left, 4, 5, 6, hdcBmp, ( c - 'a') * 5, 0, SRCCOPY) ;
-			rc.left += 5 ;
-		}
-		else if( c >= '0' && c <= '9')
-		{
-			BitBlt( hdc, rc.left, 4, 5, 6, hdcBmp, ( c - '0') * 5, 6, SRCCOPY) ;
-			rc.left += 5 ;
+			pszBuf[ 1] = '\0';
 		}
 		else
 		{
-			char pszBuf[ 3] ;
-			pszBuf[ 0] = str[ i] ;
-			rc.top -= 3;
-			if( i == str.size() - 1)
-			{
-				pszBuf[ 1] = '\0';
-			}
-			else
-			{
-				pszBuf[ 1] = str[ i + 1] ;
-			}
-			pszBuf[ 2] = '\0' ;
-			// ２バイト文字
-			if( IsDBCSLeadByte( *pszBuf))
-			{
-				DrawText( hdc, pszBuf, -1, &rc, DT_LEFT | DT_END_ELLIPSIS | DT_NOPREFIX) ;
-				i++ ;
-			}
-			// 1バイト文字
-			else
-			{
-				pszBuf[ 1] = '\0' ;
-				DrawText( hdc, pszBuf, -1, &rc, DT_LEFT | DT_END_ELLIPSIS | DT_NOPREFIX) ;
-			}
-
-			SIZE size ;
-			GetTextExtentPoint32( hdc, pszBuf, strlen( pszBuf), &size) ;
-			rc.left += size.cx ;
-			rc.top += 3;
+			pszBuf[ 1] = str[ i + 1] ;
 		}
+		pszBuf[ 2] = '\0' ;
+		// ２バイト文字
+		if( IsDBCSLeadByte( *pszBuf))
+		{
+			DrawText( hdc, pszBuf, -1, &rc, DT_LEFT | DT_END_ELLIPSIS | DT_NOPREFIX) ;
+			i++ ;
+		}
+		// 1バイト文字
+		else
+		{
+			pszBuf[ 1] = '\0' ;
+			DrawText( hdc, pszBuf, -1, &rc, DT_LEFT | DT_END_ELLIPSIS | DT_NOPREFIX) ;
+		}
+
+		SIZE size ;
+		GetTextExtentPoint32( hdc, pszBuf, strlen( pszBuf), &size) ;
+		rc.left += size.cx ;
+		rc.top += 3;
 
 		if( rc.left > rc.right)
 		{

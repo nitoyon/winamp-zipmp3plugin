@@ -55,6 +55,9 @@ string	Profile::strListCompilation ;
 BOOL	Profile::blnListID3 ;
 BOOL	Profile::blnListCompilation ;
 
+// DLL
+vector<string>	Profile::vecHeaderDll;
+vector<BOOL>	Profile::vecUseHeaderDll;
 
 // 場所
 int	Profile::intX = 0 ;
@@ -121,6 +124,17 @@ void Profile::Save()
 	WriteProfileStr("List", "Compilation", 		strListCompilation, 	strPath);
 	WriteProfileBln("List", "useID3", 		blnListID3, 		strPath);
 	WriteProfileBln("List", "useCompilation", 	blnListCompilation, 	strPath);
+
+	// DLL
+	string strData = "";
+	for(int i = 0; i < vecHeaderDll.size(); i++)
+	{
+		char pszBuf[100];
+		wsprintf(pszBuf, "%d", i);
+		strData += string(pszBuf) + "=" + (vecUseHeaderDll[i] ? 'o' : 'x') + '/' + vecHeaderDll[i] + '\0';
+	}
+	const char* p = strData.c_str();
+	WritePrivateProfileSection("Dll", strData.c_str(), strPath.c_str());
 
 	// 場所
 	WriteProfileInt("pos", "x", intX, pszFile) ;
@@ -196,6 +210,38 @@ void Profile::Load()
 	strListCompilation	= ReadProfileStr("List", "Compilation",		strPath, "%TRACK_NUMBER2%. (%ARTIST_NAME%)%TRACK_NAME%") ;
 	blnListID3		= ReadProfileBln("List", "useID3",		strPath, TRUE);
 	blnListCompilation	= ReadProfileBln("List", "useCompilation",	strPath, TRUE);
+
+	// Dll
+	vector<string> vecData = ReadProfileSection("Dll",  strPath);
+	if(vecData.size() == 0)
+	{
+		// 初期化 (<winamp>\Plugin\gen_zipalbum\r_zip.dll をリストに加える)
+		char pszPath[ MAX_PATH + 1] ;
+		GetModuleFileName(hInstance, pszPath, MAX_PATH);
+		string strPath = pszPath;
+		strPath = strPath.substr(0, strPath.rfind("."));
+		strPath += "\\r_zip.dll";
+		vecHeaderDll.push_back(strPath);
+		vecUseHeaderDll.push_back(TRUE);
+	}
+	else
+	{
+		// 読み取り
+		for(int i = 0; i < vecData.size(); i++)
+		{
+			// <num>=[o|x]/<path>
+			string strLine = vecData[i];
+			strLine = strLine.substr(strLine.find('=') + 1);
+			BOOL blnUse = strLine[0] == 'o';	// o ならば利用
+
+			strLine = strLine.substr(strLine.find('/') + 1);
+			if(strLine != "")
+			{
+				vecHeaderDll.push_back(strLine);		// パス
+				vecUseHeaderDll.push_back(blnUse);
+			}
+		}
+	}
 
 	// 場所
 	RECT rc ;
@@ -297,4 +343,47 @@ BOOL Profile::ReadProfileBln(LPTSTR pszSection, LPTSTR pszName, const string& s,
 	char pszBuf[MAX_PATH + 1];
 	GetPrivateProfileString(pszSection, pszName, blnDefault ? "yes" : "no", pszBuf, MAX_PATH, s.c_str()) ;
 	return ( strcmp(pszBuf, "yes") == 0);
+}
+
+
+/******************************************************************************/
+// セクション全体を読み取る
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+vector<string> Profile::ReadProfileSection(LPTSTR pszSection, const string& s)
+{
+	PTSTR pszBuf;
+	DWORD dwSize = 256;
+
+	while(1)
+	{
+		pszBuf = new TCHAR[dwSize];
+		DWORD dwRet = GetPrivateProfileSection(pszSection, pszBuf, dwSize, s.c_str());
+
+		if(dwRet == dwSize - 2)
+		{
+			delete[] pszBuf;
+			continue;
+		}
+
+		break;
+	}
+
+	vector<string> v;
+	const char* p = pszBuf;
+	while(*p)
+	{
+		if(*p == '#' || *p == ';')
+		{
+			p += lstrlen(p) + 1;
+			continue;
+		}
+		v.push_back(p);
+		p += lstrlen(p) + 1;
+	}
+
+	return v;
 }

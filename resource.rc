@@ -103,6 +103,7 @@ FONT 9, "ＭＳ Ｐゴシック"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,7,175,50,14,WS_GROUP
     PUSHBUTTON      "ｷｬﾝｾﾙ",IDCANCEL,64,175,50,14
+    PUSHBUTTON      "適用(&A)",IDC_APPLY,123,175,50,14
     LTEXT           "設定の対象(&L)：",IDC_STATIC,7,7,47,8
     CONTROL         "Tree1",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | 
                     TVS_HASLINES | TVS_SHOWSELALWAYS | TVS_TRACKSELECT | 
@@ -173,6 +174,23 @@ BEGIN
                     5,120,150,10
 END
 
+IDD_DLL DIALOGEX 0, 0, 180, 160
+STYLE WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 9, "ＭＳ Ｐゴシック"
+BEGIN
+    LTEXT           " 読み取りを行う DLL の設定を行います。",IDC_TITLE,0,0,
+                    180,14,SS_CENTERIMAGE | SS_SUNKEN
+    LTEXT           "一覧(&D):",IDC_STATIC,0,20,37,12
+    CONTROL         "List1",IDC_DLL_LIST,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_EDITLABELS | 
+                    WS_BORDER | WS_TABSTOP,0,33,180,97
+    LTEXT           "※ 上の DLL から順番に試します。",IDC_STATIC,6,136,102,
+                    8
+    LTEXT           "※ チェックがついていない DLL は飛ばします。",
+                    IDC_STATIC,6,148,136,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -229,6 +247,12 @@ BEGIN
     BEGIN
         VERTGUIDE, 5
         BOTTOMMARGIN, 135
+    END
+
+    IDD_DLL, DIALOG
+    BEGIN
+        VERTGUIDE, 6
+        BOTTOMMARGIN, 152
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -368,6 +392,7 @@ IDI_LIST                ICON    DISCARDABLE     "list.ico"
 IDI_FONT                ICON    DISCARDABLE     "font.ico"
 IDI_EXPERT              ICON    DISCARDABLE     "expert.ico"
 IDI_DLL                 ICON    DISCARDABLE     "dll.ico"
+IDI_ICON1               ICON    DISCARDABLE     "resource\\icon1.ico"
 #endif    // 日本語 resources
 /////////////////////////////////////////////////////////////////////////////
 

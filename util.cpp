@@ -141,5 +141,5 @@ string GetDirName( const string& strPath)
 string GetFileName( const string& strPath)
 {
 	string strDirName = GetDirName( strPath) ;
-	return strDirName.substr( strDirName.size()) ;
+	return strPath.substr( strDirName.size()) ;
 }

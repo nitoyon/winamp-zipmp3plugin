@@ -187,7 +187,15 @@ SOURCE=.\WindowDlg.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
+SOURCE=..\dll.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\expart.ico
+# End Source File
+# Begin Source File
+
+SOURCE=..\expert.ico
 # End Source File
 # Begin Source File
 
@@ -195,7 +203,15 @@ SOURCE=.\expert1.ico
 # End Source File
 # Begin Source File
 
+SOURCE=..\font.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\font1.ico
+# End Source File
+# Begin Source File
+
+SOURCE=..\resource\hand.cur
 # End Source File
 # Begin Source File
 
@@ -207,11 +223,23 @@ SOURCE=.\icon1.ico
 # End Source File
 # Begin Source File
 
+SOURCE=..\resource\icon1.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\list.ico
 # End Source File
 # Begin Source File
 
+SOURCE=..\list.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\list1.ico
+# End Source File
+# Begin Source File
+
+SOURCE=..\mp3.ico
 # End Source File
 # Begin Source File
 
@@ -223,7 +251,19 @@ SOURCE=.\mp5.ico
 # End Source File
 # Begin Source File
 
+SOURCE=..\path.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\skin.ico
+# End Source File
+# Begin Source File
+
+SOURCE=..\skin.ico
+# End Source File
+# Begin Source File
+
+SOURCE=..\window.ico
 # End Source File
 # Begin Source File
 

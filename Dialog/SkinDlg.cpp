@@ -9,6 +9,9 @@
 #include "..\Profile.h"
 #include "..\util.h"
 #include "..\resource.h"
+#include "..\Controller.h"
+#include "..\MainWnd.h"
+
 
 /******************************************************************************/
 //		コンストラクタおよびデストラクタ
@@ -120,6 +123,11 @@ void SkinDlg::SetEnable()
 
 void SkinDlg::DoApply()
 {
+	int intOld1 = Profile::intSkin1;
+	int intOld2 = Profile::intSkin2;
+	string str1 = Profile::strSkinDir1;
+	string str2 = Profile::strSkinDir2;
+
 	if(IsDlgButtonChecked(m_hWnd, IDC_SKIN_PLUGIN1))	Profile::intSkin1 = 0;
 	else if(IsDlgButtonChecked(m_hWnd, IDC_SKIN_OTHER1))	Profile::intSkin1 = 1;
 
@@ -129,4 +137,16 @@ void SkinDlg::DoApply()
 
 	Profile::strSkinDir1 = GetWindowString(GetDlgItem(m_hWnd, IDC_SKIN_DIR1));
 	Profile::strSkinDir2 = GetWindowString(GetDlgItem(m_hWnd, IDC_SKIN_DIR2));
+
+	// 変更されている場合
+	if(intOld1 != Profile::intSkin1 || intOld2 != Profile::intSkin2 
+	|| str1 != Profile::strSkinDir1 || str2 != Profile::strSkinDir2)
+	{
+		Controller* pController = Controller::GetInstance();
+		if(pController)
+		{
+			MainWnd* pMainWnd = pController->GetWindow();
+			if(pMainWnd) pMainWnd->UpdateSkin();
+		}
+	}
 }

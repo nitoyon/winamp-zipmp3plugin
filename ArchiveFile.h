@@ -33,7 +33,6 @@ private:
 	int	intKindOfArchive;
 
 // Žq‹Ÿ
-	vector<string>	vecHeaderDll;
 	vector<File*>	vecChildFile;
 	vector<UINT>	vecHeadMilisec;
 

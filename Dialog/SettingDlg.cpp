@@ -15,6 +15,7 @@
 #include "FontDlg.h"
 #include "Mp3Dlg.h"
 #include "ListDlg.h"
+#include "DllDlg.h"
 #include "NullDlg.h"
 
 
@@ -74,6 +75,7 @@ BEGIN_DLG_MESSAGE_MAP( SettingDlgProc, SettingDlg)
 	BEGIN_COMMAND_MAP()
 		ON_COMMAND( IDOK		, OnOk)
 		ON_COMMAND( IDCANCEL		, OnCancel)
+		ON_COMMAND( IDC_APPLY		, OnApply)
 	END_COMMAND_MAP()
 END_DLG_MESSAGE_MAP()
 
@@ -99,7 +101,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 		MAKEINTRESOURCE(IDD_SKIN), 
 		MAKEINTRESOURCE(IDD_MP3), 
 		MAKEINTRESOURCE(IDD_LIST), 
-		MAKEINTRESOURCE(IDD_UNAVAILABLE), 
+		MAKEINTRESOURCE(IDD_DLL), 
 		MAKEINTRESOURCE(IDD_UNAVAILABLE), 
 		MAKEINTRESOURCE(IDD_UNAVAILABLE)
 	};
@@ -109,7 +111,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 		SkinDlgProc, 
 		Mp3DlgProc, 
 		ListDlgProc, 
-		NullDlgProc, 
+		DllDlgProc, 
 		NullDlgProc, 
 		NullDlgProc
 	};
@@ -118,7 +120,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	vecChildDlg.push_back(new SkinDlg());
 	vecChildDlg.push_back(new Mp3Dlg());
 	vecChildDlg.push_back(new ListDlg());
-	vecChildDlg.push_back(new NullDlg());
+	vecChildDlg.push_back(new DllDlg());
 	vecChildDlg.push_back(new NullDlg());
 	vecChildDlg.push_back(new NullDlg());
 	
@@ -262,15 +264,7 @@ BOOL SettingDlg::OnTreeNotify(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
 BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
-	// 設定適応
-	for(int i = 0; i < vecChildDlg.size(); i++)
-	{
-		if(vecChildDlg[i])
-		{
-			vecChildDlg[i]->DoApply();
-		}
-	}
-
+	OnApply(hDlg, 0, 0);
 	EndDialog( hDlg, TRUE) ;
 	return TRUE ;
 }
@@ -286,9 +280,31 @@ BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 
 BOOL SettingDlg::OnCancel( HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
-	EndDialog( hDlg, FALSE) ;
-//	hwndStatic = NULL ;
-	return TRUE ;
+	EndDialog( hDlg, FALSE);
+	return TRUE;
+}
+
+
+/******************************************************************************/
+// 適用
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL SettingDlg::OnApply(HWND hDlg, WPARAM wParam, LPARAM lParam)
+{
+	// 設定適応
+	for(int i = 0; i < vecChildDlg.size(); i++)
+	{
+		if(vecChildDlg[i])
+		{
+			vecChildDlg[i]->DoApply();
+		}
+	}
+
+	Profile::Save();
+	return TRUE;
 }
 
 

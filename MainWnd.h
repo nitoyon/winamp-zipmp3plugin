@@ -143,9 +143,10 @@ public:
 	Item GetItem( POINT) ;
 	void InvalidateItem( Item) ;
 
-private:
+
 // •`‰æ
-	void UpdateSkin( BOOL = FALSE) ;
+	void UpdateSkin( BOOL = TRUE) ;
+private:
 	void UnloadSkin();
 	void LoadPluginSkin();
 	void LoadPathSkin(const string&);

@@ -62,6 +62,10 @@ public:
 	static BOOL blnListID3 ;
 	static BOOL blnListCompilation ;
 
+// DLL
+	static vector<string>	vecHeaderDll;
+	static vector<BOOL>	vecUseHeaderDll;
+
 // èÍèä
 	static int intX ;
 	static int intY ;
@@ -79,6 +83,7 @@ private:
 	static int	ReadProfileInt(LPTSTR pszSection, LPTSTR pszName, const string& s, int intDefault = 0);
 	static string	ReadProfileStr(LPTSTR pszSection, LPTSTR pszName, const string& s, const string& strDefault = "");
 	static BOOL	ReadProfileBln(LPTSTR pszSection, LPTSTR pszName, const string& s, BOOL blnDefault = FALSE);
+	static vector<string>	ReadProfileSection(LPTSTR pszSection, const string& s);
 } ;
 
 

@@ -41,6 +41,7 @@ private:
 	BOOL OnTreeNotify	( HWND, WPARAM, LPARAM) ;
 	BOOL OnOk		( HWND, WPARAM, LPARAM) ;
 	BOOL OnCancel		( HWND, WPARAM, LPARAM) ;
+	BOOL OnApply		( HWND, WPARAM, LPARAM) ;
 
 // ‚»‚Ì‘¼
 	void DisplayDlg(int);
