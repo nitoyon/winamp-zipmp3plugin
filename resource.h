@@ -8,9 +8,11 @@
 #define IDR_ITEMPOPUP                   102
 #define IDB_PLEDIT                      103
 #define IDB_TEXT                        104
+#define IDB_POSBAR                      106
 #define IDC_SHOW_ONLY_UNCOMPRESS        1000
 #define IDC_SHOW_ONLY_ZIP2              1001
 #define IDC_SHOW_ONLY_ZIP               1001
+#define IDC_TIMEBAR                     1002
 #define IDC_HOTKEY                      1003
 #define IDC_LIST_NORMAL                 1010
 #define IDC_NORMAL_VARIABLE             1011
@@ -38,7 +40,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        105
+#define _APS_NEXT_RESOURCE_VALUE        107
 #define _APS_NEXT_COMMAND_VALUE         40015
 #define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           101

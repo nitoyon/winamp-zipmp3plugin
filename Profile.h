@@ -2,7 +2,7 @@
 // Profile.h
 // アプリケーションの設定
 //============================================================================//
-// 更新：03/04/11(金)
+// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -26,12 +26,14 @@ public:
 // 参照用
 	static HINSTANCE hInstance ;
 	static string strWinampIniPath ;
+	static string strOriginalSkin ;
 
 // 表示
 	static BOOL blnShowOnlyZip ;
 	static BOOL blnShowOnlyUncompressedZip ;
 	static BOOL blnCountUp ;
 	static BOOL blnCompact ;
+	static BOOL blnShowTimebar ;
 
 // リスト
 	static string strListNormal ;
@@ -39,7 +41,7 @@ public:
 	static string strListCompilation ;
 	static BOOL blnListID3 ;
 	static BOOL blnListCompilation ;
-	
+
 // 場所
 	static int intX ;
 	static int intY ;

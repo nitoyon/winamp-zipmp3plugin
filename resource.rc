@@ -26,41 +26,43 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 // Dialog
 //
 
-IDD_SETTING DIALOG DISCARDABLE  0, 0, 335, 237
+IDD_SETTING DIALOG DISCARDABLE  0, 0, 335, 255
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "設定"
 FONT 9, "ＭＳ Ｐゴシック"
 BEGIN
-    GROUPBOX        "ウインドウ",IDC_STATIC,7,7,195,70
+    GROUPBOX        "ウインドウ",IDC_STATIC,7,7,195,93
     CONTROL         "ZIP 以外では姿を消す(&Z)",IDC_SHOW_ONLY_ZIP,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,13,19,90,10
     CONTROL         "無圧縮のときだけ表示(&U)",IDC_SHOW_ONLY_UNCOMPRESS,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,24,33,90,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,24,32,90,10
     LTEXT           "表示/非表示切り替えのホットキー(&H)\n   → ver 0.2.2 から Alt + M に割り当て",
-                    IDC_STATIC,13,51,131,18
+                    IDC_STATIC,13,75,131,18
     GROUPBOX        "ファイル一覧に表示する文字(&L) [リスト再読込後に有効]",
-                    IDC_STATIC,7,90,195,115
-    EDITTEXT        IDC_LIST_NORMAL,13,104,139,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "変数(&.) >>",IDC_NORMAL_VARIABLE,158,104,37,14
+                    IDC_STATIC,7,111,195,115
+    EDITTEXT        IDC_LIST_NORMAL,13,125,139,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "変数(&.) >>",IDC_NORMAL_VARIABLE,158,125,37,14
     CONTROL         "&ID3v1/v2 タグがある場合は以下を用いる",IDC_CHK_ID3,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,132,134,10
-    EDITTEXT        IDC_LIST_ID3,24,144,128,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "変数(&/) >>",IDC_ID3_VARIABLE,158,144,37,14
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,153,134,10
+    EDITTEXT        IDC_LIST_ID3,24,165,128,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "変数(&/) >>",IDC_ID3_VARIABLE,158,165,37,14
     CONTROL         "曲ごとにアーティスト名が異なる場合(&A)",IDC_CHK_COMPI,
                     "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,13,
-                    170,131,10
-    EDITTEXT        IDC_LIST_COMPI,24,182,128,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "変数(&\\) >>",IDC_COMPI_VARIABLE,158,182,37,14
-    DEFPUSHBUTTON   "OK",IDOK,7,216,50,14
-    PUSHBUTTON      "ｷｬﾝｾﾙ",IDCANCEL,66,216,50,14
-    PUSHBUTTON      "今すぐ表示(&D)",IDC_DISPLAY,127,216,50,14,NOT 
+                    191,131,10
+    EDITTEXT        IDC_LIST_COMPI,24,203,128,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "変数(&\\) >>",IDC_COMPI_VARIABLE,158,203,37,14
+    DEFPUSHBUTTON   "OK",IDOK,7,234,50,14
+    PUSHBUTTON      "ｷｬﾝｾﾙ",IDCANCEL,66,234,50,14
+    PUSHBUTTON      "今すぐ表示(&D)",IDC_DISPLAY,127,234,50,14,NOT 
                     WS_VISIBLE
-    GROUPBOX        "バージョン情報",IDC_STATIC,213,7,115,197
-    LTEXT           "zip.mp3 表示プラグイソ。 ver 0.2.11b",IDC_STATIC,218,20,
+    GROUPBOX        "バージョン情報",IDC_STATIC,213,7,115,219
+    LTEXT           "zip.mp3 表示プラグイソ。 ver 0.2.12b",IDC_STATIC,218,20,
                     106,8
-    LTEXT           "http://www.nitoyon.com/",IDC_STATIC,235,184,75,8
+    LTEXT           "http://www.nitoyon.com/",IDC_STATIC,246,211,75,8
     LTEXT           "姉妹品の MP3アルバムメーカーもよろしく！",IDC_STATIC,
                     218,43,99,24
+    CONTROL         "曲の位置をスライドで表示する(&S)",IDC_TIMEBAR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,53,113,10
 END
 
 
@@ -81,7 +83,7 @@ BEGIN
         VERTGUIDE, 152
         VERTGUIDE, 202
         TOPMARGIN, 7
-        BOTTOMMARGIN, 230
+        BOTTOMMARGIN, 248
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -120,8 +122,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,2,11,0
- PRODUCTVERSION 0,2,11,0
+ FILEVERSION 0,2,12,0
+ PRODUCTVERSION 0,2,12,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -139,14 +141,14 @@ BEGIN
             VALUE "Comments", "zip.mp3 の中身を見せろや(ﾟДﾟ)ｺﾞﾙｧ!!\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "ZIP.MP3 再生プラグイソ。\0"
-            VALUE "FileVersion", "0. 2. 11. 0\0"
+            VALUE "FileVersion", "0. 2. 12. 0\0"
             VALUE "InternalName", "gen_zipalbum\0"
             VALUE "LegalCopyright", "Copyright (C) 2003 nitoyon + 協力者募集中\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "gen_zipalbum.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "  gen_zipalbum\0"
-            VALUE "ProductVersion", "0. 2. 11. 0\0"
+            VALUE "ProductVersion", "0. 2. 12. 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -184,12 +186,6 @@ BEGIN
     BEGIN
         MENUITEM "設定(&S)",                    IDM_SETTING
         MENUITEM SEPARATOR
-        MENUITEM "単曲リピート(&R)",            ID_MENUITEM40006
-        MENUITEM "アルバムリピート(&A)",        ID_MENUITEM40007
-        MENUITEM SEPARATOR
-        MENUITEM "ランダム再生(全曲再生後、次へ)", ID_MENUITEM40010
-        MENUITEM "ランダム再生（アルバム内でずっとランダム）", 
-                                                ID_MENUITEM40011
     END
 END
 
@@ -201,6 +197,7 @@ END
 
 IDB_PLEDIT              BITMAP  DISCARDABLE     "resource\\Pledit.bmp"
 IDB_TEXT                BITMAP  DISCARDABLE     "resource\\Text.bmp"
+IDB_POSBAR              BITMAP  DISCARDABLE     "resource\\Posbar.bmp"
 #endif    // 日本語 resources
 /////////////////////////////////////////////////////////////////////////////
 

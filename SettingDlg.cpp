@@ -1,7 +1,7 @@
 
 // SettingDlg.cpp
 //============================================================================//
-// 更新：03/01/03(金)
+// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -73,7 +73,7 @@ END_DLG_MESSAGE_MAP()
 /******************************************************************************/
 // 初期化
 //============================================================================//
-// 更新：03/01/03(金)
+// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -95,6 +95,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	CheckDlgButton( hDlg, IDC_SHOW_ONLY_UNCOMPRESS, Profile::blnShowOnlyUncompressedZip ? BST_CHECKED : 0) ;
 	CheckDlgButton( hDlg, IDC_CHK_ID3, Profile::blnListID3 ? BST_CHECKED : 0) ;
 	CheckDlgButton( hDlg, IDC_CHK_COMPI, Profile::blnListCompilation ? BST_CHECKED : 0) ;
+	CheckDlgButton( hDlg, IDC_TIMEBAR, Profile::blnShowTimebar ? BST_CHECKED : 0) ;
 
 	// テキスト設定
 	SetDlgItemText( hDlg, IDC_LIST_NORMAL, Profile::strListNormal.c_str()) ;
@@ -110,7 +111,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // OK
 //============================================================================//
-// 更新：02/12/29(日)
+// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -120,6 +121,7 @@ BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	// ダイアログから読みとり
 	Profile::blnShowOnlyZip = IsDlgButtonChecked( hDlg, IDC_SHOW_ONLY_ZIP) ? TRUE : FALSE ;
 	Profile::blnShowOnlyUncompressedZip = IsDlgButtonChecked( hDlg, IDC_SHOW_ONLY_UNCOMPRESS) ? TRUE : FALSE ;
+	Profile::blnShowTimebar = IsDlgButtonChecked( hDlg, IDC_TIMEBAR) ? TRUE : FALSE ;
 	Profile::strListNormal = GetWindowString( GetDlgItem( hDlg, IDC_LIST_NORMAL)) ;
 	Profile::strListID3 = GetWindowString( GetDlgItem( hDlg, IDC_LIST_ID3)) ;
 	Profile::blnListID3 = IsDlgButtonChecked( hDlg, IDC_CHK_ID3) ? TRUE : FALSE ;

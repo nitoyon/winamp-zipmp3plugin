@@ -240,6 +240,10 @@ SOURCE=.\resource\Pledit.bmp
 # End Source File
 # Begin Source File
 
+SOURCE=.\resource\Posbar.bmp
+# End Source File
+# Begin Source File
+
 SOURCE=.\resource\Text.bmp
 # End Source File
 # End Group

@@ -1,7 +1,7 @@
 
 // MainWnd.cpp
 //============================================================================//
-// 更新：03/04/11(金)
+// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -20,13 +20,13 @@
 /******************************************************************************/
 // 
 //============================================================================//
-// 更新：03/04/11(金)
+// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 MainWnd::MainWnd() 
-: hbmpPlaylist( NULL), hbmpText( NULL), strSkinName( ""), strSkinPath( "")
+: hbmpPlaylist( NULL), hbmpText( NULL), hbmpTimebar( NULL), strSkinName( ""), strSkinPath( "")
 , pListWnd( NULL)
 , intMin( -1), intSec( -1)
 , blnResize( FALSE), blnMove( FALSE), blnClose( FALSE), blnScroll( FALSE), blnSnapping( -1)
@@ -62,6 +62,8 @@ MainWnd::MainWnd()
 	intTopPos[  Item::LIST]		= LIST_TOP ;	intBottomPos[ Item::LIST]	= -38 - LIST_XMARGIN ;
 	intLeftPos[ Item::SCROLLBAR]	= -15 ;		intRightPos[  Item::SCROLLBAR]	= -7 ;
 	intTopPos[  Item::SCROLLBAR]	= LIST_TOP ;	intBottomPos[ Item::SCROLLBAR]	= -38 ;
+	intLeftPos[ Item::TIMEBAR]	= -147 ;	intRightPos[  Item::TIMEBAR]	= -52 ;
+	intTopPos[  Item::TIMEBAR]	= -30 ;		intBottomPos[ Item::TIMEBAR]	= -20 ;
 
 	// コンパクト時
 	intLeftPos[ Item::COM_LIST]	= 5 ;	intRightPos[  Item::COM_LIST]	= -29 ;
@@ -611,7 +613,7 @@ LRESULT MainWnd::OnSysKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // 現在のスキン読みとり
 //============================================================================//
-// 更新：02/12/29(日)
+// 更新：03/04/20(日)
 // 概要：スキンが変更されていれば、スキン情報を更新する。
 // 補足：なし。
 //============================================================================//
@@ -619,7 +621,18 @@ LRESULT MainWnd::OnSysKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 void MainWnd::UpdateSkin( BOOL blnForce)
 {
 	char pszBuf[ MAX_PATH + 1] ;
-	string s = (char*)SendMessage( hwndWinamp, WM_WA_IPC,(WPARAM)pszBuf, IPC_GETSKIN) ;
+
+	// スキンのパス取得
+	string s ;
+	if( GetFileAttributes( Profile::strOriginalSkin.c_str()) == -1)
+	{
+		s = (char*)SendMessage( hwndWinamp, WM_WA_IPC,(WPARAM)pszBuf, IPC_GETSKIN) ;
+	}
+	else
+	{
+		s = Profile::strOriginalSkin ;
+	}
+
 	if( blnForce || s != strSkinName)
 	{
 		// オブジェクトの削除
@@ -632,6 +645,11 @@ void MainWnd::UpdateSkin( BOOL blnForce)
 		{
 			DeleteObject( hbmpText) ;
 			hbmpText = NULL ;
+		}
+		if( hbmpTimebar)
+		{
+			DeleteObject( hbmpTimebar) ;
+			hbmpTimebar = NULL ;
 		}
 
 		// デフォルトのスキン
@@ -653,6 +671,12 @@ void MainWnd::UpdateSkin( BOOL blnForce)
 		{
 			hbmpText = (HBITMAP)LoadImage( NULL, strBmp.c_str(), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR | LR_LOADFROMFILE) ;
 		}
+		strBmp = ( strSkinPath + "\\Posbar.bmp") ;
+		dw = GetFileAttributes( strBmp.c_str()) ;
+		if( dw != -1 && ( dw & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
+		{
+			hbmpTimebar = (HBITMAP)LoadImage( NULL, strBmp.c_str(), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR | LR_LOADFROMFILE) ;
+		}
 
 		// 失敗した場合はデフォルトをロード
 		if( hbmpPlaylist == NULL)
@@ -662,6 +686,10 @@ void MainWnd::UpdateSkin( BOOL blnForce)
 		if( hbmpText == NULL)
 		{
 			hbmpText = (HBITMAP)LoadImage( Profile::hInstance, MAKEINTRESOURCE( IDB_TEXT), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR) ;
+		}
+		if( hbmpTimebar == NULL)
+		{
+			hbmpTimebar = (HBITMAP)LoadImage( Profile::hInstance, MAKEINTRESOURCE( IDB_POSBAR), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR) ;
 		}
 
 		// テキストカラー
@@ -766,7 +794,7 @@ void MainWnd::DrawSkinCompact( HDC hdc)
 /******************************************************************************/
 // 時間を表示
 //============================================================================//
-// 更新：03/04/11(金)
+// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -778,8 +806,10 @@ void MainWnd::DrawTime( HDC hdc)
 		return ;
 	}
 
-	HDC hdcBmp = CreateCompatibleDC( hdc);
-	SelectObject( hdcBmp, hbmpText);
+	HDC hdcFont = CreateCompatibleDC( hdc);
+	HDC hdcPos = CreateCompatibleDC( hdc);
+	SelectObject( hdcFont, hbmpText);
+	SelectObject( hdcPos,  hbmpTimebar);
 
 	if(Profile::blnCompact)
 	{
@@ -788,25 +818,43 @@ void MainWnd::DrawTime( HDC hdc)
 		{
 			BitBlt( hdc, intWidth - 60     , 4, 5, 6, hdcBmp, 15 * 5, 6, SRCCOPY) ;
 		}
-		BitBlt( hdc, intWidth - 60 +  5, 4, 5, 6, hdcBmp, ( intMin / 10) * 5, 6, SRCCOPY) ;
-		BitBlt( hdc, intWidth - 60 + 10, 4, 5, 6, hdcBmp, ( intMin % 10) * 5, 6, SRCCOPY) ;
-		BitBlt( hdc, intWidth - 60 + 14, 4, 5, 6, hdcBmp, 12 * 5, 6, SRCCOPY) ;
-		BitBlt( hdc, intWidth - 60 + 18, 4, 5, 6, hdcBmp, ( intSec / 10) * 5, 6, SRCCOPY) ;
-		BitBlt( hdc, intWidth - 60 + 23, 4, 5, 6, hdcBmp, ( intSec % 10) * 5, 6, SRCCOPY) ;*/
+		BitBlt( hdc, intWidth - 60 +  5, 4, 5, 6, hdcFont, ( intMin / 10) * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 60 + 10, 4, 5, 6, hdcFont, ( intMin % 10) * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 60 + 14, 4, 5, 6, hdcFont, 12 * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 60 + 18, 4, 5, 6, hdcFont, ( intSec / 10) * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 60 + 23, 4, 5, 6, hdcFont, ( intSec % 10) * 5, 6, SRCCOPY) ;*/
 	}
 	else
 	{
+		// 時間表示
 		if( !Profile::blnCountUp)
 		{
-			BitBlt( hdc, intWidth - 82     , intHeight - 15, 5, 6, hdcBmp, 15 * 5, 6, SRCCOPY) ;
+			BitBlt( hdc, intWidth - 82     , intHeight - 15, 5, 6, hdcFont, 15 * 5, 6, SRCCOPY) ;
 		}
-		BitBlt( hdc, intWidth - 82 +  5, intHeight - 15, 5, 6, hdcBmp, ( intMin / 10) * 5, 6, SRCCOPY) ;
-		BitBlt( hdc, intWidth - 82 + 10, intHeight - 15, 5, 6, hdcBmp, ( intMin % 10) * 5, 6, SRCCOPY) ;
-		BitBlt( hdc, intWidth - 82 + 18, intHeight - 15, 5, 6, hdcBmp, ( intSec / 10) * 5, 6, SRCCOPY) ;
-		BitBlt( hdc, intWidth - 82 + 23, intHeight - 15, 5, 6, hdcBmp, ( intSec % 10) * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 82 +  5, intHeight - 15, 5, 6, hdcFont, ( intMin / 10) * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 82 + 10, intHeight - 15, 5, 6, hdcFont, ( intMin % 10) * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 82 + 18, intHeight - 15, 5, 6, hdcFont, ( intSec / 10) * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 82 + 23, intHeight - 15, 5, 6, hdcFont, ( intSec % 10) * 5, 6, SRCCOPY) ;
+
+		// バー表示
+		if( Profile::blnShowTimebar)
+		{
+			BitBlt( hdc, intWidth - 147, intHeight - 30, 95, 10, hdcPos, 0, 0, SRCCOPY) ;
+			UINT uiPos = 95 - 30 ;
+			if( Profile::blnCountUp)
+			{
+				uiPos = uiPos * ( intMin * 60 + intSec) * 1000 / dwCurSongLength ;
+			}
+			else
+			{
+				uiPos = uiPos * ( dwCurSongLength - ( intMin * 60 + intSec) * 1000) / dwCurSongLength ;
+			}
+			BitBlt( hdc, intWidth - 147 + uiPos, intHeight - 30, 29, 10, hdcPos, 248, 0, SRCCOPY) ;
+		}
 	}
 
-	DeleteDC( hdcBmp);
+	DeleteDC( hdcFont);
+	DeleteDC( hdcPos);
 }
 
 
@@ -837,7 +885,7 @@ void MainWnd::SetBlockSize( int intNewBlockX, int intNewBlockY)
 /******************************************************************************/
 // 文字設定
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -847,20 +895,22 @@ void MainWnd::SetTime( int _intMin, int _intSec)
 	intMin = _intMin ;
 	intSec = _intSec ;
 	InvalidateItem( Item::TIME) ;
+	InvalidateItem( Item::TIMEBAR) ;
 }
 
 
 /******************************************************************************/
 // カレントアイテムを変更
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-void MainWnd::SetCurSong( int i)
+void MainWnd::SetCurSong( int i, DWORD dw)
 {
 	pListWnd->SetCurrentItem( i) ;
+	dwCurSongLength = dw ;
 }
 
 

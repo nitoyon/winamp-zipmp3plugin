@@ -1,7 +1,7 @@
 
 // Controller.cpp
 //============================================================================//
-// 更新：03/04/11(金)
+// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -191,7 +191,7 @@ void Controller::Go( UINT u)
 		ULONG ulCurFileNum = pZipFile->GetSongIndex( ulMilisec) ;
 		if( pMainWnd->GetCurSong() != ulCurFileNum)
 		{
-			pMainWnd->SetCurSong( ulCurFileNum) ;
+			pMainWnd->SetCurSong( ulCurFileNum, pZipFile->GetChildFile( ulCurFileNum)->GetPlayLength()) ;
 		}
 	}
 }
@@ -354,9 +354,9 @@ void Controller::SetMp3Pos( const string& s, ULONG ulMil)
 	{
 		// ファイル番号更新
 		ULONG ulCurFileNum = pZipFile->GetSongIndex( ulMil) ;
-		if( pMainWnd->GetCurSong() != ulCurFileNum)
+		if( pMainWnd->GetCurSong() != ulCurFileNum && ulCurFileNum < pZipFile->GetChildFileCount())
 		{
-			pMainWnd->SetCurSong( ulCurFileNum) ;
+			pMainWnd->SetCurSong( ulCurFileNum, pZipFile->GetChildFile( ulCurFileNum)->GetPlayLength()) ;
 		}
 
 		// 表示時刻更新
@@ -381,7 +381,7 @@ void Controller::SetMp3Pos( const string& s, ULONG ulMil)
 /******************************************************************************/
 // ファイル情報の更新
 //============================================================================//
-// 更新：03/04/11(金)
+// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -408,13 +408,13 @@ void Controller::UpdateFileInfo( const string& s)
 
 		case ZipFile::Status::NOT_ZIP :
 			pMainWnd->AddList( "ZIP ファイルではありません") ;
-			pMainWnd->SetCurSong( 0) ;
+			pMainWnd->SetCurSong( 0, 0) ;
 			break ;
 
 		case ZipFile::Status::INVALID_HEADER :
 			pMainWnd->AddList( "ZIP ファイルのヘッダ情報の読みとりに失敗しました。") ;
 			pMainWnd->AddList( "正しい ZIP ファイルではないか、このプラグインがヘボい可能性があります。") ;
-			pMainWnd->SetCurSong( 0) ;
+			pMainWnd->SetCurSong( 0, 0) ;
 			break ;
 
 		case ZipFile::Status::UNCOMPRESSED :
@@ -464,6 +464,7 @@ void Controller::UpdateFileInfo( const string& s)
 					pMainWnd->AddList( pFile->GetFileName(), pFile->GetPlayLength()) ;
 				}
 			}
+			pMainWnd->SetCurSong( 0, i > 0 ? pZipFile->GetChildFile( 0)->GetPlayLength() : 0) ;
 			break ;
 		}
 	}

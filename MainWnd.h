@@ -1,7 +1,7 @@
 
 // MainWnd.h
 //============================================================================//
-// 更新：03/04/11(金)
+// 更新：03/04/20(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -24,6 +24,7 @@
 #define  X_BLOCK_CONST		150
 #define  Y_BLOCK_CONST		58
 #define  Y_COMPACT_HEIGHT	14
+#define  TIMEBAR_WIDTH		94
 
 #define  HOTKEY_SHOW	0
 
@@ -46,7 +47,8 @@ public:
 		PAUSE, 		EJECT, 
 		MOVE, 		RESIZE, 
 		TIME,		LIST, 
-		SCROLLBAR,	COM_LIST, 
+		SCROLLBAR,	TIMEBAR, 
+		COM_LIST, 
 		LAST
 	} ;
 
@@ -59,6 +61,7 @@ private:
 
 	HBITMAP		hbmpPlaylist ;
 	HBITMAP		hbmpText ;
+	HBITMAP		hbmpTimebar ;
 	HFONT		hFont;
 	string		strSkinName ;
 	string		strSkinPath ;
@@ -68,6 +71,7 @@ private:
 	int		intWidth ;
 	int		intHeight ;
 
+	DWORD		dwCurSongLength ;
 	int		intMin ;
 	int		intSec ;
 
@@ -119,7 +123,7 @@ public:
 	void SetBlockSize( int, int) ;
 	void SetWinampWindow( HWND h){ hwndWinamp = h ;}
 	void SetTime( int, int) ;
-	void SetCurSong( int) ;
+	void SetCurSong( int, DWORD) ;
 	void ClearList() ;
 	void AddList( const string&, DWORD = 0) ;
 	void ToggleCompact() ;
