@@ -1,7 +1,7 @@
 
 // Controller.cpp
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -79,31 +79,19 @@ Controller* Controller::GetInstance()
 
 void Controller::Go( UINT u)
 {
-/*	if( u <= 0 || u >= pZipFile->GetChildFileCount())
+	if( u < 0 || u >= pZipFile->GetChildFileCount())
 	{
 		return;
 	}
 
-	ulFileNum = u ;
-	for( int i = 0; i <= ulFileNum; i++)
-	{
-		ULONG ul = vecSongHeadTime[ i + 1] ;
-		if( vecSongHeadTime[ i + 1] == 0)
-		{
-			vecSongHeadTime[ i + 1] = vecSongHeadTime[ i] + pZipFile->GetChildFile( i)->GetPlayLength() ;
-		}
-	}
-	ulCurSongLength = vecSongHeadTime[ ulFileNum + 1] - vecSongHeadTime[ ulFileNum] ;
-	ulCurTime = vecSongHeadTime[ ulFileNum] ;
-
-	SendMessage( pMainWnd->GetWinampWindow(), WM_WA_IPC, ulCurTime, IPC_JUMPTOTIME) ;*/
+	SendMessage( pMainWnd->GetWinampWindow(), WM_WA_IPC, pZipFile->GetSongHead( u), IPC_JUMPTOTIME) ;
 }
 
 
 /******************************************************************************/
 // 時刻設定
 //============================================================================//
-// 更新：02/12/23(月)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -112,51 +100,35 @@ void Controller::SetMp3Pos( const string& s, ULONG ulMil)
 {
 	if( strFilePath != s)
 	{
-		strFilePath = s ;
+		UpdateFileInfo( s) ;
 
-		// pZipFile の更新
-		if( pZipFile)
+		if( Profile::blnShowOnlyZip)
 		{
-			delete pZipFile ;
-		}
-		pZipFile = new ZipFile( strFilePath) ;
-		pZipFile->ReadHeader() ;
-
-		// zip ファイルなら
-		if( pZipFile->GetChildFileCount() != 0)
-		{
-			vecSongHeadTime.clear() ;
-			vecSongHeadTime.assign( pZipFile->GetChildFileCount() + 1) ;
-		
-			pMainWnd->ClearList() ;
-			vecSongHeadTime[ 0] = 0 ;
-			for( int i = 0; i < pZipFile->GetChildFileCount(); i++)
-			{
-				pMainWnd->AddList( pZipFile->GetFileName( i)) ;
-				vecSongHeadTime[ i + 1] = vecSongHeadTime[ i] + pZipFile->GetChildFile( i)->GetPlayLength() ;
-			}
-
-			ulFileNum = 0 ;
-			ulCurSongLength = pZipFile->GetChildFile( ulFileNum)->GetPlayLength() ;
+			pMainWnd->ShowWindow( 
+				pZipFile->GetStatus() == ZipFile::Status::UNCOMPRESSED || pZipFile->GetStatus() == ZipFile::Status::COMPRESSED ? 
+					SW_SHOW : SW_HIDE) ;
 		}
 	}
 
-	if( pZipFile->GetChildFileCount() > 0)
+	if( pZipFile->GetStatus() == ZipFile::Status::UNCOMPRESSED)
 	{
-		if( Profile::blnShowOnlyZip)
-		{
-			pMainWnd->ShowWindow( TRUE) ;
-		}
-		
-		ulCurTime = ulMil ;
-		Update() ;
 
-		ULONG u = ( pMainWnd->IsTimeCountup() ? ulCurTime - vecSongHeadTime[ ulFileNum] : vecSongHeadTime[ ulFileNum + 1] - ulCurTime) ;
+		ulCurTime = ulMil ;
+
+		// ファイル番号更新
+		ULONG ulCurFileNum = pZipFile->GetSongIndex( ulCurTime) ;
+		if( ulCurFileNum != ulFileNum)
+		{
+			ulFileNum = ulCurFileNum ;
+			pMainWnd->SetCurSong( ulFileNum) ;
+		}
+
+		// 表示時刻更新
+		ULONG u = pZipFile->GetSongTime( ulCurFileNum, ulCurTime) ;
 		u /= 1000 ;
 		if( ulDisplayTime != u)
 		{
 			pMainWnd->SetTime( u / 60, u % 60) ;
-
 			ulDisplayTime = u ;
 		}
 	}
@@ -178,43 +150,45 @@ void Controller::SetMp3Pos( const string& s, ULONG ulMil)
 // 補足：なし。
 //============================================================================//
 
-void Controller::Update()
+void Controller::UpdateFileInfo( const string& s)
 {
-	// 次の曲に行ったなら
-	if( vecSongHeadTime[ ulFileNum + 1] <= ulCurTime)
+	strFilePath = s ;
+	ulFileNum = 0 ;
+	pMainWnd->SetCurSong( 0) ;
+
+	// pZipFile の更新
+	if( pZipFile)
 	{
-		// 更新
-		while( TRUE)
-		{
-			if( ulFileNum + 1 >= pZipFile->GetChildFileCount())
-			{
-				break ;
-			}
-			ulFileNum++ ;
-
-			ulCurSongLength = pZipFile->GetChildFile( ulFileNum)->GetPlayLength() ;
-			vecSongHeadTime[ ulFileNum + 1] = ulCurSongLength + vecSongHeadTime[ ulFileNum] ;
-
-			if( vecSongHeadTime[ ulFileNum + 1] > ulCurTime)
-			{
-				pMainWnd->SetCurSong( ulFileNum) ;
-				break ;
-			}
-		}
+		delete pZipFile ;
 	}
-	// 巻き戻ったとき
-	else if( vecSongHeadTime[ ulFileNum] > ulCurTime)
-	{
-		ULONG ulTmpFileNum = ulFileNum ;
-		for( UINT i = 0; i < ulTmpFileNum; i++)
-		{
-			if( vecSongHeadTime[ i] <= ulCurTime)
-			{
-				ulFileNum = i ;
-			}
-		}
+	pZipFile = new ZipFile( strFilePath) ;
+	pZipFile->ReadHeader() ;
 
-		ulCurSongLength = vecSongHeadTime[ ulFileNum + 1] - vecSongHeadTime[ ulFileNum] ;
-		pMainWnd->SetCurSong( ulFileNum) ;
+	// zip ファイルなら
+	pMainWnd->ClearList() ;
+	switch( pZipFile->GetStatus())
+	{
+		case ZipFile::Status::OPEN_ERROR :
+			pMainWnd->AddList( "ファイルを開けませんでした") ;
+			break ;
+
+		case ZipFile::Status::NOT_ZIP :
+			pMainWnd->AddList( "ZIP ファイルではありません") ;
+			break ;
+
+		case ZipFile::Status::INVALID_HEADER :
+			pMainWnd->AddList( "ZIP ファイルのヘッダ情報の読みとりに失敗しました。") ;
+			pMainWnd->AddList( "正しい ZIP ファイルではないか、このプラグインがヘボい可能性があります。") ;
+			break ;
+
+		case ZipFile::Status::UNCOMPRESSED :
+		case ZipFile::Status::COMPRESSED :
+		{
+			for( int i = 0; i < pZipFile->GetChildFileCount(); i++)
+			{
+				pMainWnd->AddList( pZipFile->GetFileName( i)) ;
+			}
+			break ;
+		}
 	}
 }

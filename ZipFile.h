@@ -1,7 +1,7 @@
 
 // ZipFile.h
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -19,6 +19,14 @@
 
 class ZipFile : public File
 {
+public:
+	enum Status
+	{
+		OPEN_ERROR,
+		NOT_ZIP,	INVALID_HEADER, 
+		COMPRESSED,	UNCOMPRESSED
+	} ;
+
 private:
 // zip の情報
 	ULONG	ulEof ;
@@ -31,9 +39,11 @@ private:
 	ULONG	ulOffsetStartCentralDir ;
 	USHORT	usZipfileCommentLength ;
 
+	Status	status ;
+
 // 子供
-	vector<ZipChild*>	vecZipChild ;
-	vector<File*>		vecChildFile ;
+	vector< File*>	vecChildList ;
+	vector< ULONG>	vecHeadMilisec ;
 
 public:
 // コンストラクタおよびデストラクタ
@@ -41,7 +51,7 @@ public:
 	~ZipFile() ;
 
 // ヘッダ解析
-	void ReadHeader() ;
+	BOOL ReadHeader() ;
 private:
 	BOOL ReadEndCentralDirRec( FILE*) ;
 	BOOL GetEndCentralDirRecPos( FILE*) ;
@@ -49,11 +59,14 @@ private:
 
 public:
 // データ取得
-	File* GetFileInfo( int) ;
-	ULONG GetPlayLength() ;
-	string GetFileName( int) ;
-	File* GetChildFile( int) ;
-	int GetChildFileCount() const ;
+	ULONG	GetPlayLength() ;
+	string	GetFileName( int) ;
+	File*	GetChildFile( int) ;
+	int	GetChildFileCount() const ;
+	Status	GetStatus() const{ return status ;}
+	int	GetSongIndex( ULONG ulMilisec) ;
+	ULONG	GetSongHead( int) const ;
+	ULONG	GetSongTime( int, ULONG) const ;
 } ;
 
 #endif

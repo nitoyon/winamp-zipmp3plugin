@@ -1,7 +1,7 @@
 
 // Mp3File.cpp
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -16,16 +16,28 @@
 /******************************************************************************/
 // コンストラクタ
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-Mp3File::Mp3File( const string& s, ZipChild* p) 
-: ulMpegHeader( 0), intMpeg( 0), intLayer( 0), intBitrate( 0)
+Mp3File::Mp3File( File* f) 
+: File( f->GetFilePath(), f->GetCentralDir())
+, ulMpegHeader( 0), intMpeg( 0), intLayer( 0), intBitrate( 0)
 {
-	strFilePath = s ;
-	pZipChild = p ;
+	zipheader = f->GetHeader() ;
+	ulFileHead = f->GetFileHead() ;
+
+	// Extra フィールドの最割り当て
+	if( zipheader.usExtraFieldLength)
+	{
+		BYTE* pbyte = zipheader.pbyteExtra ;
+		zipheader.pbyteExtra = new BYTE[ zipheader.usExtraFieldLength] ;
+		for( int i = 0; i < zipheader.usExtraFieldLength; i++)
+		{
+			zipheader.pbyteExtra[ i] = pbyte[ i] ;
+		}
+	}
 }
 
 
@@ -51,7 +63,7 @@ Mp3File::~Mp3File()
 // 補足：なし。
 //============================================================================//
 
-void Mp3File::ReadHeader()
+BOOL Mp3File::ReadHeader()
 {
 	FILE* fzip = fopen( strFilePath.c_str(), "rb") ;
 	if( fzip)
@@ -63,7 +75,7 @@ void Mp3File::ReadHeader()
 		 && fgetc( fzip) == 0x03
 		 && fgetc( fzip) == 0x04)
 		{
-			return ;
+			return FALSE ;
 		}
 
 		if( FindMpegHeader( fzip))
@@ -72,7 +84,10 @@ void Mp3File::ReadHeader()
 		}
 
 		fclose( fzip) ;
+		return TRUE ;
 	}
+
+	return FALSE ;
 }
 
 
@@ -91,8 +106,8 @@ BOOL Mp3File::FindMpegHeader( FILE* fzip)
 	byte[ BUF_SIZE    ] = '\0' ;
 	byte[ BUF_SIZE + 1] = '\0' ;
 
-	ULONG ulPos = pZipChild->ulRelativeOffsetLocalHeader ;
-	ULONG ulEnd = pZipChild->ulRelativeOffsetLocalHeader + pZipChild->ulCompressedSize ;
+	ULONG ulPos = ulFileHead ;
+	ULONG ulEnd = zipheader.ulRelativeOffsetLocalHeader + zipheader.ulCompressedSize ;
 	ULONG ulBufSize = 0 ;
 	while( TRUE)
 	{
@@ -106,7 +121,7 @@ BOOL Mp3File::FindMpegHeader( FILE* fzip)
 			{
 				if( byte[ j] == 0xff)
 				{
-					if( byte[ j + 1] & 0xe0)
+					if( byte[ j + 1] & 0xe0 == 0xe0)
 					{
 						ulMpegHeader = ulPos + j ;
 						return TRUE ;
@@ -199,7 +214,7 @@ BOOL Mp3File::ReadMpegHeader( FILE* fzip)
 /******************************************************************************/
 // ファイルの長さ取得
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -208,7 +223,7 @@ ULONG Mp3File::GetPlayLength()
 {
 	if( intBitrate != 0)
 	{
-		return pZipChild->ulCompressedSize * 8 / intBitrate ;
+		return zipheader.ulCompressedSize * 8 / intBitrate ;
 	}
 	else
 	{

@@ -1,7 +1,7 @@
 
 // File.h
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -16,7 +16,7 @@
 //		構造体定義
 /******************************************************************************/
 
-struct ZipChild
+struct ZipChildHeader
 {
 	USHORT	usVersionMadeBy ;
 	USHORT	usVersionNeededToExtract ;
@@ -34,9 +34,9 @@ struct ZipChild
 	USHORT	usInternalFileAttributes;
 	ULONG	ulExternalFileAttributes;
 	ULONG	ulRelativeOffsetLocalHeader;
-	char*	pszFilename ;
+	string	strFilename ;
 	BYTE*	pbyteExtra ;
-	char*	pszComment ;
+	string	strComment ;
 } ;
 
 
@@ -49,16 +49,27 @@ class File
 protected:
 // ファイル情報
 	string		strFilePath ;
-	ZipChild*	pZipChild ;
+	ULONG		ulCentralDir ;
+	ULONG		ulFileHead ;
+	ZipChildHeader	zipheader ;
 
 public:
 // コンストラクタおよびデストラクタ
-	File(){} ;
-	virtual ~File(){} ;
+	File( const string&, ULONG) ;
+	~File() ;
 
-// 長さ取得
-	virtual void ReadHeader() = 0 ;
-	virtual ULONG GetPlayLength() = 0 ;
+// 取得
+	string GetFilePath() const{ return strFilePath ;}
+	ULONG GetCentralDir() const{ return ulCentralDir ;}
+	ULONG GetFileHead() const{ return ulFileHead ;}
+
+	ZipChildHeader GetHeader() const{ return zipheader ;}
+	BOOL IsCompressed() const{ return zipheader.ulCompressedSize != zipheader.ulUncompressedSize ;}
+	string GetFileName() const{ return string( zipheader.strFilename) ;}
+
+	ULONG GetCentralDirSize() const ;
+	virtual BOOL ReadHeader() ;
+	virtual ULONG GetPlayLength() ;
 } ;
 
 #endif

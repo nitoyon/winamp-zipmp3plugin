@@ -1,7 +1,7 @@
 
 // ZipFile.cpp
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -10,7 +10,7 @@
 #include "Mp3File.h"
 #include "util.h"
 #include "define.h"
-
+#include "Profile.h"
 
 #define  BUF_SIZE		4096
 
@@ -20,29 +20,23 @@
 /******************************************************************************/
 // コンストラクタ
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 ZipFile::ZipFile( const string& s, ULONG u)
-: ulEof( u)
+: File( s, u), ulEof( 0), vecChildList( NULL)
 {
-	strFilePath = s ;
-	pZipChild = NULL ;
-
-	if( ulEof == 0)
+	FILE* fzip = fopen( s.c_str(), "rb") ;
+	if( fzip)
 	{
-		FILE* fzip = fopen( s.c_str(), "rb") ;
-		if( fzip)
+		if( fseek( fzip, 0, SEEK_END) == 0)
 		{
-			if( fseek( fzip, 0, SEEK_END) == 0)
-			{
-				ulEof = ftell( fzip) ;
-			}
-
-			fclose( fzip) ;
+			ulEof = ftell( fzip) ;
 		}
+
+		fclose( fzip) ;
 	}
 }
 
@@ -50,13 +44,17 @@ ZipFile::ZipFile( const string& s, ULONG u)
 /******************************************************************************/
 // デストラクタ
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 ZipFile::~ZipFile() 
 {
+	for( int i = 0; i < vecChildList.size(); i++)
+	{
+		delete vecChildList[ i] ;
+	}
 }
 
 
@@ -65,46 +63,83 @@ ZipFile::~ZipFile()
 /******************************************************************************/
 // 読みとり
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-void ZipFile::ReadHeader()
+BOOL ZipFile::ReadHeader()
 {
 	FILE* fzip = fopen( strFilePath.c_str(), "rb") ;
 	if( fzip)
 	{
-		if( fgetc( fzip) == 0x50
-		 && fgetc( fzip) == 0x4b
-		 && fgetc( fzip) == 0x03
-		 && fgetc( fzip) == 0x04)
-		{
-			// ok
-		}
-		else
-		{
-			return ;
-		}
-
-
-		// 読みとり
-		ReadEndCentralDirRec( fzip) ;
-
-		fseek( fzip, ulOffsetStartCentralDir, SEEK_SET) ;
-		for( UINT i = 0; i < usTotalEntriesCentralDir; i++)
-		{
-			ReadCentralDirectory( fzip) ;
-		}
-
-		fclose( fzip) ;
+		status = Status::OPEN_ERROR ;
 	}
 
-	vecChildFile.assign( vecZipChild.size(), NULL) ;
-	for( int i = 0; i < vecZipChild.size(); i++)
+	// ヘッダチェック
+	if( fgetc( fzip) == 0x50
+	 && fgetc( fzip) == 0x4b
+	 && fgetc( fzip) == 0x03
+	 && fgetc( fzip) == 0x04)
 	{
-		vecChildFile[ i] = NULL ;
+		// ok
 	}
+	else
+	{
+		status = Status::NOT_ZIP ;
+		return FALSE ;
+	}
+
+
+	// 読みとり
+	ReadEndCentralDirRec( fzip) ;
+	fclose( fzip) ;
+
+	ULONG ulHeaderPos = ulOffsetStartCentralDir ;
+	status = Status::COMPRESSED ;
+
+	for( UINT i = 0; i < usTotalEntriesCentralDir; i++)
+	{
+		// 各ファイルのヘッダ読みとり
+		File* pFile = new File( strFilePath, ulHeaderPos) ;
+		if( !pFile->ReadHeader())
+		{
+			status = Status::INVALID_HEADER ;
+			return FALSE ;
+		}
+		ulHeaderPos += pFile->GetCentralDirSize() ;
+
+		// 無圧縮時
+		if( !pFile->IsCompressed())
+		{
+			// 一つでも無圧縮のファイルがあれば、無圧縮とする
+			status = Status::UNCOMPRESSED ;
+
+			// 拡張子が mp3 の時
+			string s = pFile->GetFileName() ;
+			if( s.substr( s.size() - 4) == ".mp3")
+			{
+				// MP3 の情報を取得
+				Mp3File* pMp3File = new Mp3File( pFile) ;
+				pMp3File->ReadHeader() ;
+				delete pFile ;
+				vecChildList.push_back( pMp3File) ;
+			}
+			else
+			{
+				vecChildList.push_back( pFile) ;
+			}
+		}
+	}
+
+	// 曲の長さキャッシュ作成
+	vecHeadMilisec.assign( usTotalEntriesCentralDir + 1) ;
+	for( i = 0; i < usTotalEntriesCentralDir; i++)
+	{
+		vecHeadMilisec[ i] = 0 ;
+	}
+
+	return TRUE ;
 }
 
 
@@ -120,6 +155,7 @@ BOOL ZipFile::ReadEndCentralDirRec( FILE* fzip)
 {
 	if( !GetEndCentralDirRecPos( fzip))
 	{
+		status = Status::INVALID_HEADER ;
 		return FALSE ;
 	}
 
@@ -203,118 +239,11 @@ BOOL ZipFile::GetEndCentralDirRecPos( FILE* fzip)
 
 
 /******************************************************************************/
-// Central Directoryの読みとり
-//============================================================================//
-// 更新：02/12/22(日)
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-BOOL ZipFile::ReadCentralDirectory( FILE* fzip)
-{
-	// ヘッダのチェック
-	if( fgetc( fzip) == 0x50 && 
-	    fgetc( fzip) == 0x4b && 
-	    fgetc( fzip) == 0x01 && 
-	    fgetc( fzip) == 0x02)
-	{
-		// no problem
-	}
-	else
-	{
-		return FALSE ;
-	}
-
-	// 読みとり開始
-	BYTE byte[ CENTRAL_DIR_SIZE] ;
-	fread( byte, sizeof( BYTE), CENTRAL_DIR_SIZE, fzip) ;
-
-	// ヘッダの読みとり
-	ZipChild* pzc = new ZipChild ;
-	ZeroMemory( pzc, sizeof( ZipChild)) ;
-	pzc->usVersionMadeBy 			= makeword( &byte[ C_VERSION_MADE_BY_0]) ;
-	pzc->usVersionNeededToExtract		= makeword( &byte[ C_VERSION_NEEDED_TO_EXTRACT_0]) ;
-	pzc->usGeneralPurposeBitFlag		= makeword( &byte[ C_GENERAL_PURPOSE_BIT_FLAG]) ;
-	pzc->usCompressionMethod		= makeword( &byte[ C_COMPRESSION_METHOD]) ;
-	pzc->usLastModFileTime			= makeword( &byte[ C_LAST_MOD_FILE_TIME]) ;
-	pzc->usLastModFileDate			= makeword( &byte[ C_LAST_MOD_FILE_DATE]) ;
-	pzc->ulCrc32				= makelong( &byte[ C_CRC32]) ;
-	pzc->ulCompressedSize			= makelong( &byte[ C_COMPRESSED_SIZE]) ;
-	pzc->ulUncompressedSize			= makelong( &byte[ C_UNCOMPRESSED_SIZE]) ;
-	pzc->usFilenameLength			= makeword( &byte[ C_FILENAME_LENGTH]) ;
-	pzc->usExtraFieldLength			= makeword( &byte[ C_EXTRA_FIELD_LENGTH]) ;
-	pzc->usFileCommentLength		= makeword( &byte[ C_FILE_COMMENT_LENGTH]) ;
-	pzc->usDiskNumberStart			= makeword( &byte[ C_DISK_NUMBER_START]) ;
-	pzc->usInternalFileAttributes		= makeword( &byte[ C_INTERNAL_FILE_ATTRIBUTES]) ;
-	pzc->ulExternalFileAttributes		= makelong( &byte[ C_EXTERNAL_FILE_ATTRIBUTES]) ;
-	pzc->ulRelativeOffsetLocalHeader	= makelong( &byte[ C_RELATIVE_OFFSET_LOCAL_HEADER]) ;
-
-	// ファイル名読みとり
-	if( pzc->usFilenameLength > 0)
-	{
-		char* pszFilename = new char[ pzc->usFilenameLength + 1] ;
-		fread( pszFilename, sizeof( char), pzc->usFilenameLength, fzip) ;
-		pszFilename[ pzc->usFilenameLength] = '\0' ;
-		pzc->pszFilename = pszFilename ;
-	}
-
-	// 拡張領域
-	if( pzc->usExtraFieldLength > 0)
-	{
-		BYTE* pbyte = new BYTE[ pzc->usExtraFieldLength] ;
-		fread( pbyte, sizeof( BYTE), pzc->usExtraFieldLength, fzip) ;
-		pzc->pbyteExtra = pbyte ;
-	}
-
-	// コメント
-	if( pzc->usFileCommentLength > 0)
-	{
-		char* pszComment = new char[ pzc->usFileCommentLength + 1] ;
-		fread( pszComment, sizeof( char), pzc->usFileCommentLength, fzip) ;
-		pszComment[ pzc->usFileCommentLength] = '\0' ;
-		pzc->pszComment = pszComment ;
-	}
-
-	vecZipChild.push_back( pzc) ;
-	return TRUE ;
-}
-
-
-/******************************************************************************/
-//		ファイル解析
-/******************************************************************************/
-// ファイル解析
-//============================================================================//
-// 更新：02/12/22(日)
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-File* ZipFile::GetFileInfo( int i)
-{
-	FILE* fzip = fopen( strFilePath.c_str(), "rb") ;
-	if( !fzip)
-	{
-		return NULL ;
-	}
-
-	if( !vecChildFile[ i])
-	{
-		Mp3File* pMp3 = new Mp3File( strFilePath, vecZipChild[ i]) ;
-		pMp3->ReadHeader() ;
-		vecChildFile[ i] = pMp3 ;
-	}
-
-	return vecChildFile[ i] ;
-}
-
-
-/******************************************************************************/
 //		データ取得
 /******************************************************************************/
 // 再生時間取得
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -323,16 +252,12 @@ ULONG ZipFile::GetPlayLength()
 {
 	ULONG ulPlayLength = 0 ;
 
-	for( int i = 0; i < vecChildFile.size(); i++)
+	for( int i = 0; i < usTotalEntriesCentralDir; i++)
 	{
-		if( !vecChildFile[ i])
+		if( !vecChildList[ i])
 		{
-			Mp3File* pMp3 = new Mp3File( strFilePath, vecZipChild[ i]) ;
-			pMp3->ReadHeader() ;
-			vecChildFile[ i] = pMp3 ;
+			ulPlayLength += vecChildList[ i]->GetPlayLength() ;
 		}
-
-		ulPlayLength += vecChildFile[ i]->GetPlayLength() ;
 	}
 
 	return ulPlayLength ;
@@ -342,33 +267,36 @@ ULONG ZipFile::GetPlayLength()
 /******************************************************************************/
 // ファイル名取得
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 string ZipFile::GetFileName( int i)
 {
-	return vecZipChild[ i]->pszFilename ;
+	if( i < 0 && i >= usTotalEntriesCentralDir)
+	{
+		return "" ;
+	}
+	return vecChildList[ i]->GetFileName() ;
 }
 
 
 /******************************************************************************/
 // 子供ファイルの取得
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 File* ZipFile::GetChildFile( int i)
 {
-	if( vecChildFile[ i] == NULL)
+	if( i < 0 && i >= usTotalEntriesCentralDir)
 	{
-		GetFileInfo( i) ;
+		return NULL ;
 	}
-
-	return vecChildFile[ i] ;
+	return vecChildList[ i] ;
 }
 
 
@@ -382,5 +310,83 @@ File* ZipFile::GetChildFile( int i)
 
 int ZipFile::GetChildFileCount() const
 {
-	return vecChildFile.size() ;
+	return usTotalEntriesCentralDir ;
+}
+
+
+/******************************************************************************/
+// ミリ秒から曲番号を取得
+//============================================================================//
+// 更新：02/12/26(木)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+int ZipFile::GetSongIndex( ULONG ulMilisec)
+{
+	if( vecHeadMilisec.size() != usTotalEntriesCentralDir + 1)
+	{
+		return -1 ;
+	}
+
+	for( int i = 0; i < vecHeadMilisec.size(); i++)
+	{
+		// 未登録の場合はキャッシュに登録
+		if( vecHeadMilisec[ i + 1] == 0)
+		{
+			vecHeadMilisec[ i + 1] = vecHeadMilisec[ i] + vecChildList[ i]->GetPlayLength() ;
+		}
+
+		if( ulMilisec < vecHeadMilisec[ i + 1])
+		{
+			return i ;
+		}
+	}
+
+	return vecHeadMilisec.size() - 1 ;
+}
+
+
+/******************************************************************************/
+// 曲番号を取得
+//============================================================================//
+// 更新：02/12/26(木)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+ULONG ZipFile::GetSongHead( int i) const
+{
+	if( i < 0 || i >= vecHeadMilisec.size())
+	{
+		return 0 ;
+	}
+
+	return vecHeadMilisec[ i] ;
+}
+
+
+/******************************************************************************/
+// 曲の時間を取得
+//============================================================================//
+// 更新：02/12/26(木)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+ULONG ZipFile::GetSongTime( int intSongIndex, ULONG ulMilisec) const
+{
+	if( intSongIndex < 0 || intSongIndex >= vecHeadMilisec.size())
+	{
+		return 0 ;
+	}
+
+	if( Profile::blnCountUp)
+	{
+		return ulMilisec - vecHeadMilisec[ intSongIndex] ;
+	}
+	else
+	{
+		return vecHeadMilisec[ intSongIndex + 1] - ulMilisec ;
+	}
 }

@@ -96,15 +96,15 @@ SOURCE=.\Controller.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\File.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\main.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\MainWnd.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\MainWnd.h
 # End Source File
 # Begin Source File
 
@@ -149,6 +149,10 @@ SOURCE=.\GEN.H
 # Begin Source File
 
 SOURCE=.\main.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MainWnd.h
 # End Source File
 # Begin Source File
 

@@ -22,6 +22,7 @@ string		Profile::strDefaultSkin = "" ;
 
 // リスト
 BOOL	Profile::blnShowOnlyZip = FALSE ;
+BOOL	Profile::blnCountUp = FALSE ;
 
 // 場所
 int	Profile::intX = 0 ;
@@ -56,6 +57,7 @@ void Profile::Save()
 
 	// リスト
 	WritePrivateProfileString( "Display", "ShowOnlyZip", blnShowOnlyZip ? "yes" : "no", pszFile) ;
+	WritePrivateProfileString( "Display", "CountUp", blnCountUp ? "yes" : "no", pszFile) ;
 
 	// 場所
 	WriteProfile( pszFile, "pos", "x", intX) ;
@@ -91,6 +93,8 @@ void Profile::Load()
 	// 表示
 	GetPrivateProfileString( "Display", "ShowOnlyZip", "no", pszBuf, MAX_PATH, pszFile) ;
 	blnShowOnlyZip = ( strcmp( pszBuf, "yes") == 0) ;
+	GetPrivateProfileString( "Display", "CountUp", "yes", pszBuf, MAX_PATH, pszFile) ;
+	blnCountUp = ( strcmp( pszBuf, "yes") == 0) ;
 
 	// 場所
 	intX = GetPrivateProfileInt( "pos", "x", 50, pszFile) ;

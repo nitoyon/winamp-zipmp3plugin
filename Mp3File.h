@@ -1,7 +1,7 @@
 
 // Mp3File.h
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -27,11 +27,11 @@ private:
 
 public:
 // コンストラクタおよびデストラクタ
-	Mp3File( const string&, ZipChild*) ;
+	Mp3File( File*) ;
 	~Mp3File() ;
 
 // ヘッダから情報取得
-	void ReadHeader() ;
+	BOOL ReadHeader() ;
 private:
 	BOOL FindMpegHeader( FILE*) ;
 	BOOL ReadMpegHeader( FILE*) ;

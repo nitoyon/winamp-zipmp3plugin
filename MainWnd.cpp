@@ -1,7 +1,7 @@
 
 // MainWnd.cpp
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -26,7 +26,7 @@
 MainWnd::MainWnd() 
 : hbmpPlaylist( NULL), hbmpText( NULL), strSkinName( ""), strSkinPath( "")
 , intMin( -1), intSec( -1)
-, blnResize( FALSE), blnMove( FALSE), blnClose( FALSE), blnScroll( FALSE), blnTimeCountup( TRUE)
+, blnResize( FALSE), blnMove( FALSE), blnClose( FALSE), blnScroll( FALSE)
 , intListSelected( 0), intCurrent( 0)
 {
 	intWidth  = X_BLOCK_CONST + X_BLOCK_SIZE * Profile::intBlockX ;
@@ -226,7 +226,7 @@ LRESULT MainWnd::OnDestroy( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // マウスダウン
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -260,7 +260,7 @@ LRESULT MainWnd::OnLButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		}
 
 		case TIME :
-			blnTimeCountup = !blnTimeCountup ;
+			Profile::blnCountUp = !Profile::blnCountUp ;
 			InvalidateItem( Item::TIME) ;
 			break ;
 
@@ -358,7 +358,7 @@ LRESULT MainWnd::OnMouseMove( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // 現在のスキン読みとり
 //============================================================================//
-// 更新：02/12/23(月)
+// 更新：02/12/26(木)
 // 概要：スキンが変更されていれば、スキン情報を更新する。
 // 補足：なし。
 //============================================================================//
@@ -415,6 +415,8 @@ void MainWnd::UpdateSkin()
 		colNormalBG = GetColor( pszBuf) ;
 		GetPrivateProfileString( "Text", "SelectedBG", "#ffffff", pszBuf, MAX_PATH, strIni.c_str()) ;
 		colSelectedBG = GetColor( pszBuf) ;
+
+		InvalidateRect( m_hWnd, NULL, TRUE) ;
 	}
 }
 
@@ -563,7 +565,7 @@ void MainWnd::DrawTime( HDC hdc)
 	HDC hdcBmp = CreateCompatibleDC( hdc);
 	SelectObject( hdcBmp, hbmpText);
 
-	if( !blnTimeCountup)
+	if( !Profile::blnCountUp)
 	{
 		BitBlt( hdc, intWidth - 82     , intHeight - 15, 5, 6, hdcBmp, 15 * 5, 6, SRCCOPY) ;
 	}

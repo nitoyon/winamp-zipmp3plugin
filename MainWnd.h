@@ -1,7 +1,7 @@
 
 // MainWnd.h
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/26(木)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -75,7 +75,6 @@ private:
 	POINT		ptOffsetMove ;
 	BOOL		blnClose ;
 	BOOL		blnScroll ;
-	BOOL		blnTimeCountup ;
 
 	int		intListSelected ;
 	int		intCurrent ;
@@ -100,7 +99,6 @@ public:
 	void AddList( const string&) ;
 
 // 取得
-	BOOL IsTimeCountup() const{ return blnTimeCountup ;}
 	HWND GetWinampWindow() const{ return hwndWinamp ;}
 
 // メッセージハンドラ
