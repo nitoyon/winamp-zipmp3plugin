@@ -100,6 +100,9 @@ int init()
 	MainWnd* pMainWnd = new MainWnd() ;
 	pMainWnd->SetWinampWindow( plugin.hwndParent) ;
 
+	Controller* pController = Controller::GetInstance() ;
+	pController->SetWindow( pMainWnd) ;
+
 	HWND hMainWnd = CreateWindowEx(
 		WS_EX_LAYERED,//WS_EX_TOOLWINDOW
 		APP_NAME,
@@ -117,9 +120,6 @@ int init()
 		MessageBox( plugin.hwndParent,"Error creating window","エラー",MB_OK);
 		return 1;
 	}
-
-	Controller* pController = Controller::GetInstance() ;
-	pController->SetWindow( pMainWnd) ;
 
 	// フック開始
 	WinampHook* pwh = new WinampHook( pMainWnd) ;

@@ -85,6 +85,11 @@ public:
 	static int intY ;
 	static int intBlockX ;
 	static int intBlockY ;
+	static int intInfoX ;
+	static int intInfoY ;
+	static int intInfoWidth ;
+	static int intInfoHeight ;
+	static BOOL blnInfoVisible;
 
 // “Ç‚İ‘‚«
 	static void Save() ;

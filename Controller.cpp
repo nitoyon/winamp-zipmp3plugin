@@ -34,7 +34,8 @@ Controller* Controller::pInstance = NULL ;
 //============================================================================//
 
 Controller::Controller() 
-: strFilePath( ""), strPrevTmpPath( ""), pArchiveFile( NULL), blnUseHotKey( FALSE)
+: pMainWnd(NULL), pInfoWnd(NULL)
+, strFilePath( ""), strPrevTmpPath( ""), pArchiveFile( NULL), blnUseHotKey( FALSE)
 , blnAlbumSoonEnds(FALSE), uiLastChangedTickCount(0)
 , blnIsProcessingSetMp3Pos(FALSE)
 {
@@ -640,6 +641,9 @@ void Controller::UpdateFileInfo( const string& s)
 			break ;
 		}
 	}
+
+	// ファイル情報ウインドウを更新
+	if(pInfoWnd)	pInfoWnd->SetArchiveFile(pArchiveFile);
 }
 
 
@@ -714,7 +718,23 @@ void Controller::DisplayInfoWnd()
 {
 	if(pInfoWnd)
 	{
-		pInfoWnd->SetArchiveFile(pArchiveFile);
 		pInfoWnd->Create();
+		pInfoWnd->SetArchiveFile(pArchiveFile);
+	}
+}
+
+
+/******************************************************************************/
+// 情報ウインドウを非表示にする
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void Controller::CloseInfoWnd()
+{
+	if(pInfoWnd)
+	{
+		pInfoWnd->Close();
 	}
 }

@@ -31,7 +31,13 @@ public:
 // コンストラクタおよびデストラクタ
 	InfoWnd() ;
 	~InfoWnd() ;
+
+// 表示
 	HWND Create();
+	void Close();
+
+// ウインドウハンドル
+	HWND GetHwnd() const{return m_hWnd;}
 
 // アーカイブファイル関係
 	void SetArchiveFile(ArchiveFile*);
@@ -42,9 +48,10 @@ private:
 
 	LRESULT OnCreate	( HWND, WPARAM, LPARAM) ;
 	LRESULT OnSize		( HWND, WPARAM, LPARAM) ;
+	LRESULT OnMove		( HWND, WPARAM, LPARAM) ;
 	LRESULT OnDestroy	( HWND, WPARAM, LPARAM) ;
-	LRESULT OnKeyDown	( HWND, WPARAM, LPARAM) ;
-	LRESULT OnSysKeyDown	( HWND, WPARAM, LPARAM) ;
+	LRESULT OnClose		( HWND, WPARAM, LPARAM) ;
+	LRESULT OnChangePos	( HWND, WPARAM, LPARAM) ;
 } ;
 
 #endif

@@ -58,7 +58,7 @@ LINK32=link.exe
 TargetPath=.\Release\zip_r.dll
 TargetName=zip_r
 SOURCE="$(InputPath)"
-PostBuild_Desc=install   <winamp>\Plugins\ 
+PostBuild_Desc=install    <winamp>\Plugins\ 
 PostBuild_Cmds=..\install.js $(TargetPath) $(TargetName)
 # End Special Build Tool
 

@@ -66,6 +66,11 @@ int	Profile::intX = 0 ;
 int	Profile::intY = 0 ;
 int	Profile::intBlockX = 0 ;
 int	Profile::intBlockY = 0 ;
+int	Profile::intInfoX;
+int	Profile::intInfoY;
+int	Profile::intInfoWidth;
+int	Profile::intInfoHeight;
+BOOL	Profile::blnInfoVisible;
 BOOL	Profile::blnCountUp;
 BOOL	Profile::blnCompact;
 
@@ -121,12 +126,12 @@ void Profile::Save()
 	// MP3
 	WriteIniBln("mp3", "UseId3v2", 		blnUseId3v2, 	strPath);
 	WriteIniBln("mp3", "UseCue", 		blnUseCue, 	strPath);
-	WriteIniBln("mp3", "UseMp3Cue", 		blnUseMp3Cue, 	strPath);
+	WriteIniBln("mp3", "UseMp3Cue", 	blnUseMp3Cue, 	strPath);
 
 	// リスト
 	WriteIniStr("List", "Normal", 		strListNormal, 		strPath);
-	WriteIniStr("List", "ID3", 			strListID3, 		strPath);
-	WriteIniStr("List", "Compilation", 		strListCompilation, 	strPath);
+	WriteIniStr("List", "ID3", 		strListID3, 		strPath);
+	WriteIniStr("List", "Compilation", 	strListCompilation, 	strPath);
 	WriteIniBln("List", "useID3", 		blnListID3, 		strPath);
 	WriteIniBln("List", "useCompilation", 	blnListCompilation, 	strPath);
 
@@ -142,12 +147,17 @@ void Profile::Save()
 	WritePrivateProfileSection("Dll", strData.c_str(), strPath.c_str());
 
 	// キャッシュ
-	WriteIniInt("pos", "x", intX, pszFile) ;
-	WriteIniInt("pos", "y", intY, pszFile) ;
-	WriteIniInt("pos", "width", intBlockX, pszFile) ;
-	WriteIniInt("pos", "height", intBlockY, pszFile) ;
-	WriteIniBln("Display", "CountUp", blnCountUp, pszFile) ;
-	WriteIniBln("Display", "compact", blnCompact, pszFile) ;
+	WriteIniInt("pos", "x",			intX,		pszFile) ;
+	WriteIniInt("pos", "y",			intY,		pszFile) ;
+	WriteIniInt("pos", "width",		intBlockX, 	pszFile) ;
+	WriteIniInt("pos", "height",		intBlockY, 	pszFile) ;
+	WriteIniInt("pos", "info.x",		intInfoX, 	pszFile) ;
+	WriteIniInt("pos", "info.y",		intInfoY, 	pszFile) ;
+	WriteIniInt("pos", "info.width",	intInfoWidth, 	pszFile) ;
+	WriteIniInt("pos", "info.height",	intInfoHeight, 	pszFile) ;
+	WriteIniBln("Display", "info",		blnInfoVisible,	pszFile) ;
+	WriteIniBln("Display", "CountUp",	blnCountUp, 	pszFile) ;
+	WriteIniBln("Display", "compact",	blnCompact, 	pszFile) ;
 
 }
 
@@ -250,6 +260,11 @@ void Profile::Load()
 	intY		= ReadIniInt("pos", "y", strPath, 30) ;
 	intBlockX	= ReadIniInt("pos", "width", strPath, 5) ;
 	intBlockY	= ReadIniInt("pos", "height", strPath, 3) ;
+	intInfoX	= ReadIniInt("pos", "info.x", strPath, 100) ;
+	intInfoY	= ReadIniInt("pos", "info.y", strPath, 100) ;
+	intInfoWidth	= ReadIniInt("pos", "info.width", strPath, 300) ;
+	intInfoHeight	= ReadIniInt("pos", "info.height", strPath, 400) ;
+	blnInfoVisible	= ReadIniBln("Display", "info", strPath, FALSE) ;
 	blnCountUp	= ReadIniBln("Display", "CountUp", strPath, TRUE) ;
 	blnCompact	= ReadIniBln("Display", "compact", strPath, FALSE) ;
 
@@ -259,4 +274,6 @@ void Profile::Load()
 	intY = ( intY < 0 ? 0 : ( intY > rc.bottom ? 30 : intY)) ;
 	intBlockX = ( intBlockX < 5 ? 5 : intBlockX) ;
 	intBlockY = ( intBlockY < 2 ? 2 : intBlockY) ;
+	intInfoX = ( intInfoX < 0 ? 0 : ( intInfoX > rc.right  ? 100 : intInfoX)) ;
+	intInfoY = ( intInfoY < 0 ? 0 : ( intInfoY > rc.bottom ? 100 : intInfoY)) ;
 }

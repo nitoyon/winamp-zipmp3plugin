@@ -67,11 +67,11 @@ BOOL KeyboardDlg::OnInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 	LVCOLUMN lvcol;
 	lvcol.mask = LVCF_TEXT | LVCF_WIDTH;
 	lvcol.pszText = "キーボード";
-	lvcol.cx = 100;
+	lvcol.cx = 120;
 	ListView_InsertColumn(hwndList, 0, &lvcol);
 
 	lvcol.pszText = "内容";
-	lvcol.cx = 200;
+	lvcol.cx = 180;
 	ListView_InsertColumn(hwndList, 1, &lvcol);
 
 	// アイテム追加
@@ -83,6 +83,12 @@ BOOL KeyboardDlg::OnInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 	item.pszText = (LPTSTR)"Alt+M";
 	ListView_InsertItem(hwndList, &item);
 	ListView_SetItemText(hwndList, intIndex, 1, (LPTSTR)"ウインドウ表示/非表示切り替え");
+	intIndex++;
+
+	item.iItem = intIndex;
+	item.pszText = (LPTSTR)"Alt + 3";
+	ListView_InsertItem(hwndList, &item);
+	ListView_SetItemText(hwndList, intIndex, 1, (LPTSTR)"ファイル情報表示");
 	intIndex++;
 
 	item.iItem = intIndex;
@@ -107,6 +113,12 @@ BOOL KeyboardDlg::OnInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 	item.pszText = (LPTSTR)"→";
 	ListView_InsertItem(hwndList, &item);
 	ListView_SetItemText(hwndList, intIndex, 1, (LPTSTR)"５秒進む");
+	intIndex++;
+
+	item.iItem = intIndex;
+	item.pszText = (LPTSTR)"アプリケーションキー";
+	ListView_InsertItem(hwndList, &item);
+	ListView_SetItemText(hwndList, intIndex, 1, (LPTSTR)"メニュー表示");
 	intIndex++;
 
 	return FALSE;

@@ -78,6 +78,7 @@ private:
 public:
 // 情報ウインドウ
 	void DisplayInfoWnd();
+	void CloseInfoWnd();
 } ;
 
 #endif

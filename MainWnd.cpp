@@ -162,6 +162,9 @@ LRESULT MainWnd::OnCreate( HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 	// 透明度設定
 	SetTransparency();
+
+	// 情報ウインドウ表示
+	if(Profile::blnInfoVisible)Controller::GetInstance()->DisplayInfoWnd();
 	return 0 ;
 }
 
@@ -429,7 +432,16 @@ LRESULT MainWnd::OnLButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 LRESULT MainWnd::OnRButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
-	POINT pt = { LOWORD( lParam), HIWORD( lParam)} ;
+	POINT pt = {0, 0};
+	if(lParam != -1)
+	{
+		pt.x = LOWORD(lParam);
+		pt.y = HIWORD(lParam);
+	}
+	else
+	{
+		ClientToScreen(hWnd, &pt);
+	}
 	Item item = GetItem( pt) ;
 
 	// リストで右クリックだとリストに任せる
@@ -442,8 +454,8 @@ LRESULT MainWnd::OnRButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	// メニュー準備
 	HMENU hMenuPopupMain = LoadMenu(Profile::hInstance, MAKEINTRESOURCE(IDR_ITEMPOPUP)) ;
 	HMENU hMenuPopup = GetSubMenu( hMenuPopupMain, 1) ;
-	GetCursorPos(&pt) ;
-	HMENU hMenuMove = GetSubMenu(hMenuPopup, 6);
+	if(lParam != -1)GetCursorPos(&pt) ;
+	HMENU hMenuMove = GetSubMenu(hMenuPopup, 8);
 	for(int i = 0; i < pListWnd->GetSize(); i++)
 	{
 		if(i == 0)
@@ -674,6 +686,9 @@ LRESULT MainWnd::OnKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		case VK_RETURN:
 			Controller::GetInstance()->Go( pListWnd->GetSelectedItem()) ;
 			break ;
+		case VK_APPS:
+			OnRButtonDown(hWnd, 0, -1); 
+			break;
 
 		case VK_RIGHT:
 		case VK_LEFT:
@@ -702,6 +717,18 @@ LRESULT MainWnd::OnSysKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	if( wParam == 'M' && lParam & 2 << 28)
 	{
 		Controller::GetInstance()->ToggleVisiblity() ;
+		return 0 ;
+	}
+	else if( wParam == '3' && lParam & 2 << 28)
+	{
+		if(Profile::blnInfoVisible)
+		{
+			Controller::GetInstance()->CloseInfoWnd();
+		}
+		else
+		{
+			Controller::GetInstance()->DisplayInfoWnd();
+		}
 		return 0 ;
 	}
 	else if(wParam == VK_F4 && lParam & 2 << 28)

@@ -460,6 +460,7 @@ LRESULT ListWnd::OnRButtonDown( WPARAM wParam, LPARAM lParam)
 
 	HMENU hMenuPopupMain = LoadMenu( Profile::hInstance, MAKEINTRESOURCE( IDR_ITEMPOPUP)) ;
 	HMENU hMenuPopup = GetSubMenu( hMenuPopupMain, 0) ;
+	CheckMenuItem(hMenuPopup, IDM_DISPTAG, MF_BYCOMMAND | (Profile::blnInfoVisible ? MF_CHECKED : MF_UNCHECKED));
 	GetCursorPos( &pt) ;
 	DWORD dwID = TrackPopupMenu( hMenuPopup, TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RETURNCMD, 
 		pt.x, pt.y, 0, m_hWnd, NULL) ;
@@ -487,7 +488,14 @@ LRESULT ListWnd::OnRButtonDown( WPARAM wParam, LPARAM lParam)
 			}
 			break ;
 		case IDM_DISPTAG:
-			Controller::GetInstance()->DisplayInfoWnd();
+			if(Profile::blnInfoVisible)
+			{
+				Controller::GetInstance()->CloseInfoWnd();
+			}
+			else
+			{
+				Controller::GetInstance()->DisplayInfoWnd();
+			}
 			break;
 	}
 
