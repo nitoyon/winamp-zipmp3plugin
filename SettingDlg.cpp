@@ -96,9 +96,6 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	CheckDlgButton( hDlg, IDC_CHK_ID3, Profile::blnListID3 ? BST_CHECKED : 0) ;
 	CheckDlgButton( hDlg, IDC_CHK_COMPI, Profile::blnListCompilation ? BST_CHECKED : 0) ;
 
-	// ホットキー
-	SendMessage( hwndHotKey, HKM_SETHOTKEY, Profile::wrdHotKey, 0) ;
-
 	// テキスト設定
 	SetDlgItemText( hDlg, IDC_LIST_NORMAL, Profile::strListNormal.c_str()) ;
 	SetDlgItemText( hDlg, IDC_LIST_ID3, Profile::strListID3.c_str()) ;

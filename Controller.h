@@ -56,6 +56,7 @@ public:
 	void Play() ;
 	void SetMp3Pos( const string&, ULONG) ;
 	BOOL Extract( UINT, const string&) ;
+	BOOL ExtractDetail( UINT, UINT) ;
 	void OpenInMiniBrowser( UINT) ;
 private:
 	void UpdateFileInfo( const string&) ;

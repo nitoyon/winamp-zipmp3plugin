@@ -30,13 +30,16 @@
 #define ID_MENUITEM40007                40007
 #define ID_MENUITEM40010                40010
 #define ID_MENUITEM40011                40011
+#define IDM_EXTRACT_HERE                40012
+#define IDM_EXTRACT_SELECT              40013
+#define IDM_EXTRACT_DESKTOP             40014
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        105
-#define _APS_NEXT_COMMAND_VALUE         40012
+#define _APS_NEXT_COMMAND_VALUE         40015
 #define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

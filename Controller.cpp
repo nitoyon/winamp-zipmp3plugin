@@ -10,7 +10,10 @@
 #include "ZipFile.h"
 #include "MainWnd.h"
 #include "Profile.h"
+#include "util.h"
+#include "resource.h"
 #include <wininet.h>
+#include <shlobj.h>
 
 
 /******************************************************************************/
@@ -245,6 +248,54 @@ BOOL Controller::Extract( UINT ui, const string& strPath)
 
 
 /******************************************************************************/
+// 解凍詳細
+//============================================================================//
+// 更新：03/02/02(日)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL Controller::ExtractDetail( UINT ui, UINT uiMsg)
+{
+	string strOutPath ;
+
+	if( uiMsg == IDM_EXTRACT_HERE)
+	{
+		strOutPath = GetDirName( pZipFile->GetZipPath()) ;
+		strOutPath += pZipFile->GetChildFile( ui)->GetFileName() ;
+	}
+	else if( uiMsg == IDM_EXTRACT_SELECT)
+	{
+		OPENFILENAME	ofn ;
+		char		pszFileBuf[ MAX_PATH + 1] ;
+
+		ZeroMemory( (LPVOID)&ofn, sizeof(OPENFILENAME));
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hwndOwner = pMainWnd->GetHwnd() ;
+		ofn.lpstrFilter = "MP3(*.mp3)\0*.mp3\0すべてのファイル\0*.*\0\0";
+		ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT ;
+		ofn.lpstrFile = pszFileBuf;
+		ofn.nMaxFile = MAX_PATH ;
+		ofn.lpstrTitle = "保存するファイル名を入力してください" ;
+		if( !GetSaveFileName( &ofn))
+		{
+			DWORD d = CommDlgExtendedError();
+			return 0 ;
+		}
+		strOutPath = pszFileBuf ;
+	}
+	else if( uiMsg == IDM_EXTRACT_DESKTOP)
+	{
+		char pszBuf[ MAX_PATH] ;
+		SHGetSpecialFolderPath( NULL, pszBuf, CSIDL_DESKTOP, 0) ;
+		strOutPath = string( pszBuf) + "\\" + pZipFile->GetChildFile( ui)->GetFileName() ;
+	}
+
+	return Extract( ui, strOutPath) ;
+}
+
+
+/******************************************************************************/
 // ミニブラウザーで開く
 //============================================================================//
 // 更新：02/12/31(火)
@@ -293,7 +344,7 @@ void Controller::OpenInMiniBrowser( UINT i)
 
 void Controller::SetMp3Pos( const string& s, ULONG ulMil)
 {
-	if( strFilePath != s)
+	if( strFilePath != s && s != "")
 	{
 		UpdateFileInfo( s) ;
 		SetVisiblity( TRUE) ;

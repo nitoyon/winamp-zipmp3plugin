@@ -64,11 +64,9 @@ public:
 	string GetZipPath() const{ return strZipPath ;}
 	ULONG GetCentralDirSize() const ;
 	string GetFileName() const ;
-private :
 	string GetFileDir() const ;
 
 // ZIP ‚Ìqî•ñæ“¾
-public :
 	ZipChildHeader GetHeader() const{ return zipheader ;}
 	BOOL IsCompressed() const{ return zipheader.ulCompressedSize != zipheader.ulUncompressedSize ;}
 	virtual ULONG GetPlayLength() ;

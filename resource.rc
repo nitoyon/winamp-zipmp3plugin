@@ -55,7 +55,7 @@ BEGIN
     PUSHBUTTON      "ｷｬﾝｾﾙ",IDCANCEL,66,216,50,14
     PUSHBUTTON      "今すぐ表示(&D)",IDC_DISPLAY,127,216,50,14
     GROUPBOX        "バージョン情報",IDC_STATIC,213,7,115,197
-    LTEXT           "zip.mp3 表示プラグイソ。 ver 0.2.5",IDC_STATIC,218,20,
+    LTEXT           "zip.mp3 表示プラグイソ。 ver 0.2.6",IDC_STATIC,218,20,
                     99,8
     LTEXT           "http://www.nitoyon.com/",IDC_STATIC,235,184,75,8
     LTEXT           "ス\nペ\n｜\nス\nさ\nら\nに\n余\nっ\nち\nゃ\nっ\nた\nよ",
@@ -119,8 +119,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,2,5,0
- PRODUCTVERSION 0,2,5,0
+ FILEVERSION 0,2,6,0
+ PRODUCTVERSION 0,2,6,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -138,14 +138,14 @@ BEGIN
             VALUE "Comments", "zip.mp3 の中身を見せろや(ﾟДﾟ)ｺﾞﾙｧ!!\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "ZIP.MP3 再生プラグイソ。\0"
-            VALUE "FileVersion", "0, 2, 5, 0\0"
+            VALUE "FileVersion", "0, 2, 6, 0\0"
             VALUE "InternalName", "gen_zipalbum\0"
             VALUE "LegalCopyright", "Copyright (C) 2003 nitoyon + 協力者募集中\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "gen_zipalbum.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "  gen_zipalbum\0"
-            VALUE "ProductVersion", "0, 2, 5, 0\0"
+            VALUE "ProductVersion", "0, 2, 6, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -170,7 +170,13 @@ BEGIN
         MENUITEM "演奏\tEnter",                 IDM_PLAY
         MENUITEM SEPARATOR
         MENUITEM "ファイル情報(&I)\tAlt+3",     IDM_DISPTAG, GRAYED
-        MENUITEM "解凍(&E)",                    IDM_EXTRACT, GRAYED
+        POPUP "解凍(&E)"
+        BEGIN
+            MENUITEM "&ZIP.MP3と同じフォルダに解凍", IDM_EXTRACT_HERE
+            MENUITEM "デスクトップに解凍(&D)",      IDM_EXTRACT_DESKTOP
+            MENUITEM "場所を指定して解凍(&S)",      IDM_EXTRACT_SELECT
+            , GRAYED
+        END
         MENUITEM "&MiniBroserで開く",           IDM_OPENMINI
     END
     POPUP "MainPopup"

@@ -18,5 +18,6 @@
 USHORT makeword( BYTE*) ;
 ULONG  makelong( BYTE*) ;
 string GetWindowString( HWND) ;
+string GetDirName( const string&) ;
 
 #endif

@@ -1,7 +1,7 @@
 
 // ListWnd.cpp
 //============================================================================//
-// 更新：03/01/05(日)
+// 更新：03/02/02(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -385,7 +385,7 @@ LRESULT ListWnd::OnLButtonDown( WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // 右クリック
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：03/02/02(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -412,6 +412,14 @@ LRESULT ListWnd::OnRButtonDown( WPARAM wParam, LPARAM lParam)
 			if( i != NO_ITEM)
 			{
 				Controller::GetInstance()->OpenInMiniBrowser( i) ;
+			}
+			break ;
+		case IDM_EXTRACT_HERE:
+		case IDM_EXTRACT_SELECT:
+		case IDM_EXTRACT_DESKTOP:
+			if( i != NO_ITEM)
+			{
+				Controller::GetInstance()->ExtractDetail( i, dwID) ;
 			}
 			break ;
 	}
@@ -543,7 +551,7 @@ void ListWnd::DrawItem( HDC hdc, int intCount)
 		DrawText( hdc, pszBuf, -1, &rc, DT_RIGHT) ;
 		rc.right -= size.cx ;
 	}
-	DrawText( hdc, vecList[ intItem].c_str(), -1, &rc, DT_LEFT | DT_END_ELLIPSIS) ;
+	DrawText( hdc, vecList[ intItem].c_str(), -1, &rc, DT_LEFT | DT_END_ELLIPSIS | DT_NOPREFIX) ;
 }
 
 

@@ -2,7 +2,7 @@
 // Profile.cpp
 // アプリケーションの設定
 //============================================================================//
-// 更新：02/12/30(月)
+// 更新：03/02/01(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -24,7 +24,6 @@ string		Profile::strWinampIniPath = "" ;
 BOOL	Profile::blnShowOnlyZip = FALSE ;
 BOOL	Profile::blnShowOnlyUncompressedZip = FALSE ;
 BOOL	Profile::blnCountUp = FALSE ;
-WORD	Profile::wrdHotKey = 0 ;
 
 // リスト
 string	Profile::strListNormal ;
@@ -70,7 +69,6 @@ void Profile::Save()
 	WritePrivateProfileString( "Display", "ShowOnlyZip", blnShowOnlyZip ? "yes" : "no", pszFile) ;
 	WritePrivateProfileString( "Display", "ShowOnlyUncompressedZip", blnShowOnlyUncompressedZip ? "yes" : "no", pszFile) ;
 	WritePrivateProfileString( "Display", "CountUp", blnCountUp ? "yes" : "no", pszFile) ;
-	WriteProfile( pszFile, "Display", "DispHotKey", wrdHotKey) ;
 
 	// リスト
 	WritePrivateProfileString( "List", "Normal", strListNormal.c_str(), pszFile) ;
@@ -90,7 +88,7 @@ void Profile::Save()
 /******************************************************************************/
 // 読みとり
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：03/02/01(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -118,7 +116,6 @@ void Profile::Load()
 	blnShowOnlyUncompressedZip = ( strcmp( pszBuf, "yes") == 0) ;
 	GetPrivateProfileString( "Display", "CountUp", "yes", pszBuf, MAX_PATH, pszFile) ;
 	blnCountUp = ( stricmp( pszBuf, "yes") == 0) ;
-	wrdHotKey = GetPrivateProfileInt( "Display", "DispHotKey", 0, pszFile) ;
 
 	// リスト
 	GetPrivateProfileString( "List", "Normal", "%FILE_NAME%", pszBuf, MAX_PATH, pszFile) ;
@@ -133,10 +130,17 @@ void Profile::Load()
 	blnListCompilation = ( stricmp( pszBuf, "yes") == 0) ;
 
 	// 場所
+	RECT rc ;
+	GetWindowRect( GetDesktopWindow(), &rc) ;
 	intX = GetPrivateProfileInt( "pos", "x", 50, pszFile) ;
+	intX = ( intX < 0 ? 0 : ( intX > rc.right ? 50 : intX)) ;
 	intY = GetPrivateProfileInt( "pos", "y", 30, pszFile) ;
+	intX = ( intX < 0 ? 0 : ( intX > rc.bottom ? 30 : intX)) ;
+
 	intBlockX = GetPrivateProfileInt( "pos", "width", 5, pszFile) ;
+	intBlockX = ( intBlockX < 5 ? 5 : intBlockX) ;
 	intBlockY = GetPrivateProfileInt( "pos", "height", 3, pszFile) ;
+	intBlockY = ( intBlockY < 2 ? 2 : intBlockY) ;
 }
 
 

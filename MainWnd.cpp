@@ -161,7 +161,7 @@ LRESULT MainWnd::OnTimer( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		char* pszFile = (char*)SendMessage( hwndWinamp, WM_WA_IPC, ulPos, IPC_GETPLAYLISTFILE) ;
 
 		Controller* pController = Controller::GetInstance() ;
-		pController->SetMp3Pos( pszFile, ulMil) ;
+		pController->SetMp3Pos( pszFile ? pszFile : "", ulMil) ;
 	}
 	return 0;
 }
