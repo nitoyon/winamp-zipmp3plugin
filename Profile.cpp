@@ -231,9 +231,13 @@ void Profile::Load()
 		char pszPath[ MAX_PATH + 1] ;
 		GetModuleFileName(hInstance, pszPath, MAX_PATH);
 		string strPath = pszPath;
-		strPath = strPath.substr(0, strPath.rfind("."));
-		strPath += "\\zip_r.dll";
+		string strDir = strPath.substr(0, strPath.rfind("."));
+
+		strPath = strDir + "\\zip_r.dll";
 		vecHeaderDll.push_back(strPath);
+		strPath = strDir + "\\rar_r.dll";
+		vecHeaderDll.push_back(strPath);
+		vecUseHeaderDll.push_back(TRUE);
 		vecUseHeaderDll.push_back(TRUE);
 	}
 	else

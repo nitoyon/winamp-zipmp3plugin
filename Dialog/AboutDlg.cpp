@@ -86,8 +86,9 @@ BOOL AboutDlg::OnInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
 	tstring s = GetFileVersion(GetModuleFileName(Profile::hInstance));
 	s.Replace(" ", "");
+	s.Replace(",", ".");
 	s = tstring("ver. ") + s;
-	s = s.Left(s.rfind('.')) + "b";
+	s = s + "b";
 	SetDlgString(hDlg, IDC_VERSION, s);
 
 	return FALSE;

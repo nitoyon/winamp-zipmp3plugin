@@ -1,173 +1,158 @@
 
-// uPath.cpp
-// パスを扱うユーティリティー関数群
+// DllMain.cpp
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-#include  "uPath.h"
+#include "RarFile.h"
+#include <tchar.h>
 
 
 /******************************************************************************/
-//		ファイルパス関連
+//		定義
 /******************************************************************************/
-// モジュールのファイル名取得
+
+#define  TYPE_READHEADER	0x001
+#define  TYPE_WRITEHEADER	0x002
+
+#define  VERSION1_0		0x010
+
+
+/******************************************************************************/
+//		エクスポート関数郡
+/******************************************************************************/
+// DLL のバージョンを返す
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-tstring GetModuleFileName(HINSTANCE hInstance)
+UINT WINAPI GetDllVersion()
 {
-	TCHAR pszPath[MAX_PATH + 1];
-	GetModuleFileName(hInstance, pszPath, MAX_PATH + 1);
-
-	return tstring(pszPath);
+	return VERSION1_0;
 }
 
 
 /******************************************************************************/
-// フルパスからディレクトリ取得
+// DLL のタイプを表す
 //============================================================================//
 // 概要：なし。
-// 補足：\ も含めて返す。
+// 補足：なし。
 //============================================================================//
 
-tstring GetDirName(const tstring& strPath)
+UINT WINAPI GetDllType()
 {
-	int	intLastYen = 0 ;
-	TCHAR	pszFile[MAX_PATH + 1] ;
-	TCHAR*	pszPointer = pszFile ;
+	return TYPE_READHEADER;
+}
 
-	lstrcpyn(pszFile, strPath.c_str(), MAX_PATH);
 
-	for(int i = 0; i < strPath.size(); i++)
+/******************************************************************************/
+// ファイルパス設定
+//============================================================================//
+// 概要：なし。
+// 補足：この DLL では対応できないファイルのときは FALSE を返す。
+//============================================================================//
+
+BOOL WINAPI ReadHeader(LPCTSTR pszBuf)
+{
+	RarFile* pRar = RarFile::GetInstance(pszBuf);
+	return pRar->_ReadHeader();
+}
+
+
+/******************************************************************************/
+// ファイルの数を教える
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+UINT WINAPI GetFileCount()
+{
+	RarFile* pRarFile = RarFile::GetInstance();
+	if(!pRarFile)
 	{
-		pszPointer = pszFile + i ;
-
-		if(IsDBCSLeadByte(*pszPointer))
-		{
-			// ２バイト文字なら２進む
-			i++ ;
-			continue ;
-		}
-
-		if(*pszPointer == TEXT('\\') || *pszPointer == TEXT('/'))
-		{
-			intLastYen = i ;
-		}
+		return 0;
 	}
 
-	if(intLastYen > 0)
-	{
-		return strPath.substr(0, intLastYen + 1) ;     // Yen も含めて返す
-	}
-	else
-	{
-		return TEXT("") ;
-	}
+	return pRarFile->GetChildCount();
 }
 
 
 /******************************************************************************/
-// フルパスからファイル名取得
+// ファイル名を教える
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-tstring GetFileName(const tstring& strPath)
+LPCTSTR WINAPI GetFileName(UINT uiIndex)
 {
-	tstring strDirName = GetDirName(strPath) ;
-	return strPath.substr(strDirName.size()) ;
-}
-
-
-/******************************************************************************/
-// 拡張子を取得
-//============================================================================//
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-tstring GetExtensionName(const tstring& strPath)
-{
-	tstring strFileName = GetFileName(strPath);
-	UINT uiDotPos = strFileName.find(TEXT('.'));
-
-	if(uiDotPos == tstring::npos || uiDotPos == strFileName.size() - 1)
+	RarFile* pRarFile = RarFile::GetInstance();
+	if(!pRarFile)
 	{
-		return TEXT("");
+		return "";
 	}
-	else
+
+	return pRarFile->GetChildName(uiIndex).c_str();
+}
+
+
+/******************************************************************************/
+// ファイルの始点を教える
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+UINT WINAPI GetFileStartPoint(UINT uiIndex)
+{
+	RarFile* pRarFile = RarFile::GetInstance();
+	if(!pRarFile)
 	{
-		return strFileName.substr(uiDotPos + 1);
+		return 0;
 	}
+
+	return pRarFile->GetChildStartPoint(uiIndex);
 }
 
 
 /******************************************************************************/
-// ファイル名を取得（拡張子は除く）
+// ファイルの終点を教える
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-tstring GetBaseName(const tstring& strPath)
+UINT WINAPI GetFileEndPoint(UINT uiIndex)
 {
-	tstring strFileName = GetFileName(strPath);
-	UINT uiDotPos = strFileName.find(TEXT('.'));
-
-	if(uiDotPos == tstring::npos || uiDotPos == 0)
+	RarFile* pRarFile = RarFile::GetInstance();
+	if(!pRarFile)
 	{
-		return TEXT("");
+		return 0;
 	}
-	else
+
+	return pRarFile->GetChildEndPoint(uiIndex);
+}
+
+
+/******************************************************************************/
+// 圧縮されているか
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL WINAPI IsCompressed(UINT uiIndex)
+{
+	RarFile* pRarFile = RarFile::GetInstance();
+	if(!pRarFile)
 	{
-		return strFileName.substr(0, uiDotPos);
+		return 0;
 	}
+
+	return pRarFile->_IsCompressed(uiIndex);
 }
 
 
-/******************************************************************************/
-// フルパスかどうか
-//============================================================================//
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-BOOL IsFullPath(const tstring& strPath)
-{
-	return (GetDirName(strPath) != TEXT(""));
-}
-
-
-/******************************************************************************/
-//		上の関数群のコンビネーション
-/******************************************************************************/
-// 拡張子を変更する
-//============================================================================//
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-tstring ChangeExtension(const tstring& strPath, const tstring& strNewExtension)
-{
-	tstring s = GetDirName(strPath) + GetBaseName(strPath) + strNewExtension;
-	return s;
-}
-
-
-/******************************************************************************/
-// インスタンスの設定ファイルを取得する
-//============================================================================//
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-tstring GetIniFileName(HINSTANCE hInstance)
-{
-	tstring strPath = GetModuleFileName(hInstance);
-	return ChangeExtension(strPath, TEXT(".ini"));
-}

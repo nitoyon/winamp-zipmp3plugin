@@ -8,7 +8,7 @@
 #ifndef  __ZIP_FILE_H__
 #define  __ZIP_FILE_H__
 
-#include "..\include.h"
+#include <windows.h>
 #include <vector>
 #include <string>
 

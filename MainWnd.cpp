@@ -165,6 +165,13 @@ LRESULT MainWnd::OnCreate( HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 	// 情報ウインドウ表示
 	if(Profile::blnInfoVisible)Controller::GetInstance()->DisplayInfoWnd();
+
+	// show the window
+	ShowWindow(hWnd, Profile::blnShowOnlyArchive ? SW_HIDE : SW_SHOW) ;
+	if(IsIconic(hwndWinamp))
+	{
+		ShowWindow(hwndWinamp, SW_RESTORE);
+	}
 	return 0 ;
 }
 

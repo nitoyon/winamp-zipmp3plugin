@@ -1,0 +1,11 @@
+DESCRIPTION     'archive_header'
+
+EXPORTS
+	GetDllVersion
+	GetDllType
+	ReadHeader
+	GetFileCount
+	GetFileName
+	GetFileStartPoint
+	GetFileEndPoint
+	IsCompressed

@@ -96,7 +96,7 @@ int init()
 		MessageBox( plugin.hwndParent,"Error registering window class","blah",MB_OK);
 		return 1;
 	}
-
+ 
 	MainWnd* pMainWnd = new MainWnd() ;
 	pMainWnd->SetWinampWindow( plugin.hwndParent) ;
 
@@ -125,8 +125,6 @@ int init()
 	WinampHook* pwh = new WinampHook( pMainWnd) ;
 	pwh->Init( plugin.hwndParent) ;
 
-	// show the window
-	ShowWindow( hMainWnd, Profile::blnShowOnlyArchive ? SW_HIDE : SW_SHOW) ;
 	return 0;
 }
 

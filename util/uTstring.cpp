@@ -15,7 +15,7 @@
 
 #define  PSTRING			((_tstring*)this)
 #define  ASSERT_TSTRING			if(*PSTRING == TEXT("")){return _tstring("");}
-#define  ASSERT_TSTRING_LEN(len)	if(*PSTRING == TEXT("") || PSTRING->size() < len){return _tstring("");}
+#define  ASSERT_TSTRING_LEN(len)	if(*PSTRING == TEXT("") || PSTRING->size() < len){return _tstring(TEXT(""));}
 
 
 /******************************************************************************/
@@ -55,7 +55,14 @@ tstring::tstring(_tstring s)
 
 tstring::tstring(LPCTSTR p)
 {
-	*PSTRING = p;
+	if(p == NULL)
+	{
+		*PSTRING = TEXT("");
+	}
+	else
+	{
+		*PSTRING = p;
+	}
 }
 
 
@@ -206,6 +213,7 @@ int tstring::Replace(TCHAR chOld, TCHAR chNew)
 int tstring::Replace(LPCTSTR pszOld, LPCTSTR pszNew)
 {
 	if(*PSTRING == TEXT("")) return 0;
+	if(tstring(pszOld) == TEXT("")) return 0;
 
 	int intPos = 0;
 	int intCount = 0;
@@ -215,6 +223,7 @@ int tstring::Replace(LPCTSTR pszOld, LPCTSTR pszNew)
 		if(intPos == tstring::npos) break;
 
 		PSTRING->replace(intPos, lstrlen(pszOld), pszNew);
+		intPos += lstrlen(pszNew);
 		intCount++;
 	}
 
@@ -254,6 +263,102 @@ void tstring::Format(LPCTSTR pszFormat, ...)
 
 
 /******************************************************************************/
+// トリミング左
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void tstring::TrimLeft(TCHAR c)
+{
+	if(*PSTRING == TEXT("")) return;
+
+	for(int i = 0; i < PSTRING->size(); i++)
+	{
+		if(PSTRING->at(i) != c)
+		{
+			*PSTRING = PSTRING->substr(i);
+			return;
+		}
+	}
+
+	*PSTRING = TEXT("");
+}
+
+
+/******************************************************************************/
+// トリム左
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void tstring::TrimLeft(LPCTSTR pszTarget)
+{
+	if(*PSTRING == TEXT("")) return;
+
+	for(int i = 0; i < PSTRING->size(); i++)
+	{
+		if(!IsTrimmable(PSTRING->at(i), pszTarget))
+		{
+			*PSTRING = PSTRING->substr(i);
+			return;
+		}
+	}
+
+	*PSTRING = TEXT("");
+}
+
+
+/******************************************************************************/
+// トリミング右
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void tstring::TrimRight(TCHAR c)
+{
+	if(*PSTRING == TEXT("")) return;
+
+	for(int i = PSTRING->size() - 1; i >= 0; i--)
+	{
+		if(PSTRING->at(i) != c)
+		{
+			*PSTRING = PSTRING->substr(0, i + 1);
+			return;
+		}
+	}
+
+	*PSTRING = TEXT("");
+}
+
+
+/******************************************************************************/
+// トリム右
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void tstring::TrimRight(LPCTSTR pszTarget)
+{
+	if(*PSTRING == TEXT("")) return;
+
+	for(int i = PSTRING->size() - 1; i >= 0; i--)
+	{
+		if(!IsTrimmable(PSTRING->at(i), pszTarget))
+		{
+			*PSTRING = PSTRING->substr(0, i + 1);
+			return;
+		}
+	}
+
+	*PSTRING = TEXT("");
+}
+
+
+/******************************************************************************/
 // 整数に変換
 //============================================================================//
 // 概要：なし。
@@ -268,6 +373,28 @@ int tstring::toInt() const
 	}
 
 	return _ttoi(PSTRING->c_str());
+}
+
+
+/******************************************************************************/
+// トリム可能か
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL tstring::IsTrimmable(TCHAR c, LPCTSTR pszTarget)
+{
+	int intLen = lstrlen(pszTarget);
+	for(int i = 0; i < intLen; i++)
+	{
+		if(c == pszTarget[i])
+		{
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 
@@ -350,6 +477,12 @@ vector<tstring> SplitStr(const tstring& str, const tstring& strDelimiter)
 {
 	vector<tstring> vecRet;
 	tstring strTmp = str;
+	
+	// 空文字列の場合は、0 個の要素を持つ配列を返す
+	if(str == TEXT(""))
+	{
+		return vecRet;
+	}
 
 	while(TRUE)
 	{
@@ -362,6 +495,12 @@ vector<tstring> SplitStr(const tstring& str, const tstring& strDelimiter)
 		}
 
 		vecRet.push_back(strTmp.substr(0, uiNext));
+
+		if(strTmp.size() == uiNext + strDelimiter.size())
+		{
+			vecRet.push_back(TEXT(""));
+			break;
+		}
 		strTmp = strTmp.substr(uiNext + strDelimiter.size());
 	}
 
@@ -385,6 +524,21 @@ tstring Int2Str(int i)
 
 
 /******************************************************************************/
+// 数字から文字列
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+tstring Uint2Str(unsigned int i)
+{
+	TCHAR pszBuf[65];
+	wsprintf(pszBuf, TEXT("%u"), i);
+	return tstring(pszBuf);
+}
+
+
+/******************************************************************************/
 // 文字列から数字
 //============================================================================//
 // 概要：なし。
@@ -396,3 +550,137 @@ int Str2Int(const tstring& s)
 	return s.toInt();
 }
 
+
+/******************************************************************************/
+// HEX Encode
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+tstring Str2Hex(const tstring& strData)
+{
+	tstring strRet = TEXT("");
+	tstring s;
+
+	for(int i = 0; i < strData.size(); i++)
+	{
+		s.Format(TEXT("%02X"), (unsigned char)strData[i]);
+		strRet += s;
+	}
+
+	return strRet;
+}
+
+
+/******************************************************************************/
+// HEX decode
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+int Hex2Char(TCHAR c)
+{
+	if(c >= '0' && c <= '9')
+	{
+		return c - '0';
+	}
+	else if(c >= 'a' && c <= 'f')
+	{
+		return c - 'a' + 10;
+	}
+	else if(c >= 'A' && c <= 'F')
+	{
+		return c - 'A' + 10;
+	}
+
+	return 0;
+}
+
+/******************************************************************************/
+// HEX decode
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+tstring Hex2Str(const tstring& strData)
+{
+	unsigned char c;
+	tstring strRet = TEXT("");
+	for(int i = 0; i < strData.size() / 2; i++)
+	{
+		c = Hex2Char(strData[i * 2]) * 16 + Hex2Char(strData[i * 2 + 1]);
+		strRet += c;
+	}
+
+	return strRet;
+}
+
+
+/******************************************************************************/
+// GetLastErr の数値を文字列に変換
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+tstring Err2Str(DWORD dwErr)
+{
+	LPVOID lpMsgBuf;
+	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL, dwErr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // デフォルト言語
+		(LPTSTR)&lpMsgBuf, 0, NULL);
+
+	tstring strRet = (LPTSTR)lpMsgBuf;
+	LocalFree(lpMsgBuf);
+	return strRet;
+}
+
+
+/******************************************************************************/
+// 変換
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+tstring ConvertUsingValues(const tstring& strGiven, const map<TCHAR, tstring>& mapValue, TCHAR c)
+{
+	tstring strRet;
+
+	BOOL blnEscape = FALSE;
+	for(UINT i = 0; i < strGiven.size(); i++)
+	{
+		// エスケープ文字の処理
+		if(blnEscape)
+		{
+			blnEscape = FALSE;
+
+			if(strGiven[i] == TEXT('%'))
+			{
+				strRet += TEXT('%');
+				continue;
+			}
+
+			map<TCHAR, tstring>::const_iterator p = mapValue.find(strGiven[i]);
+			if(p != mapValue.end())
+			{
+				strRet += p->second;
+			}
+			continue;
+		}
+
+		if(strGiven[i] == TEXT('%'))
+		{
+			blnEscape = TRUE;
+		}
+		else
+		{
+			strRet += strGiven[i];
+		}
+	}
+
+	return strRet;
+}

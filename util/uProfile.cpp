@@ -20,8 +20,8 @@
 
 void WriteIniInt(LPTSTR pszSection, LPTSTR pszName, UINT ui, const tstring& s)
 {
-	char	pszBuf[256];
-	wsprintf(pszBuf, "%u", ui);
+	TCHAR	pszBuf[256];
+	wsprintf(pszBuf, TEXT("%u"), ui);
 	WritePrivateProfileString(pszSection, pszName, pszBuf, s.c_str()) ;
 }
 
@@ -48,7 +48,7 @@ void WriteIniStr(LPTSTR pszSection, LPTSTR pszName, const tstring& strData, cons
 
 void WriteIniBln(LPTSTR pszSection, LPTSTR pszName, BOOL b, const tstring& s)
 {
-	WritePrivateProfileString(pszSection, pszName, b ? "yes" : "no", s.c_str());
+	WritePrivateProfileString(pszSection, pszName, b ? TEXT("yes") : TEXT("no"), s.c_str());
 }
 
 
@@ -132,9 +132,9 @@ BOOL ReadIniBln(const tstring& strSection, const tstring& strName, const tstring
 // 補足：なし。
 //============================================================================//
 
-UINT ReadIniTime(const tstring& strSection, const tstring& strName, const tstring& s, BOOL blnDefault)
+UINT ReadIniTime(const tstring& strSection, const tstring& strName, const tstring& s, UINT uiDefault)
 {
-	return IniTime2Int(ReadIniStr(strSection, strName, s, TEXT("")));
+	return IniTime2Int(ReadIniStr(strSection, strName, s, Int2Str(uiDefault)));
 }
 
 
@@ -327,6 +327,57 @@ UINT IniTime2Int(const tstring& strTime)
 
 
 /******************************************************************************/
+// 数字を時間に変換
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+tstring Int2IniTime(UINT uiTime)
+{
+	tstring strRet;
+
+	if(uiTime == INFINITE)
+	{
+		strRet = TEXT("無限時間");
+	}
+	else
+	{
+		uiTime /= 1000;
+
+		// 時間の文字列計算
+		TCHAR pszBuf[100];
+
+		if(uiTime / 60 > 0)
+		{
+			wsprintf(pszBuf, TEXT("%02d"), uiTime % 60);
+		}
+		else
+		{
+			wsprintf(pszBuf, TEXT("%d"), uiTime % 60);
+		}
+		strRet = pszBuf + tstring(TEXT("秒"));
+		uiTime /= 60;
+
+		if(uiTime > 0)
+		{
+			wsprintf(pszBuf, TEXT("%d"), uiTime);
+			strRet = pszBuf + tstring(TEXT("分")) + strRet;
+			uiTime /= 60;
+
+			if(uiTime > 0)
+			{
+				wsprintf(pszBuf, TEXT("%d"), uiTime);
+				strRet = pszBuf + tstring(TEXT("時間")) + strRet;
+			}
+		}
+	}
+
+	return strRet;
+}
+
+
+/******************************************************************************/
 //		セクション
 /******************************************************************************/
 // 文字列を INI ファイルとして評価
@@ -436,19 +487,23 @@ tstring GetSectionString(const tstring& strSection, const tstring& strFileName)
 	}
 
 	// リストを設定
-	PTCHAR p = pszBuf;
+	PTSTR	p = pszBuf;
+	tstring s = TEXT("");
 	while(*p)
 	{
 		if(p[0] == TEXT('#') || p[0] == TEXT(';'))
 		{
-			p = pszBuf + lstrlen(pszBuf) + 1;
+			p += _tcslen(p) + 1;
 			continue;
 		}
 
-		pszBuf[lstrlen(pszBuf)] = TEXT('\n');
-		p = pszBuf + lstrlen(pszBuf) + 1;
+		if(s != TEXT(""))
+		{
+			s += TEXT("\n");
+		}
+		s += p;
+		p += lstrlen(p) + 1;
 	}
-	tstring s = pszBuf;
 	delete[] pszBuf;
 	return s;
 }

@@ -30,10 +30,10 @@ void WriteIniBln(LPTSTR pszSection, LPTSTR pszName, BOOL b, const tstring& s);
 void WriteIniMsg(LPTSTR pszSection, LPTSTR pszName, const tstring& strData, const tstring& s);
 
 // “Ç‚ÝŽæ‚è
-tstring	ReadIniStr(const tstring&, const tstring&, const tstring& s, const tstring& strDefault);
-int	ReadIniInt(const tstring&, const tstring&, const tstring& s, int intDefault);
+tstring	ReadIniStr(const tstring&, const tstring&, const tstring& s, const tstring& strDefault = TEXT(""));
+int	ReadIniInt(const tstring&, const tstring&, const tstring& s, int intDefault = 0);
 BOOL	ReadIniBln(const tstring&, const tstring&, const tstring& s, BOOL blnDefault);
-UINT	ReadIniTime(const tstring&, const tstring&, const tstring& s, BOOL blnDefault);
+UINT	ReadIniTime(const tstring&, const tstring&, const tstring& s, UINT uiDefault = 0);
 tstring	ReadIniMsg(const tstring&, const tstring&, const tstring& s);
 
 
@@ -41,8 +41,8 @@ tstring	ReadIniMsg(const tstring&, const tstring&, const tstring& s);
 BOOL	IniBln2Bln(const tstring& str, BOOL blnDefault = FALSE);
 tstring	IniMsg2Str(const tstring& strMsg);
 tstring	Str2IniMsg(const tstring& strMsg);
-tstring	Msg2IniStr(const tstring& strMsg);
 UINT	IniTime2Int(const tstring& strTime);
+tstring	Int2IniTime(UINT uiTime);
 
 // ƒZƒNƒVƒ‡ƒ“
 map<tstring, tstring> ReadStrIni(const tstring& strData);

@@ -82,7 +82,9 @@ BOOL Process::Create(LPCSTR pszCmdLine, STARTUPINFOA* psi)
 	delete[] pszCmd;
 	if(!blnResult)
 	{
+		DWORD dwErr = GetLastError();
 		CloseAllIoHandles();
+		SetLastError(dwErr);
 		return FALSE;
 	}
 
@@ -121,7 +123,9 @@ BOOL Process::CreateAsUser(HANDLE hToken, LPCSTR pszCmdLine, STARTUPINFOA* psi)
 	delete[] pszCmd;
 	if(!blnResult)
 	{
+		DWORD dwErr = GetLastError();
 		CloseAllIoHandles();
+		SetLastError(dwErr);
 		return FALSE;
 	}
 

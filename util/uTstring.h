@@ -11,6 +11,18 @@
 
 
 /******************************************************************************/
+// 		定義
+/******************************************************************************/
+
+#if defined(UNICODE) || defined(_UNICODE)
+#undef  UNICODE
+#undef  _UNICODE
+#define UNICODE
+#define _UNICODE
+#endif
+
+
+/******************************************************************************/
 // 		インクルード
 /******************************************************************************/
 
@@ -21,6 +33,7 @@
 #include <tchar.h>
 #include <string>
 #include <vector>
+#include <map>
 
 using namespace std;
 
@@ -29,7 +42,7 @@ using namespace std;
 // 		型定義
 /******************************************************************************/
 
-#ifdef UNICODE
+#ifdef _UNICODE
 typedef wstring	_tstring;
 #else
 typedef string	_tstring;
@@ -64,8 +77,14 @@ public:
 	int Replace(TCHAR, TCHAR);
 	int Replace(LPCTSTR, LPCTSTR);
 	void Format(LPCTSTR, ...);
-
+	void TrimLeft(TCHAR);
+	void TrimLeft(LPCTSTR pszTarget = TEXT(" \n\r\t"));
+	void TrimRight(TCHAR);
+	void TrimRight(LPCTSTR pszTarget = TEXT(" \n\r\t"));
 	int toInt() const;
+
+private:
+	BOOL IsTrimmable(TCHAR, LPCTSTR);
 };
 
 
@@ -79,7 +98,13 @@ BOOL		IsStrEqual(const tstring& str1, const tstring& str2);
 BOOL		IsStrEqualNoCase(const tstring& str1, const tstring& str2);
 vector<tstring>	SplitStr(const tstring& str, const tstring& strDelimiter);
 tstring		Int2Str(int i);
+tstring		Uint2Str(unsigned int i);
 int		Str2Int(const tstring& s);
+int		Hex2Char(TCHAR c);
+tstring		Hex2Str(const tstring& strData);
+tstring		Str2Hex(const tstring& strData);
+tstring		Err2Str(DWORD dwErr);
 
+tstring		ConvertUsingValues(const tstring& strData, const map<TCHAR, tstring>&, TCHAR = TEXT('%'));
 
 #endif
