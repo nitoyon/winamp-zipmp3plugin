@@ -42,8 +42,8 @@ BEGIN
                     IDC_STATIC,7,90,195,115
     EDITTEXT        IDC_LIST_NORMAL,13,104,139,14,ES_AUTOHSCROLL
     PUSHBUTTON      "変数(&.) >>",IDC_NORMAL_VARIABLE,158,104,37,14
-    CONTROL         "&ID3 v1 タグがある場合は以下を用いる",IDC_CHK_ID3,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,132,126,10
+    CONTROL         "&ID3v1/v2 タグがある場合は以下を用いる",IDC_CHK_ID3,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,132,134,10
     EDITTEXT        IDC_LIST_ID3,24,144,128,14,ES_AUTOHSCROLL
     PUSHBUTTON      "変数(&/) >>",IDC_ID3_VARIABLE,158,144,37,14
     CONTROL         "曲ごとにアーティスト名が異なる場合(&A)",IDC_CHK_COMPI,
@@ -53,13 +53,14 @@ BEGIN
     PUSHBUTTON      "変数(&\\) >>",IDC_COMPI_VARIABLE,158,182,37,14
     DEFPUSHBUTTON   "OK",IDOK,7,216,50,14
     PUSHBUTTON      "ｷｬﾝｾﾙ",IDCANCEL,66,216,50,14
-    PUSHBUTTON      "今すぐ表示(&D)",IDC_DISPLAY,127,216,50,14
+    PUSHBUTTON      "今すぐ表示(&D)",IDC_DISPLAY,127,216,50,14,NOT 
+                    WS_VISIBLE
     GROUPBOX        "バージョン情報",IDC_STATIC,213,7,115,197
-    LTEXT           "zip.mp3 表示プラグイソ。 ver 0.2.6",IDC_STATIC,218,20,
-                    99,8
+    LTEXT           "zip.mp3 表示プラグイソ。 ver 0.2.8b",IDC_STATIC,218,20,
+                    102,8
     LTEXT           "http://www.nitoyon.com/",IDC_STATIC,235,184,75,8
-    LTEXT           "ス\nペ\n｜\nス\nさ\nら\nに\n余\nっ\nち\nゃ\nっ\nた\nよ",
-                    IDC_STATIC,242,37,11,135
+    LTEXT           "姉妹品の MP3アルバムメーカーもよろしく！",IDC_STATIC,
+                    218,43,99,24
 END
 
 
@@ -119,8 +120,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,2,7,0
- PRODUCTVERSION 0,2,7,0
+ FILEVERSION 0,2,8,0
+ PRODUCTVERSION 0,2,8,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -138,14 +139,14 @@ BEGIN
             VALUE "Comments", "zip.mp3 の中身を見せろや(ﾟДﾟ)ｺﾞﾙｧ!!\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "ZIP.MP3 再生プラグイソ。\0"
-            VALUE "FileVersion", "0, 2, 7, 0\0"
+            VALUE "FileVersion", "0, 2, 8, 0\0"
             VALUE "InternalName", "gen_zipalbum\0"
             VALUE "LegalCopyright", "Copyright (C) 2003 nitoyon + 協力者募集中\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "gen_zipalbum.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "  gen_zipalbum\0"
-            VALUE "ProductVersion", "0, 2, 7, 0\0"
+            VALUE "ProductVersion", "0, 2, 8, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
