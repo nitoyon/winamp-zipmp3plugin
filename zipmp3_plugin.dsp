@@ -100,6 +100,10 @@ SOURCE=.\File.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Id3tagv2.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ListWnd.cpp
 # End Source File
 # Begin Source File
@@ -161,6 +165,10 @@ SOURCE=.\frontend.h
 # Begin Source File
 
 SOURCE=.\GEN.H
+# End Source File
+# Begin Source File
+
+SOURCE=.\Id3tagv2.h
 # End Source File
 # Begin Source File
 

@@ -1,7 +1,7 @@
 
 // Mp3File.cpp
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：03/02/18(火)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -9,6 +9,7 @@
 #include "Mp3File.h"
 #include "define.h"
 #include "Profile.h"
+#include "Id3tagv2.h"
 
 #define  BUF_SIZE  256
 
@@ -59,7 +60,7 @@ Mp3File::~Mp3File()
 /******************************************************************************/
 // ヘッダ読みとり
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：03/02/18(火)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -84,13 +85,26 @@ BOOL Mp3File::ReadHeader()
 		{
 			ReadMpegHeader( fzip) ;
 			ReadID3v1( fzip) ;
-		}
 
-		fclose( fzip) ;
-		return TRUE ;
+			// ID3 v2タグ読みとり
+			if( fseek( fzip, ulFileHead, SEEK_SET) == 0)
+			{
+				CId3tagv2 tagv2 ;
+				tagv2.Load( fzip) ;
+				if(tagv2.IsEnable())
+				{
+					id3tag.strTrackName	= tagv2.GetTitle() ;
+					id3tag.strArtistName	= tagv2.GetArtist() ;
+					id3tag.strAlbumName	= tagv2.GetAlbum() ;
+					id3tag.intYear		= atoi( tagv2.GetYear().c_str()) ;
+					id3tag.strComment	= tagv2.GetComment() ;
+					id3tag.intTrackNum	= atoi( tagv2.GetTrackNo().c_str()) ;
+				}
+			}
+		}
 	}
 
-	return FALSE ;
+	return TRUE ;
 }
 
 
