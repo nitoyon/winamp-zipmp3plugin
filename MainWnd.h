@@ -1,7 +1,7 @@
 
 // MainWnd.h
 //============================================================================//
-// 更新：03/04/20(日)
+// 更新：03/04/28(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -80,6 +80,7 @@ private:
 	COLORREF	colNormalBG ;
 	COLORREF	colSelectedBG ;
 
+	BOOL		blnFocus ;
 	BOOL		blnResize ;
 	BOOL		blnMove ;
 	POINT		ptOffsetMove ;
@@ -107,6 +108,7 @@ private:
 	LRESULT OnHotKey	( HWND, WPARAM, LPARAM) ;
 	LRESULT OnSize		( HWND, WPARAM, LPARAM) ;
 	LRESULT OnFocus		( HWND, WPARAM, LPARAM) ;
+	LRESULT OnKillFocus	( HWND, WPARAM, LPARAM) ;
 	LRESULT OnPaint		( HWND, WPARAM, LPARAM) ;
 	LRESULT OnDestroy	( HWND, WPARAM, LPARAM) ;
 	LRESULT OnLButtonDown	( HWND, WPARAM, LPARAM) ;

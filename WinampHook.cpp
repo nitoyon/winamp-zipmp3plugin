@@ -1,7 +1,7 @@
 
 // WinampHook.cpp
 //============================================================================//
-// 更新：02/12/30(月)
+// 更新：03/04/28(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -121,26 +121,30 @@ void WinampHook::Init( HWND hWnd)
 /******************************************************************************/
 // 定義
 //============================================================================//
-// 更新：02/12/30(月)
+// 更新：03/04/28(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 BEGIN_SUBCLASS_MESSAGE_MAP( WinampHookProc, WinampHook)
 	ON_MESSAGE( WM_SYSKEYDOWN,		OnSysKeyDown)
+	ON_MESSAGE( WM_KEYDOWN,			OnKeyDown)
 	ON_MESSAGE( WM_MOVE,			OnMove)
 END_SUBCLASS_MESSAGE_MAP( pWndObj->wpcWinamp)
 
 BEGIN_SUBCLASS_MESSAGE_MAP( WinampEQProc, WinampHook)
 	ON_MESSAGE( WM_SYSKEYDOWN,		OnSysKeyDown)
+	ON_MESSAGE( WM_KEYDOWN,			OnKeyDown)
 END_SUBCLASS_MESSAGE_MAP( pWndObj->wpcWinampEQ)
 
 BEGIN_SUBCLASS_MESSAGE_MAP( WinampPEProc, WinampHook)
 	ON_MESSAGE( WM_SYSKEYDOWN,		OnSysKeyDown)
+	ON_MESSAGE( WM_KEYDOWN,			OnKeyDown)
 END_SUBCLASS_MESSAGE_MAP( pWndObj->wpcWinampPE)
 
 BEGIN_SUBCLASS_MESSAGE_MAP( WinampMBProc, WinampHook)
 	ON_MESSAGE( WM_SYSKEYDOWN,		OnSysKeyDown)
+	ON_MESSAGE( WM_KEYDOWN,			OnKeyDown)
 END_SUBCLASS_MESSAGE_MAP( pWndObj->wpcWinampMB)
 
 
@@ -154,11 +158,14 @@ END_SUBCLASS_MESSAGE_MAP( pWndObj->wpcWinampMB)
 
 LRESULT WinampHook::OnSysKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam) 
 {
+	// 表示、非表示の切り替え
 	if( wParam == 'M' && lParam & 2 << 28)
 	{
 		Controller::GetInstance()->ToggleVisiblity() ;
 		return 0 ;
 	}
+
+	// デフォルトのプロシージャに投げる
 	WNDPROC w ;
 	if( hWnd == m_hWnd)		w = wpcWinamp ;
 	else if( hWnd == hwndEQ)	w = wpcWinampEQ ;
@@ -167,6 +174,34 @@ LRESULT WinampHook::OnSysKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	else				return 0 ;
 
 	return CallWindowProc( wpcWinampEQ, hWnd, WM_SYSKEYDOWN, wParam, lParam) ;
+}
+
+
+/******************************************************************************/
+// キーダウン
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+LRESULT WinampHook::OnKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam) 
+{
+	// 次の曲、前の曲
+	if( wParam == VK_OEM_COMMA || wParam == VK_OEM_PERIOD)
+	{
+		Controller::GetInstance()->Go( pMainWnd->GetCurSong() + ( wParam == VK_OEM_COMMA ? -1 : 1)) ;
+		return 0 ;
+	}
+
+	// デフォルトのプロシージャに投げる
+	WNDPROC w ;
+	if( hWnd == m_hWnd)		w = wpcWinamp ;
+	else if( hWnd == hwndEQ)	w = wpcWinampEQ ;
+	else if( hWnd == hwndPE)	w = wpcWinampPE ;
+	else if( hWnd == hwndMB)	w = wpcWinampMB ;
+	else				return 0 ;
+
+	return CallWindowProc( wpcWinampEQ, hWnd, WM_KEYDOWN, wParam, lParam) ;
 }
 
 

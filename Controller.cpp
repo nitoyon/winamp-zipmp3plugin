@@ -156,6 +156,15 @@ void Controller::Play()
 	{
 		return ;
 	}
+
+	// –³ˆ³k‚¶‚á‚È‚¢ê‡
+	if(pZipFile->GetStatus() != ZipFile::Status::UNCOMPRESSED)
+	{
+		SendMessage( pMainWnd->GetWinampWindow(), WM_COMMAND, WINAMP_BUTTON2, 0) ;
+		SendMessage( pMainWnd->GetWinampWindow(), WM_WA_IPC, 0, IPC_JUMPTOTIME) ;
+		return ;
+	}
+
 	ULONG ulMilisec = pZipFile->GetSongHead( pMainWnd->GetCurSong()) ;
 	SendMessage( pMainWnd->GetWinampWindow(), WM_COMMAND, WINAMP_BUTTON2, 0) ;
 	SendMessage( pMainWnd->GetWinampWindow(), WM_WA_IPC, ulMilisec, IPC_JUMPTOTIME) ;

@@ -26,7 +26,7 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 // Dialog
 //
 
-IDD_SETTING DIALOG DISCARDABLE  0, 0, 335, 255
+IDD_SETTING DIALOGEX 0, 0, 309, 255
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "設定"
 FONT 9, "ＭＳ Ｐゴシック"
@@ -55,14 +55,19 @@ BEGIN
     PUSHBUTTON      "ｷｬﾝｾﾙ",IDCANCEL,66,234,50,14
     PUSHBUTTON      "今すぐ表示(&D)",IDC_DISPLAY,127,234,50,14,NOT 
                     WS_VISIBLE
-    GROUPBOX        "バージョン情報",IDC_STATIC,213,7,115,219
-    LTEXT           "zip.mp3 表示プラグイソ。 ver 0.2.12b",IDC_STATIC,218,20,
-                    106,8
-    LTEXT           "http://www.nitoyon.com/",IDC_STATIC,246,211,75,8
+    GROUPBOX        "バージョン情報",IDC_STATIC,213,7,89,91
+    LTEXT           "zip.mp3 表示プラグイソ。 \nver 0.2.13b",IDC_STATIC,218,
+                    20,77,19
+    LTEXT           "http://www.nitoyon.com/",IDC_STATIC,225,84,75,8
     LTEXT           "姉妹品の MP3アルバムメーカーもよろしく！",IDC_STATIC,
-                    218,43,99,24
+                    218,43,80,24
     CONTROL         "曲の位置をスライドで表示する(&S)",IDC_TIMEBAR,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,13,53,113,10
+    CONTROL         109,IDC_STATIC,"Static",SS_BITMAP,225,121,58,68,
+                    WS_EX_STATICEDGE
+    CONTROL         112,IDC_STATIC,"Static",SS_BITMAP,225,192,58,28,
+                    WS_EX_STATICEDGE
+    GROUPBOX        "No More CCCD",IDC_STATIC,213,110,89,116
 END
 
 
@@ -77,13 +82,17 @@ BEGIN
     IDD_SETTING, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 328
+        RIGHTMARGIN, 302
         VERTGUIDE, 13
         VERTGUIDE, 24
         VERTGUIDE, 152
         VERTGUIDE, 202
+        VERTGUIDE, 213
+        VERTGUIDE, 225
         TOPMARGIN, 7
         BOTTOMMARGIN, 248
+        HORZGUIDE, 110
+        HORZGUIDE, 226
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -122,8 +131,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,2,12,0
- PRODUCTVERSION 0,2,12,0
+ FILEVERSION 0,2,13,0
+ PRODUCTVERSION 0,2,13,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -141,14 +150,14 @@ BEGIN
             VALUE "Comments", "zip.mp3 の中身を見せろや(ﾟДﾟ)ｺﾞﾙｧ!!\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "ZIP.MP3 再生プラグイソ。\0"
-            VALUE "FileVersion", "0. 2. 12. 0\0"
+            VALUE "FileVersion", "0. 2. 13. 0\0"
             VALUE "InternalName", "gen_zipalbum\0"
             VALUE "LegalCopyright", "Copyright (C) 2003 nitoyon + 協力者募集中\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "gen_zipalbum.dll\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "  gen_zipalbum\0"
-            VALUE "ProductVersion", "0. 2. 12. 0\0"
+            VALUE "ProductName", "gen_zipalbum\0"
+            VALUE "ProductVersion", "0. 2. 13. 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -198,6 +207,8 @@ END
 IDB_PLEDIT              BITMAP  DISCARDABLE     "resource\\Pledit.bmp"
 IDB_TEXT                BITMAP  DISCARDABLE     "resource\\Text.bmp"
 IDB_POSBAR              BITMAP  DISCARDABLE     "resource\\Posbar.bmp"
+IDB_NOCCCD1             BITMAP  DISCARDABLE     "resource\\nocccd1.bmp"
+IDB_NOCCCD2             BITMAP  DISCARDABLE     "resource\\nocccd2.bmp"
 #endif    // 日本語 resources
 /////////////////////////////////////////////////////////////////////////////
 

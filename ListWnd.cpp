@@ -533,7 +533,7 @@ void ListWnd::DrawCompactText( HDC hdc)
 		SelectObject( hdc, hFontSmall) ;
 	}
 
-	SetTextColor( hdc, colNormal) ;
+	SetTextColor( hdc, colCurrent) ;
 	SetBkColor( hdc, colNormalBG) ;
 	SetBkMode( hdc, TRANSPARENT) ;
 	HBITMAP hbmpText = pMainWnd->GetFontBmp() ;
@@ -574,7 +574,7 @@ void ListWnd::DrawCompactText( HDC hdc)
 		{
 			char pszBuf[ 3] ;
 			pszBuf[ 0] = str[ i] ;
-			rc.top--;
+			rc.top -= 3;
 			if( i == str.size() - 1)
 			{
 				pszBuf[ 1] = '\0';
@@ -600,7 +600,7 @@ void ListWnd::DrawCompactText( HDC hdc)
 			SIZE size ;
 			GetTextExtentPoint32( hdc, pszBuf, strlen( pszBuf), &size) ;
 			rc.left += size.cx ;
-			rc.top++;
+			rc.top += 3;
 		}
 
 		if( rc.left > rc.right)

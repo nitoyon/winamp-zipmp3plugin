@@ -236,6 +236,14 @@ SOURCE=.\zipmp3.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
+SOURCE=.\resource\nocccd1.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\resource\nocccd2.bmp
+# End Source File
+# Begin Source File
+
 SOURCE=.\resource\Pledit.bmp
 # End Source File
 # Begin Source File

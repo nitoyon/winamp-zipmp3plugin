@@ -1,7 +1,7 @@
 
 // MainWnd.cpp
 //============================================================================//
-// 更新：03/04/20(日)
+// 更新：03/04/28(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -29,7 +29,7 @@ MainWnd::MainWnd()
 : hbmpPlaylist( NULL), hbmpText( NULL), hbmpTimebar( NULL), strSkinName( ""), strSkinPath( "")
 , pListWnd( NULL)
 , intMin( -1), intSec( -1)
-, blnResize( FALSE), blnMove( FALSE), blnClose( FALSE), blnScroll( FALSE), blnSnapping( -1)
+, blnFocus(FALSE), blnResize( FALSE), blnMove( FALSE), blnClose( FALSE), blnScroll( FALSE), blnSnapping( -1)
 {
 	// 場所
 	intLeftPos[ Item::CLOSE]	= -11 ;		intRightPos[  Item::CLOSE]	= -3 ;
@@ -94,7 +94,7 @@ MainWnd::~MainWnd()
 /******************************************************************************/
 // メッセージマップ定義
 //============================================================================//
-// 更新：02/12/29(日)
+// 更新：03/04/28(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -105,6 +105,7 @@ BEGIN_MESSAGE_MAP( MainWndProc, MainWnd)
 	ON_MESSAGE( WM_HOTKEY			, OnHotKey)
 	ON_MESSAGE( WM_SIZE			, OnSize)
 	ON_MESSAGE( WM_SETFOCUS			, OnFocus)
+	ON_MESSAGE( WM_KILLFOCUS		, OnKillFocus)
 	ON_MESSAGE( WM_PAINT			, OnPaint)
 	ON_MESSAGE( WM_LBUTTONDOWN		, OnLButtonDown)
 	ON_MESSAGE( WM_RBUTTONDOWN		, OnRButtonDown)
@@ -217,13 +218,30 @@ LRESULT MainWnd::OnSize( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // フォーカス
 //============================================================================//
-// 更新：02/12/16(月)
+// 更新：03/04/28(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 LRESULT MainWnd::OnFocus( HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
+	blnFocus = TRUE ;
+	InvalidateRect(hWnd, NULL, FALSE);
+	return 0 ;
+}
+
+
+/******************************************************************************/
+// フォーカスを失う
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+LRESULT MainWnd::OnKillFocus( HWND hWnd, WPARAM wParam, LPARAM lParam)
+{
+	blnFocus = FALSE ;
+	InvalidateRect(hWnd, NULL, FALSE);
 	return 0 ;
 }
 
@@ -722,19 +740,19 @@ void MainWnd::DrawSkinNormal( HDC hdc)
 	int intCenterX = ( intWidth - 100) / 2 ;
 
 	// ヘッダ
-	BitBlt( hdc,   0,   0,  25, 20, hdcBmp,   0, 0, SRCCOPY) ;	// 左端
-	BitBlt( hdc,  25,   0,  25, 20, hdcBmp,  127, 0, SRCCOPY) ;
+	BitBlt( hdc,   0,   0,  25, 20, hdcBmp,   0,  blnFocus ? 0 : 21, SRCCOPY) ;	// 左端
+	BitBlt( hdc,  25,   0,  25, 20, hdcBmp,  127, blnFocus ? 0 : 21, SRCCOPY) ;
 	for( i = 0; i < Profile::intBlockX / 2; i++)
 	{
-		BitBlt( hdc,  intCenterX - 25 * ( i + 1),   0,  25, 20, hdcBmp, 127, 0, SRCCOPY) ;
+		BitBlt( hdc,  intCenterX - 25 * ( i + 1),   0,  25, 20, hdcBmp, 127, blnFocus ? 0 : 21, SRCCOPY) ;
 	}
-	BitBlt( hdc, intCenterX, 0, 100, 20, hdcBmp,  26, 0, SRCCOPY) ;	// プレイリストの文字
-	BitBlt( hdc, intCenterX + 100,   0,  25, 20, hdcBmp,  127, 0, SRCCOPY) ;
+	BitBlt( hdc, intCenterX,         0, 100, 20, hdcBmp,   26, blnFocus ? 0 : 21, SRCCOPY) ;	// プレイリストの文字
+	BitBlt( hdc, intCenterX + 100,   0,  25, 20, hdcBmp,  127, blnFocus ? 0 : 21, SRCCOPY) ;
 	for( i = 0; i < Profile::intBlockX / 2; i++)
 	{
-		BitBlt( hdc, intWidth - 25 * ( i + 2),   0,  25, 20, hdcBmp, 127, 0, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 25 * ( i + 2),   0,  25, 20, hdcBmp, 127, blnFocus ? 0 : 21, SRCCOPY) ;
 	}
-	BitBlt( hdc, intWidth - 25,   0,  25, 20, hdcBmp, 153, 0, SRCCOPY) ;	// 右端
+	BitBlt( hdc, intWidth - 25,   0,  25, 20, hdcBmp, 153, blnFocus ? 0 : 21, SRCCOPY) ;	// 右端
 
 	// 中央
 	for( i = 0; i < Profile::intBlockY; i++)
@@ -785,7 +803,7 @@ void MainWnd::DrawSkinCompact( HDC hdc)
 	{
 		BitBlt( hdc,  25 + 25 * i,   0,  25, 14, hdcBmp, 72, 57, SRCCOPY) ;
 	}
-	BitBlt( hdc, intWidth - 50,   0,  50, 14, hdcBmp, 99, 42, SRCCOPY) ;	// 右端
+	BitBlt( hdc, intWidth - 50,   0,  50, 14, hdcBmp, 99, 42 + (blnFocus ? 0 : 15), SRCCOPY) ;	// 右端
 
 	DeleteDC( hdcBmp);
 }
@@ -824,7 +842,7 @@ void MainWnd::DrawTime( HDC hdc)
 		BitBlt( hdc, intWidth - 60 + 18, 4, 5, 6, hdcFont, ( intSec / 10) * 5, 6, SRCCOPY) ;
 		BitBlt( hdc, intWidth - 60 + 23, 4, 5, 6, hdcFont, ( intSec % 10) * 5, 6, SRCCOPY) ;*/
 	}
-	else
+	else if(dwCurSongLength != 0)
 	{
 		// 時間表示
 		if( !Profile::blnCountUp)
@@ -958,10 +976,12 @@ void MainWnd::ToggleCompact()
 	if(Profile::blnCompact)
 	{
 		MoveWindow( m_hWnd, rect.left, rect.top, intWidth, Y_COMPACT_HEIGHT, TRUE) ;
+		intHeight = Y_COMPACT_HEIGHT;
 		InvalidateRect( m_hWnd, NULL, TRUE) ;
 	}
 	else
 	{
+		intHeight = Y_BLOCK_CONST + Y_BLOCK_SIZE * Profile::intBlockY ;
 		MoveWindow( m_hWnd, rect.left, rect.top, intWidth, intHeight, TRUE) ;
 		InvalidateRect( m_hWnd, NULL, TRUE) ;
 	}
