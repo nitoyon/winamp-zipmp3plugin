@@ -1,7 +1,7 @@
 
 // ListWnd.cpp
 //============================================================================//
-// 更新：02/12/30(月)
+// 更新：03/01/05(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -263,6 +263,7 @@ int ListWnd::GetScrollBarPos() const
 void ListWnd::ClearList() 
 {
 	vecList.clear() ;
+	vecTime.clear() ;
 	intSelected = NO_ITEM ;
 	intCurrent = NO_ITEM ;
 	intScrollPos = 0 ;
@@ -281,9 +282,10 @@ void ListWnd::ClearList()
 // 補足：なし。
 //============================================================================//
 
-void ListWnd::AddList( const string& s)
+void ListWnd::AddList( const string& s, DWORD d)
 {
 	vecList.push_back( s) ;
+	vecTime.push_back( d / 1000) ;
 	SetSize() ;
 	InvalidateItem( vecList.size() - 1) ;
 }
@@ -489,7 +491,7 @@ void ListWnd::DrawList( HDC hdc)
 /******************************************************************************/
 // アイテム描画
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：03/01/05(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -530,6 +532,17 @@ void ListWnd::DrawItem( HDC hdc, int intCount)
 		SetTextColor( hdc, colNormal) ;
 	}
 
+	// 描画
+	if( vecTime[ intItem] != 0)
+	{
+		char pszBuf[ 256] ;
+		SIZE size ;
+		wsprintf( pszBuf, "%d:%02d", vecTime[ intItem] / 60, vecTime[ intItem] % 60) ;
+		GetTextExtentPoint32( hdc, pszBuf, strlen( pszBuf), &size) ;
+
+		DrawText( hdc, pszBuf, -1, &rc, DT_RIGHT) ;
+		rc.right -= size.cx ;
+	}
 	DrawText( hdc, vecList[ intItem].c_str(), -1, &rc, DT_LEFT | DT_END_ELLIPSIS) ;
 }
 

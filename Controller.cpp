@@ -14,7 +14,7 @@
 
 
 /******************************************************************************/
-//		コンストラクタおよびデストラクタ
+//		定義
 /******************************************************************************/
 
 Controller* Controller::pInstance = NULL ;
@@ -398,17 +398,17 @@ void Controller::UpdateFileInfo( const string& s)
 			{
 				File* pFile = pZipFile->GetChildFile( i) ;
 				
-				if( blnCompi)
+				if( blnCompi && pFile->HasID3Tag())
 				{
-					pMainWnd->AddList( pFile->GetDisplayStr( Profile::strListCompilation)) ;
+					pMainWnd->AddList( pFile->GetDisplayStr( Profile::strListCompilation), pFile->GetPlayLength()) ;
 				}
-				else if( pFile->HasID3Tag())
+				else if( Profile::blnListID3 && pFile->HasID3Tag())
 				{
-					pMainWnd->AddList( pFile->GetDisplayStr( Profile::strListID3)) ;
+					pMainWnd->AddList( pFile->GetDisplayStr( Profile::strListID3), pFile->GetPlayLength()) ;
 				}
 				else
 				{
-					pMainWnd->AddList( pFile->GetDisplayStr( Profile::strListNormal)) ;
+					pMainWnd->AddList( pFile->GetFileName(), pFile->GetPlayLength()) ;
 				}
 			}
 			break ;

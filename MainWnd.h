@@ -1,7 +1,7 @@
 
 // MainWnd.h
 //============================================================================//
-// 更新：02/12/30(月)
+// 更新：03/01/05(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -118,7 +118,7 @@ public:
 	void SetTime( int, int) ;
 	void SetCurSong( int) ;
 	void ClearList() ;
-	void AddList( const string&) ;
+	void AddList( const string&, DWORD = 0) ;
 
 // 取得
 	HWND GetWinampWindow() const{ return hwndWinamp ;}

@@ -1,7 +1,7 @@
 
 // ListWnd.h
 //============================================================================//
-// 更新：02/12/29(日)
+// 更新：03/01/05(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -55,6 +55,7 @@ private:
 	int		intScrollPos ;
 	int		intScrollRange ;
 	vector<string>	vecList ;
+	vector<DWORD>	vecTime ;
 
 public:
 // コンストラクタおよびデストラクタ
@@ -77,7 +78,7 @@ private:
 public:
 // アイテム設定
 	void ClearList() ;
-	void AddList( const string&) ;
+	void AddList( const string&, DWORD) ;
 	void SetSelectedItem( int i) ;
 	void SetCurrentItem( int i) ;
 	void SetSize() ;

@@ -1,7 +1,7 @@
 
 // MainWnd.cpp
 //============================================================================//
-// 更新：02/12/30(月)
+// 更新：03/01/05(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -13,8 +13,6 @@
 #include "resource.h"
 #include <zmouse.h>	// WM_MOUSEWHEEL
 #include "main.h"
-
-#define  IDC_TITLE  100
 
 
 /******************************************************************************/
@@ -61,7 +59,7 @@ MainWnd::MainWnd()
 	intTopPos[  Item::TIME]		= -17 ;		intBottomPos[ Item::TIME]	= -8 ;
 	intLeftPos[ Item::LIST]		= LIST_LEFT ;	intRightPos[  Item::LIST]	= -LIST_RIGHT ;
 	intTopPos[  Item::LIST]		= LIST_TOP ;	intBottomPos[ Item::LIST]	= -38 - LIST_XMARGIN ;
-	intLeftPos[ Item::SCROLLBAR]	= -15 ;		intRightPos[  Item::SCROLLBAR]	= -8 ;
+	intLeftPos[ Item::SCROLLBAR]	= -15 ;		intRightPos[  Item::SCROLLBAR]	= -7 ;
 	intTopPos[  Item::SCROLLBAR]	= LIST_TOP ;	intBottomPos[ Item::SCROLLBAR]	= -38 ;
 }
 
@@ -784,14 +782,14 @@ void MainWnd::ClearList()
 /******************************************************************************/
 // リスト追加
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：03/01/05(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-void MainWnd::AddList( const string& s)
+void MainWnd::AddList( const string& s, DWORD dwLength)
 {
-	pListWnd->AddList( s) ;
+	pListWnd->AddList( s, dwLength) ;
 }
 
 
