@@ -206,12 +206,12 @@ void Profile::Load()
 	vector<string> vecData = ReadProfileSection("Dll",  strPath);
 	if(vecData.size() == 0)
 	{
-		// 初期化 (<winamp>\Plugin\gen_zipalbum\r_zip.dll をリストに加える)
+		// 初期化 (<winamp>\Plugin\gen_zipalbum\zip_r.dll をリストに加える)
 		char pszPath[ MAX_PATH + 1] ;
 		GetModuleFileName(hInstance, pszPath, MAX_PATH);
 		string strPath = pszPath;
 		strPath = strPath.substr(0, strPath.rfind("."));
-		strPath += "\\r_zip.dll";
+		strPath += "\\zip_r.dll";
 		vecHeaderDll.push_back(strPath);
 		vecUseHeaderDll.push_back(TRUE);
 	}

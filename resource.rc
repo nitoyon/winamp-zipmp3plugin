@@ -37,7 +37,7 @@ END
 IDD_WINDOW DIALOGEX 0, 0, 180, 136
 STYLE WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
-FONT 9, "ＭＳ Ｐゴシック"
+FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x1
 BEGIN
     LTEXT           " ZIP.MP3 ウインドウの設定を行います。",IDC_TITLE,0,0,
                     180,14,SS_CENTERIMAGE | SS_SUNKEN
@@ -58,7 +58,7 @@ END
 IDD_UNAVAILABLE DIALOGEX 0, 0, 180, 161
 STYLE WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
-FONT 9, "ＭＳ Ｐゴシック"
+FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x1
 BEGIN
     LTEXT           " まだ利用できません。",IDC_TITLE,0,0,180,14,
                     SS_CENTERIMAGE | SS_SUNKEN
@@ -71,7 +71,7 @@ END
 IDD_SKIN DIALOGEX 0, 0, 180, 152
 STYLE WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
-FONT 9, "ＭＳ Ｐゴシック"
+FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x1
 BEGIN
     LTEXT           " ZIP.MP3 ウインドウのスキンを設定します。",IDC_TITLE,0,
                     0,180,14,SS_CENTERIMAGE | SS_SUNKEN
@@ -117,7 +117,7 @@ END
 IDD_MP3 DIALOGEX 0, 0, 180, 136
 STYLE WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
-FONT 9, "ＭＳ Ｐゴシック"
+FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x1
 BEGIN
     LTEXT           " MP3 の設定を行います。",IDC_TITLE,0,0,180,14,
                     SS_CENTERIMAGE | SS_SUNKEN
@@ -180,7 +180,7 @@ END
 IDD_DLL DIALOGEX 0, 0, 180, 160
 STYLE WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
-FONT 9, "ＭＳ Ｐゴシック"
+FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x1
 BEGIN
     LTEXT           " 読み取りを行う DLL の設定を行います。",IDC_TITLE,0,0,
                     180,14,SS_CENTERIMAGE | SS_SUNKEN
@@ -205,7 +205,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,128,7,19,43
     LTEXT           "ZIP.MP3 再生プラグイソ。(Winamp用)",IDC_STATIC,7,7,108,
                     8
-    LTEXT           "ver. 0.3.0",IDC_STATIC,7,19,26,8
+    LTEXT           "ver. 0.3.1a",IDC_STATIC,7,19,30,8
     LTEXT           "http://www.nitoyon.com/",IDC_URL,21,39,73,8,SS_NOTIFY
 END
 
@@ -317,8 +317,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,3,0,0
- PRODUCTVERSION 0,3,0,0
+ FILEVERSION 0,3,1,0
+ PRODUCTVERSION 0,3,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -336,14 +336,14 @@ BEGIN
             VALUE "Comments", "zip.mp3 の中身を見せろや(ﾟДﾟ)ｺﾞﾙｧ!!\0"
             VALUE "CompanyName", "nitoyon\0"
             VALUE "FileDescription", "ZIP.MP3 再生プラグイソ。\0"
-            VALUE "FileVersion", "0. 3. 0. 0\0"
+            VALUE "FileVersion", "0. 3. 1. 0\0"
             VALUE "InternalName", "gen_zipalbum\0"
             VALUE "LegalCopyright", "Copyright (C) 2003 nitoyon + 協力者募集中\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "gen_zipalbum.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "gen_zipalbum\0"
-            VALUE "ProductVersion", "0. 3. 0. 0\0"
+            VALUE "ProductVersion", "0. 3. 1. 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END

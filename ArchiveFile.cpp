@@ -82,6 +82,11 @@ BOOL ArchiveFile::ReadHeader()
 
 	for(i = 0; i < Profile::vecHeaderDll.size(); i++)
 	{
+		if(!Profile::vecUseHeaderDll[i])
+		{
+			continue;
+		}
+
 		string st = Profile::vecHeaderDll[i];
 		hDll = LoadLibrary(Profile::vecHeaderDll[i].c_str());
 		if(hDll == NULL)
