@@ -58,7 +58,7 @@ LINK32=link.exe
 TargetPath=.\Release\gen_zipalbum.dll
 TargetName=gen_zipalbum
 SOURCE="$(InputPath)"
-PostBuild_Desc=install    <winamp>\Plugins\ 
+PostBuild_Desc=install     <winamp>\Plugins\ 
 PostBuild_Cmds=install.js $(TargetPath) $(TargetName)
 # End Special Build Tool
 
@@ -281,6 +281,10 @@ SOURCE=.\ico00001.ico
 # End Source File
 # Begin Source File
 
+SOURCE=.\keyboard.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\list.ico
 # End Source File
 # Begin Source File
@@ -362,6 +366,14 @@ SOURCE=.\Dialog\FontDlg.cpp
 # Begin Source File
 
 SOURCE=.\Dialog\FontDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\KeyboardDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\KeyboardDlg.h
 # End Source File
 # Begin Source File
 

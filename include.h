@@ -11,8 +11,6 @@
 
 #pragma warning( disable : 4786 )   // C4786‚È‚ñ‚Ä•\Ž¦‚·‚ñ‚È( ß„Dß)ºÞÙ§
 
-#define  _WIN32_WINNT 0x0500
-
 #include <windows.h>
 #include <winuser.h>
 #include <commctrl.h>

@@ -26,18 +26,10 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 // Dialog
 //
 
-IDD_ARCHIVE DIALOG DISCARDABLE  0, 0, 200, 180
-STYLE WS_CHILD
-FONT 9, "ＭＳ Ｐゴシック"
-BEGIN
-    LTEXT           "アーカイブ ファイル読み取りプラグイン",IDC_STATIC,0,0,
-                    198,14,SS_CENTERIMAGE
-END
-
 IDD_WINDOW DIALOGEX 0, 0, 180, 160
 STYLE WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
-FONT 9, "ＭＳ Ｐゴシック"
+FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x1
 BEGIN
     LTEXT           " ZIP.MP3 ウインドウの設定を行います。",IDC_TITLE,0,0,
                     180,14,SS_CENTERIMAGE | SS_SUNKEN
@@ -118,21 +110,16 @@ BEGIN
     LTEXT           "",IDC_PANEL,82,7,180,159,NOT WS_VISIBLE
 END
 
-IDD_MP3 DIALOGEX 0, 0, 180, 160
+IDD_KEYBOARD DIALOGEX 0, 0, 180, 160
 STYLE WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
-FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x1
+FONT 9, "ＭＳ Ｐゴシック"
 BEGIN
-    LTEXT           " MP3 の設定を行います。",IDC_TITLE,0,0,180,14,
-                    SS_CENTERIMAGE | SS_SUNKEN
-    CONTROL         "ID3v2 タグを読み取る(&V)",IDC_USE_ID3V2,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,0,20,87,10
-    CONTROL         "cue ファイルがあるときはそちらの時間を優先。(&C)",
-                    IDC_USE_CUE,"Button",BS_AUTOCHECKBOX | WS_DISABLED | 
-                    WS_TABSTOP,0,36,160,10
-    CONTROL         "MP3 が１曲のみの場合、mp3+cue として解釈する。(&M)",
-                    IDC_USE_MP3CUE,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | 
-                    WS_TABSTOP,8,50,173,10
+    LTEXT           " キーボード ショートカットを表示するだけです。",
+                    IDC_TITLE,0,0,180,14,SS_CENTERIMAGE | SS_SUNKEN
+    LTEXT           "変更はできませんよ：",IDC_STATIC,3,21,63,8
+    CONTROL         "List1",IDC_KEYBOARDLIST,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,0,32,179,127
 END
 
 IDD_LIST DIALOGEX 0, 0, 180, 152
@@ -209,8 +196,25 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,128,7,19,43
     LTEXT           "ZIP.MP3 再生プラグイソ。(Winamp用)",IDC_STATIC,7,7,108,
                     8
-    LTEXT           "ver. 0.3.2",IDC_STATIC,7,19,26,8
+    LTEXT           "ver. 0.3.3b",IDC_STATIC,7,19,30,8
     LTEXT           "http://www.nitoyon.com/",IDC_URL,21,39,73,8,SS_NOTIFY
+END
+
+IDD_MP3 DIALOGEX 0, 0, 180, 160
+STYLE WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x1
+BEGIN
+    LTEXT           " MP3 の設定を行います。",IDC_TITLE,0,0,180,14,
+                    SS_CENTERIMAGE | SS_SUNKEN
+    CONTROL         "ID3v2 タグを読み取る(&V)",IDC_USE_ID3V2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,0,20,87,10
+    CONTROL         "cue ファイルがあるときはそちらの時間を優先。(&C)",
+                    IDC_USE_CUE,"Button",BS_AUTOCHECKBOX | WS_DISABLED | 
+                    WS_TABSTOP,0,36,160,10
+    CONTROL         "MP3 が１曲のみの場合、mp3+cue として解釈する。(&M)",
+                    IDC_USE_MP3CUE,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | 
+                    WS_TABSTOP,8,50,173,10
 END
 
 
@@ -222,11 +226,6 @@ END
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO DISCARDABLE 
 BEGIN
-    IDD_ARCHIVE, DIALOG
-    BEGIN
-        RIGHTMARGIN, 198
-    END
-
     IDD_UNAVAILABLE, DIALOG
     BEGIN
         BOTTOMMARGIN, 160
@@ -246,11 +245,6 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 189
         HORZGUIDE, 166
-    END
-
-    IDD_MP3, DIALOG
-    BEGIN
-        BOTTOMMARGIN, 135
     END
 
     IDD_LIST, DIALOG
@@ -278,6 +272,11 @@ BEGIN
         RIGHTMARGIN, 147
         TOPMARGIN, 7
         BOTTOMMARGIN, 50
+    END
+
+    IDD_MP3, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 135
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -316,8 +315,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,3,2,0
- PRODUCTVERSION 0,3,2,0
+ FILEVERSION 0,3,3,0
+ PRODUCTVERSION 0,3,3,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -342,7 +341,7 @@ BEGIN
             VALUE "OriginalFilename", "gen_zipalbum.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "gen_zipalbum\0"
-            VALUE "ProductVersion", "0. 3. 2. 0\0"
+            VALUE "ProductVersion", "0. 3. 3. 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -419,6 +418,7 @@ IDI_EXPERT              ICON    DISCARDABLE     "expert.ico"
 IDI_DLL                 ICON    DISCARDABLE     "dll.ico"
 IDI_DLL_NOTFOUND        ICON    DISCARDABLE     "dll_notfound.ico"
 IDI_DLL_FOUND           ICON    DISCARDABLE     "dll_found.ico"
+IDI_KEYBOARD            ICON    DISCARDABLE     "keyboard.ico"
 #endif    // 日本語 resources
 /////////////////////////////////////////////////////////////////////////////
 

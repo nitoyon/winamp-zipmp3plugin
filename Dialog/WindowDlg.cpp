@@ -103,6 +103,10 @@ BOOL WindowDlg::OnInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 	{
 		SendMessage(hwndTransparency, CB_SETCURSEL, 0, 0);
 	}
+	if(!(IsNT() && GetOsMajorVersion() >= 5))
+	{
+		EnableWindow(hwndTransparency, FALSE);
+	}
 
 	return FALSE;
 }

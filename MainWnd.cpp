@@ -17,6 +17,16 @@
 
 
 /******************************************************************************/
+//		透明度設定用
+/******************************************************************************/
+
+typedef BOOL(WINAPI *SLWA)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
+#ifndef LWA_ALPHA
+#define LWA_ALPHA 2
+#endif
+
+
+/******************************************************************************/
 //		コンストラクタおよびデストラクタ
 /******************************************************************************/
 // 
@@ -1117,14 +1127,14 @@ void MainWnd::ToggleCompact()
 
 void MainWnd::SetTransparency() const
 {
-#ifdef WS_EX_LAYERED
 	if(IsNT() && GetOsMajorVersion() >= 5)
 	{
+		int intTrans = -1;
+
 		// 独自の透明度
 		if(0 <= Profile::intTransparency && Profile::intTransparency <= Profile::intTransparency)
 		{
-			SetLayeredWindowAttributes(m_hWnd, 0, 255 - Profile::intTransparency * 255 / 100, LWA_ALPHA);
-			return;
+			intTrans = 100 - Profile::intTransparency;
 		}
 		// SexyFont から読み取り
 		else if(Profile::intTransparency == -1)
@@ -1143,7 +1153,7 @@ void MainWnd::SetTransparency() const
 
 					if(ret == ERROR_SUCCESS && dwType == REG_DWORD && 0 <= dwData || dwData <= 100)
 					{
-						SetLayeredWindowAttributes(m_hWnd, 0, dwData * 255 / 100, LWA_ALPHA);
+						intTrans = 100 - Profile::intTransparency;
 						RegCloseKey(hkey);
 						return;
 					}
@@ -1151,11 +1161,23 @@ void MainWnd::SetTransparency() const
 				RegCloseKey(hkey);
 			}
 		}
+		else
+		{
+			intTrans = 100;
+		}
 
 		// 読み取り失敗時
-		SetLayeredWindowAttributes(m_hWnd, 0, 255, LWA_ALPHA);
+		HINSTANCE hUser32Dll = LoadLibrary("user32.dll");
+		if(hUser32Dll)
+		{
+			SLWA dllSetLayeredWindowAttributes;
+			if(dllSetLayeredWindowAttributes = (SLWA)GetProcAddress(hUser32Dll,"SetLayeredWindowAttributes"))
+			{
+				dllSetLayeredWindowAttributes(m_hWnd, 0, intTrans * 255 / 100, LWA_ALPHA);
+			}
+			FreeLibrary(hUser32Dll);
+		}
 	}
-#endif
 }
 
 

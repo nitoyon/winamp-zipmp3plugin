@@ -14,6 +14,10 @@
 #include "Profile.h"
 #include "resource.h"
 
+#ifndef WS_EX_LAYERED
+#define WS_EX_LAYERED 0x80000
+#endif
+
 
 /******************************************************************************/
 //		ƒOƒ[ƒoƒ‹•Ï”
@@ -97,11 +101,7 @@ int init()
 	pMainWnd->SetWinampWindow( plugin.hwndParent) ;
 
 	HWND hMainWnd = CreateWindowEx(
-#ifdef WS_EX_LAYERED
 		WS_EX_LAYERED,//WS_EX_TOOLWINDOW
-#else
-		0,
-#endif
 		APP_NAME,
 		NULL,
 		WS_CLIPSIBLINGS, //WS_POPUP, 

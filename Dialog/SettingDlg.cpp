@@ -16,6 +16,7 @@
 #include "Mp3Dlg.h"
 #include "ListDlg.h"
 #include "DllDlg.h"
+#include "KeyboardDlg.h"
 #include "NullDlg.h"
 #include "AboutDlg.h"
 
@@ -105,6 +106,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 		MAKEINTRESOURCE(IDD_LIST), 
 		MAKEINTRESOURCE(IDD_DLL), 
 		MAKEINTRESOURCE(IDD_UNAVAILABLE), 
+		MAKEINTRESOURCE(IDD_KEYBOARD), 
 		MAKEINTRESOURCE(IDD_UNAVAILABLE)
 	};
 	DLGPROC pDlgProc[] = {
@@ -115,6 +117,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 		ListDlgProc, 
 		DllDlgProc, 
 		NullDlgProc, 
+		KeyboardDlgProc, 
 		NullDlgProc
 	};
 	vecChildDlg.push_back(new WindowDlg());
@@ -124,6 +127,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	vecChildDlg.push_back(new ListDlg());
 	vecChildDlg.push_back(new DllDlg());
 	vecChildDlg.push_back(new NullDlg());
+	vecChildDlg.push_back(new KeyboardDlg());
 	vecChildDlg.push_back(new NullDlg());
 	
 	// ウインドウ作成
@@ -152,6 +156,8 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	hicon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_DLL));
 	if(hicon) ImageList_AddIcon(hImgList, hicon);
 	hicon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_EXPERT));
+	if(hicon) ImageList_AddIcon(hImgList, hicon);
+	hicon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_KEYBOARD));
 	if(hicon) ImageList_AddIcon(hImgList, hicon);
 	hicon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_PATH));
 	if(hicon) ImageList_AddIcon(hImgList, hicon);
@@ -217,9 +223,17 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	tvis.hParent		= hitem;
 	tvis.hInsertAfter	= TVI_LAST;
 	tvis.item.lParam	= 7;
-	tvis.item.pszText	= "パス";
+	tvis.item.pszText	= "キーボード";
 	tvis.item.iImage	= 7;
 	tvis.item.iSelectedImage= 7;
+	TreeView_InsertItem(hwndTree, &tvis);
+
+	tvis.hParent		= hitem;
+	tvis.hInsertAfter	= TVI_LAST;
+	tvis.item.lParam	= 8;
+	tvis.item.pszText	= "パス";
+	tvis.item.iImage	= 8;
+	tvis.item.iSelectedImage= 8;
 	TreeView_InsertItem(hwndTree, &tvis);
 	TreeView_Expand(hwndTree, hitem, TVE_EXPAND); // 開く
 

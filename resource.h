@@ -30,9 +30,11 @@
 #define IDD_DLL                         123
 #define IDI_EXPERT                      124
 #define IDD_ABOUT                       124
+#define IDD_KEYBOARD                    125
 #define IDI_PATH                        125
 #define IDI_DLL_NOTFOUND                127
 #define IDI_DLL_FOUND                   128
+#define IDI_KEYBOARD                    129
 #define IDC_SHOW_ONLY_UNCOMPRESS        1000
 #define IDC_SHOW_ONLY_ZIP2              1001
 #define IDC_SHOW_ONLY_ZIP               1001
@@ -82,6 +84,8 @@
 #define IDC_SKIN_BROWSE1                1043
 #define IDC_USE_SKIN_FONT               1044
 #define IDC_TRANSPARENCY                1045
+#define IDD_KEYBOARDLIST                1046
+#define IDC_KEYBOARDLIST                1047
 #define IDM_DISPTAG                     40001
 #define IDM_EXTRACT                     40002
 #define IDM_PLAY                        40003
@@ -99,9 +103,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        129
+#define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         40015
-#define _APS_NEXT_CONTROL_VALUE         1046
+#define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
