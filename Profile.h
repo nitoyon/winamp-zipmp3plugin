@@ -2,7 +2,7 @@
 // Profile.h
 // アプリケーションの設定
 //============================================================================//
-// 更新：03/04/20(日)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -34,6 +34,7 @@ public:
 	static BOOL blnCountUp ;
 	static BOOL blnCompact ;
 	static BOOL blnShowTimebar ;
+	static string strFont;
 
 // リスト
 	static string strListNormal ;

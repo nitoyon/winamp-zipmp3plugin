@@ -1,7 +1,7 @@
 
 // MainWnd.h
 //============================================================================//
-// 更新：03/04/28(月)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -62,7 +62,6 @@ private:
 	HBITMAP		hbmpPlaylist ;
 	HBITMAP		hbmpText ;
 	HBITMAP		hbmpTimebar ;
-	HFONT		hFont;
 	string		strSkinName ;
 	string		strSkinPath ;
 
@@ -88,6 +87,8 @@ private:
 	BOOL		blnScroll ;
 	BOOL		blnSnapping ;
 	POINT		ptOffsetSnap ;
+	BOOL		blnTimeBarDrag ;
+	int		intTimeBarDrag ;
 
 	int intLeftPos[ Item::LAST] ;
 	int intRightPos[ Item::LAST] ;

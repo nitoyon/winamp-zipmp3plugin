@@ -1,7 +1,7 @@
 
 // Controller.cpp
 //============================================================================//
-// 更新：03/04/20(日)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -174,12 +174,12 @@ void Controller::Play()
 /******************************************************************************/
 // 移動
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-void Controller::Go( UINT u)
+void Controller::Go( UINT u, int intDiff)
 {
 	if( !pZipFile)
 	{
@@ -191,7 +191,7 @@ void Controller::Go( UINT u)
 	}
 
 	HWND hwnd = pMainWnd->GetWinampWindow() ;
-	ULONG ulMilisec = pZipFile->GetSongHead( u) ;
+	ULONG ulMilisec = pZipFile->GetSongHead( u) + intDiff;
 	SendMessage( hwnd, WM_WA_IPC, ulMilisec, IPC_JUMPTOTIME) ;
 
 	// 再生中でないならば、手動でファイル番号更新
@@ -200,7 +200,8 @@ void Controller::Go( UINT u)
 		ULONG ulCurFileNum = pZipFile->GetSongIndex( ulMilisec) ;
 		if( pMainWnd->GetCurSong() != ulCurFileNum)
 		{
-			pMainWnd->SetCurSong( ulCurFileNum, pZipFile->GetChildFile( ulCurFileNum)->GetPlayLength()) ;
+			SendMessage( pMainWnd->GetWinampWindow(), WM_COMMAND, WINAMP_BUTTON2, 0) ;
+			SendMessage( hwnd, WM_WA_IPC, ulMilisec, IPC_JUMPTOTIME) ;
 		}
 	}
 }
@@ -259,13 +260,18 @@ BOOL Controller::Extract( UINT ui, const string& strPath)
 /******************************************************************************/
 // 解凍詳細
 //============================================================================//
-// 更新：03/02/02(日)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 BOOL Controller::ExtractDetail( UINT ui, UINT uiMsg)
 {
+	if( pZipFile->GetStatus() != ZipFile::Status::UNCOMPRESSED)
+	{
+		return FALSE ;
+	}
+
 	string strOutPath ;
 
 	if( uiMsg == IDM_EXTRACT_HERE)
@@ -307,13 +313,18 @@ BOOL Controller::ExtractDetail( UINT ui, UINT uiMsg)
 /******************************************************************************/
 // ミニブラウザーで開く
 //============================================================================//
-// 更新：02/12/31(火)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 void Controller::OpenInMiniBrowser( UINT i)
 {
+	if( pZipFile->GetStatus() != ZipFile::Status::UNCOMPRESSED)
+	{
+		return ;
+	}
+
 	File* pFile = pZipFile->GetChildFile( i) ;
 	if( !pFile)
 	{

@@ -1,7 +1,7 @@
 
 // MainWnd.cpp
 //============================================================================//
-// 更新：03/04/28(月)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -30,6 +30,7 @@ MainWnd::MainWnd()
 , pListWnd( NULL)
 , intMin( -1), intSec( -1)
 , blnFocus(FALSE), blnResize( FALSE), blnMove( FALSE), blnClose( FALSE), blnScroll( FALSE), blnSnapping( -1)
+, blnTimeBarDrag(FALSE)
 {
 	// 場所
 	intLeftPos[ Item::CLOSE]	= -11 ;		intRightPos[  Item::CLOSE]	= -3 ;
@@ -74,17 +75,13 @@ MainWnd::MainWnd()
 /******************************************************************************/
 // 
 //============================================================================//
-// 更新：03/04/11(金)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 MainWnd::~MainWnd() 
 {
-	if(hFont)
-	{
-		DeleteObject(hFont);
-	}
 }
 
 
@@ -128,6 +125,8 @@ END_MESSAGE_MAP()
 
 LRESULT MainWnd::OnCreate( HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
+	SetWindowLong(hWnd, GWL_STYLE, GetWindowLong(hWnd, GWL_STYLE) & ~WS_CAPTION);
+
 	// ウインドウ作成
 	HINSTANCE hInst = GetModuleHandle( NULL) ;
 	pListWnd = new ListWnd( this) ;
@@ -319,7 +318,7 @@ LRESULT MainWnd::OnDestroy( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // マウスダウン
 //============================================================================//
-// 更新：03/04/11(金)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -400,6 +399,21 @@ LRESULT MainWnd::OnLButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 			SetCapture( hWnd) ;
 			InvalidateItem( SCROLLBAR) ;
 			break ;
+
+		case TIMEBAR:
+			blnTimeBarDrag = TRUE ;
+			SetCapture( hWnd) ;
+
+			POINT pt ;
+			GetCursorPos( &pt) ;
+			RECT rect ;
+			GetWindowRect( hWnd, &rect) ;
+			pt.x -= rect.left + intWidth + intLeftPos[ Item::TIMEBAR] ;
+			intTimeBarDrag = ( pt.x < 0 ? 0 : ( pt.x >= 95 - 30 ? 95 - 30 : pt.x)) ;
+
+			InvalidateItem( TIMEBAR) ;
+
+			break ;
 		}
 	return 0 ;
 }
@@ -449,7 +463,7 @@ LRESULT MainWnd::OnRButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // マウスアップ
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -467,6 +481,15 @@ LRESULT MainWnd::OnLButtonUp( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		blnScroll = FALSE ;
 		ReleaseCapture() ;
 		InvalidateItem( Item::SCROLLBAR) ;
+	}
+	else if( blnTimeBarDrag)
+	{
+		blnTimeBarDrag = FALSE;
+		ReleaseCapture() ;
+		InvalidateItem( Item::TIMEBAR) ;
+
+		Controller* pController = Controller::GetInstance() ;
+		pController->Go(pListWnd->GetCurrentItem(), pListWnd->GetCurrentLength() * 1000 * intTimeBarDrag / ( 95 - 30)) ;
 	}
 
 	return 0 ;
@@ -521,6 +544,17 @@ LRESULT MainWnd::OnMouseMove( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	else  if( blnScroll)
 	{
 		pListWnd->ScrollTo( HIWORD( lParam) - LIST_TOP) ;
+	}
+	else if( blnTimeBarDrag)
+	{
+		POINT pt ;
+		GetCursorPos( &pt) ;
+		RECT rect ;
+		GetWindowRect( hWnd, &rect) ;
+		pt.x -= rect.left + intWidth + intLeftPos[ Item::TIMEBAR] ;
+		intTimeBarDrag = ( pt.x < 0 ? 0 : ( pt.x >= 95 - 30 ? 95 - 30 : pt.x)) ;
+
+		InvalidateItem( Item::TIMEBAR) ;
 	}
 	return 0 ;
 }
@@ -577,7 +611,7 @@ LRESULT MainWnd::OnMouseWheel( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // キーダウン
 //============================================================================//
-// 更新：02/12/29(日)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -600,6 +634,11 @@ LRESULT MainWnd::OnKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 			break ;
 		case VK_RETURN:
 			Controller::GetInstance()->Go( pListWnd->GetSelectedItem()) ;
+			break ;
+
+		case VK_OEM_COMMA:
+		case VK_OEM_PERIOD:
+			Controller::GetInstance()->Go( GetCurSong() + ( wParam == VK_OEM_COMMA ? -1 : 1)) ;
 			break ;
 	}
 
@@ -649,6 +688,7 @@ void MainWnd::UpdateSkin( BOOL blnForce)
 	else
 	{
 		s = Profile::strOriginalSkin ;
+		strncpy(pszBuf, s.c_str(), MAX_PATH + 1);
 	}
 
 	if( blnForce || s != strSkinName)
@@ -867,7 +907,15 @@ void MainWnd::DrawTime( HDC hdc)
 			{
 				uiPos = uiPos * ( dwCurSongLength - ( intMin * 60 + intSec) * 1000) / dwCurSongLength ;
 			}
-			BitBlt( hdc, intWidth - 147 + uiPos, intHeight - 30, 29, 10, hdcPos, 248, 0, SRCCOPY) ;
+
+			if( !blnTimeBarDrag)
+			{
+				BitBlt( hdc, intWidth - 147 + uiPos, intHeight - 30, 29, 10, hdcPos, 248, 0, SRCCOPY) ;
+			}
+			else
+			{
+				BitBlt( hdc, intWidth - 147 + intTimeBarDrag, intHeight - 30, 29, 10, hdcPos, 278, 0, SRCCOPY) ;
+			}
 		}
 	}
 

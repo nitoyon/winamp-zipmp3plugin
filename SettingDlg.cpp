@@ -1,7 +1,7 @@
 
 // SettingDlg.cpp
 //============================================================================//
-// 更新：03/04/20(日)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -14,6 +14,7 @@
 
 
 HWND SettingDlg::hwndStatic = NULL ;
+WNDPROC	wpcStatic ;
 
 /******************************************************************************/
 //		コンストラクタおよびデストラクタ
@@ -49,7 +50,7 @@ SettingDlg::~SettingDlg()
 /******************************************************************************/
 // メッセージマップ定義
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -66,7 +67,13 @@ BEGIN_DLG_MESSAGE_MAP( SettingDlgProc, SettingDlg)
 		ON_COMMAND( IDC_NORMAL_VARIABLE	, OnBtnNormal)
 		ON_COMMAND( IDC_ID3_VARIABLE	, OnBtnID3)
 		ON_COMMAND( IDC_COMPI_VARIABLE	, OnBtnID3)
+
+		ON_COMMAND( IDC_URL		, OnUrlClicked)
+		ON_COMMAND( IDC_BMP1		, OnBmpClicked)
+		ON_COMMAND( IDC_BMP2		, OnBmpClicked)
 	END_COMMAND_MAP()
+	ON_COMMAND( WM_SETCURSOR		, OnSetCursor)
+	ON_COMMAND( WM_CTLCOLORSTATIC		, OnCtlColorStatic)
 END_DLG_MESSAGE_MAP()
 
 
@@ -87,8 +94,11 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 		return TRUE ;
 	}
 
-	// ウインドウハンドル取得
-	hwndHotKey	= GetDlgItem( hDlg, IDC_HOTKEY) ;
+	// サブクラス化
+	wpcStatic = (WNDPROC)GetWindowLong( GetDlgItem( hDlg, IDC_URL), GWL_WNDPROC) ;
+	SetWindowLong( GetDlgItem( hDlg, IDC_URL) , GWL_WNDPROC, 	(LONG)LinkStaticProc) ;
+	SetWindowLong( GetDlgItem( hDlg, IDC_BMP1), GWL_WNDPROC, 	(LONG)LinkStaticProc) ;
+	SetWindowLong( GetDlgItem( hDlg, IDC_BMP2), GWL_WNDPROC, 	(LONG)LinkStaticProc) ;
 
 	// チェック
 	CheckDlgButton( hDlg, IDC_SHOW_ONLY_ZIP, Profile::blnShowOnlyZip ? BST_CHECKED : 0) ;
@@ -101,6 +111,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	SetDlgItemText( hDlg, IDC_LIST_NORMAL, Profile::strListNormal.c_str()) ;
 	SetDlgItemText( hDlg, IDC_LIST_ID3, Profile::strListID3.c_str()) ;
 	SetDlgItemText( hDlg, IDC_LIST_COMPI, Profile::strListCompilation.c_str()) ;
+	SetDlgItemText( hDlg, IDC_FONT, Profile::strFont.c_str()) ;
 
 	Validiate() ;
 	hwndStatic = hDlg ;
@@ -111,7 +122,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // OK
 //============================================================================//
-// 更新：03/04/20(日)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -127,6 +138,7 @@ BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	Profile::blnListID3 = IsDlgButtonChecked( hDlg, IDC_CHK_ID3) ? TRUE : FALSE ;
 	Profile::strListCompilation = GetWindowString( GetDlgItem( hDlg, IDC_LIST_COMPI)) ;
 	Profile::blnListCompilation = IsDlgButtonChecked( hDlg, IDC_CHK_COMPI) ? TRUE : FALSE ;
+	Profile::strFont = GetWindowString( GetDlgItem( hDlg, IDC_FONT)) ;
 	Profile::Save() ;
 
 	EndDialog( hDlg, TRUE) ;
@@ -223,6 +235,95 @@ BOOL SettingDlg::OnBtnID3( HWND hDlg, WPARAM wParam, LPARAM lParam)
 
 
 /******************************************************************************/
+// URL をクリック
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL SettingDlg::OnUrlClicked( HWND hDlg, WPARAM wParam, LPARAM lParam)
+{
+	ShellExecute( hDlg, NULL, "http://www.nitoyon.com/", NULL, NULL, SW_SHOWNORMAL) ;
+	return TRUE ;
+}
+
+
+/******************************************************************************/
+// BMP をクリック
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL SettingDlg::OnBmpClicked( HWND hDlg, WPARAM wParam, LPARAM lParam)
+{
+	ShellExecute( hDlg, NULL, "http://www.ai.wakwak.com/~cik/cccd.htm", NULL, NULL, SW_SHOWNORMAL) ;
+	return TRUE ;
+}
+
+
+/******************************************************************************/
+// カーソル
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL SettingDlg::OnSetCursor( HWND hDlg, WPARAM wParam, LPARAM lParam)
+{
+	HCURSOR hCursor = LoadCursor( NULL, IDC_ARROW) ;
+	SetCursor( hCursor);
+
+	return TRUE ;
+}
+
+
+/******************************************************************************/
+// スタティックのカラー
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL SettingDlg::OnCtlColorStatic( HWND hDlg, WPARAM wParam, LPARAM lParam)
+{
+	HDC hdc = (HDC)wParam ;
+	if( GetDlgItem( hDlg, IDC_URL) == (HWND)lParam)
+	{
+		SetTextColor( hdc, RGB( 0, 0, 255)) ;
+		SetBkMode(hdc, TRANSPARENT);
+		return (BOOL)(HBRUSH)GetStockObject(NULL_BRUSH) ;
+	}
+
+	return FALSE ;
+}
+
+
+/******************************************************************************/
+// リンクのためのサブクラス化
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+LRESULT CALLBACK LinkStaticProc( HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch( uiMsg)
+	{
+		case WM_SETCURSOR :
+		{
+			// 手カーソル読みとり
+			HCURSOR hCurHand	= LoadCursor( Profile::hInstance, MAKEINTRESOURCE( IDC_HANDCUR)) ;
+			SetCursor( hCurHand) ;
+			return 0 ;
+		}
+	}
+
+	return CallWindowProc( wpcStatic, hWnd, uiMsg, wParam, lParam) ;
+}
+
+
+/******************************************************************************/
 //		その他
 /******************************************************************************/
 // 正当化
@@ -300,3 +401,5 @@ void SettingDlg::VarMenu( vector<string>& vec, int intCtrlEdt, int intCtrlBtn)
 	DestroyMenu( hmenu) ;
 	DestroyMenu( hmnPopup) ;
 }
+
+

@@ -212,7 +212,7 @@ LRESULT WinampHook::OnKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
-
+	
 LRESULT WinampHook::OnMove( HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
 	if( pMainWnd->IsSnapping())
@@ -220,7 +220,7 @@ LRESULT WinampHook::OnMove( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		POINT pt = pMainWnd->GetOffsetSnap() ;
 		Profile::intX = (short)LOWORD( lParam) + pt.x ;
 		Profile::intY = (short)HIWORD( lParam) + pt.y ;
-		SetWindowPos( pMainWnd->GetHwnd(), NULL, Profile::intX, Profile::intY, 0, 0, SWP_NOSIZE | SWP_NOOWNERZORDER) ;
+		SetWindowPos( pMainWnd->GetHwnd(), NULL, Profile::intX, Profile::intY, 0, 0, SWP_NOSIZE | SWP_NOOWNERZORDER | SWP_NOACTIVATE) ;
 	}
 	return CallWindowProc( wpcWinamp, hWnd, WM_MOVE, wParam, lParam) ;
 }

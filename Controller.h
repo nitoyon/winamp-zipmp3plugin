@@ -1,7 +1,7 @@
 
 // Controller.h
 //============================================================================//
-// 更新：02/12/31(火)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -52,7 +52,7 @@ public:
 	void ToggleVisiblity() ;
 
 // 動作
-	void Go( UINT) ;
+	void Go( UINT, int intDiff = 0) ;
 	void Play() ;
 	void SetMp3Pos( const string&, ULONG) ;
 	BOOL Extract( UINT, const string&) ;

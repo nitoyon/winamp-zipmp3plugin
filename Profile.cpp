@@ -2,7 +2,7 @@
 // Profile.cpp
 // アプリケーションの設定
 //============================================================================//
-// 更新：03/04/20(日)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -27,6 +27,7 @@ BOOL	Profile::blnShowOnlyUncompressedZip = FALSE ;
 BOOL	Profile::blnCountUp = FALSE ;
 BOOL	Profile::blnCompact = FALSE ;
 BOOL	Profile::blnShowTimebar = TRUE ;
+string	Profile::strFont = "" ;
 
 // リスト
 string	Profile::strListNormal ;
@@ -74,6 +75,7 @@ void Profile::Save()
 	WritePrivateProfileString( "Display", "CountUp", blnCountUp ? "yes" : "no", pszFile) ;
 	WritePrivateProfileString( "Display", "compact", blnCompact ? "yes" : "no", pszFile) ;
 	WritePrivateProfileString( "Display", "timebar", blnShowTimebar ? "yes" : "no", pszFile) ;
+	WritePrivateProfileString( "Display", "font", strFont.c_str(), pszFile) ;
 
 	// リスト
 	WritePrivateProfileString( "List", "Normal", strListNormal.c_str(), pszFile) ;
@@ -93,7 +95,7 @@ void Profile::Save()
 /******************************************************************************/
 // 読みとり
 //============================================================================//
-// 更新：03/04/20(日)
+// 更新：03/05/04(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -130,6 +132,8 @@ void Profile::Load()
 	blnCompact = ( strcmp( pszBuf, "yes") == 0) ;
 	GetPrivateProfileString( "Display", "timebar", "yes", pszBuf, MAX_PATH, pszFile) ;
 	blnShowTimebar = ( strcmp( pszBuf, "yes") == 0) ;
+	GetPrivateProfileString( "Display", "font", "MS Pゴシック", pszBuf, MAX_PATH, pszFile) ;
+	strFont = pszBuf ;
 
 	// リスト
 	GetPrivateProfileString( "List", "Normal", "%FILE_NAME%", pszBuf, MAX_PATH, pszFile) ;
