@@ -1153,15 +1153,13 @@ void MainWnd::SetTransparency() const
 
 					if(ret == ERROR_SUCCESS && dwType == REG_DWORD && 0 <= dwData || dwData <= 100)
 					{
-						intTrans = 100 - Profile::intTransparency;
-						RegCloseKey(hkey);
-						return;
+						intTrans = dwData;
 					}
 				}
 				RegCloseKey(hkey);
 			}
 		}
-		else
+		if(intTrans == -1)
 		{
 			intTrans = 100;
 		}
