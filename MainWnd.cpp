@@ -13,6 +13,7 @@
 #include "resource.h"
 #include <zmouse.h>	// WM_MOUSEWHEEL
 #include "main.h"
+#include "util.h"
 
 
 /******************************************************************************/
@@ -1117,7 +1118,43 @@ void MainWnd::ToggleCompact()
 void MainWnd::SetTransparency() const
 {
 #ifdef WS_EX_LAYERED
-	SetLayeredWindowAttributes(m_hWnd, 0, 255 - Profile::intTransparency * 255 / 100, LWA_ALPHA);
+	if(IsNT() && GetOsMajorVersion() >= 5)
+	{
+		// “ÆŽ©‚Ì“§–¾“x
+		if(0 <= Profile::intTransparency && Profile::intTransparency <= Profile::intTransparency)
+		{
+			SetLayeredWindowAttributes(m_hWnd, 0, 255 - Profile::intTransparency * 255 / 100, LWA_ALPHA);
+			return;
+		}
+		// SexyFont ‚©‚ç“Ç‚ÝŽæ‚è
+		else if(Profile::intTransparency == -1)
+		{
+			HKEY hkey;
+			if(RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\YunaSoft\\SexyFont Plug-in\\Settings\\", NULL, KEY_READ, &hkey) == ERROR_SUCCESS)
+			{
+				DWORD dwData = 0;
+				DWORD dwSize = sizeof(DWORD);
+				DWORD dwType;
+				LONG ret = RegQueryValueEx(hkey, "AlphaWinamp", NULL, &dwType, (LPBYTE)&dwData, &dwSize);
+				if(ret == ERROR_SUCCESS && dwData == 1)
+				{
+					DWORD dwSize = sizeof(DWORD);
+					LONG ret = RegQueryValueEx(hkey, "OpacityWinamp", NULL, &dwType, (LPBYTE)&dwData, &dwSize);
+
+					if(ret == ERROR_SUCCESS && dwType == REG_DWORD && 0 <= dwData || dwData <= 100)
+					{
+						SetLayeredWindowAttributes(m_hWnd, 0, dwData * 255 / 100, LWA_ALPHA);
+						RegCloseKey(hkey);
+						return;
+					}
+				}
+				RegCloseKey(hkey);
+			}
+		}
+
+		// “Ç‚ÝŽæ‚èŽ¸”sŽž
+		SetLayeredWindowAttributes(m_hWnd, 0, 255, LWA_ALPHA);
+	}
 #endif
 }
 

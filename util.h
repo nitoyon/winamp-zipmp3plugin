@@ -24,4 +24,7 @@ RECT GetChildRect(HWND, HWND);
 string GetDirName( const string&) ;
 string GetFileName( const string&);
 
+BOOL IsNT();
+DWORD GetOsMajorVersion();
+
 #endif

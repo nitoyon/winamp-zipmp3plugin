@@ -143,3 +143,35 @@ string GetFileName( const string& strPath)
 	string strDirName = GetDirName( strPath) ;
 	return strPath.substr( strDirName.size()) ;
 }
+
+
+/******************************************************************************/
+// NT 系かどうかを取得
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL IsNT()
+{
+	OSVERSIONINFO ovi;
+	ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&ovi);
+	return ovi.dwPlatformId == VER_PLATFORM_WIN32_NT;
+}
+
+
+/******************************************************************************/
+// メジャーバージョン取得
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+DWORD GetOsMajorVersion()
+{
+	OSVERSIONINFO ovi;
+	ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&ovi);
+	return ovi.dwOSVersionInfoSize;
+}

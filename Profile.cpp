@@ -177,7 +177,7 @@ void Profile::Load()
 	blnUseTimebar		= ReadProfileBln("window", "UseTimebar", strPath, TRUE);
 	blnAttachToWinamp	= ReadProfileBln("window", "AttachToWinamp", strPath, TRUE);
 	intTransparency		= ReadProfileInt("window", "Transparency", strPath);
-	intTransparency		= (intTransparency >= 0 && intTransparency <= 100 ? intTransparency : 0);
+	intTransparency		= (intTransparency >= -1 && intTransparency <= 100 ? intTransparency : 0);
 
 	// ƒtƒHƒ“ƒg
 	strListFont		= ReadProfileStr("font", "ListFont",		strPath, "‚l‚r ‚oƒSƒVƒbƒN");
