@@ -1,7 +1,7 @@
 
 // MainWnd.h
 //============================================================================//
-// 更新：03/01/05(日)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -17,12 +17,13 @@
 //		定義
 /******************************************************************************/
 
-#define  XMIN_BLOCK	5
-#define  YMIN_BLOCK	2
-#define  X_BLOCK_SIZE	25
-#define  Y_BLOCK_SIZE	29
-#define  X_BLOCK_CONST	150
-#define  Y_BLOCK_CONST	58
+#define  XMIN_BLOCK		5
+#define  YMIN_BLOCK		2
+#define  X_BLOCK_SIZE		25
+#define  Y_BLOCK_SIZE		29
+#define  X_BLOCK_CONST		150
+#define  Y_BLOCK_CONST		58
+#define  Y_COMPACT_HEIGHT	14
 
 #define  HOTKEY_SHOW	0
 
@@ -45,7 +46,8 @@ public:
 		PAUSE, 		EJECT, 
 		MOVE, 		RESIZE, 
 		TIME,		LIST, 
-		SCROLLBAR,	LAST
+		SCROLLBAR,	COM_LIST, 
+		LAST
 	} ;
 
 private:
@@ -57,6 +59,7 @@ private:
 
 	HBITMAP		hbmpPlaylist ;
 	HBITMAP		hbmpText ;
+	HFONT		hFont;
 	string		strSkinName ;
 	string		strSkinPath ;
 
@@ -119,6 +122,7 @@ public:
 	void SetCurSong( int) ;
 	void ClearList() ;
 	void AddList( const string&, DWORD = 0) ;
+	void ToggleCompact() ;
 
 // 取得
 	HWND GetWinampWindow() const{ return hwndWinamp ;}
@@ -126,6 +130,7 @@ public:
 	int GetCurSong() const ;
 	BOOL IsSnapping() ;
 	POINT GetOffsetSnap() const{ return ptOffsetSnap ;} ;
+	HBITMAP GetFontBmp() const{ return hbmpText ;} ;
 
 // ユーティリティ
 	Item GetItem( POINT) ;
@@ -135,6 +140,8 @@ private:
 // 描画
 	void UpdateSkin( BOOL = FALSE) ;
 	void DrawSkin( HDC) ;
+	void DrawSkinNormal( HDC) ;
+	void DrawSkinCompact( HDC) ;
 	void DrawTime( HDC) ;
 
 // 移動

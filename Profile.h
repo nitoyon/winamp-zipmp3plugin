@@ -2,7 +2,7 @@
 // Profile.h
 // アプリケーションの設定
 //============================================================================//
-// 更新：03/02/01(土)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -31,6 +31,7 @@ public:
 	static BOOL blnShowOnlyZip ;
 	static BOOL blnShowOnlyUncompressedZip ;
 	static BOOL blnCountUp ;
+	static BOOL blnCompact ;
 
 // リスト
 	static string strListNormal ;

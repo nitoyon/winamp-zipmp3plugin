@@ -1,7 +1,7 @@
 
 // ListWnd.h
 //============================================================================//
-// 更新：03/01/05(日)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -38,6 +38,7 @@ private:
 	HWND		m_hWnd ;
 	MainWnd*	pMainWnd ;
 	HFONT		hFont ;
+	HFONT		hFontSmall ;
 	HMENU		hMenuPopup ;
 
 	int		intWidth  ;
@@ -86,6 +87,8 @@ public:
 // 取得
 	int GetCurrentItem() const{ return intCurrent ;}
 	int GetSelectedItem() const{ return intSelected ;}
+	const string GetCurrentName() const{ return vecList[ intCurrent];}
+	DWORD GetCurrentLength() const{ return vecTime[ intCurrent];}
 	int GetScrollBarPos() const ;
 
 // イベント
@@ -97,6 +100,7 @@ public:
 	void DrawList( HDC) ;
 private:
 	void	DrawItem( HDC, int) ;
+	void	DrawCompactText( HDC) ;
 	void	EraseAll( HDC) ;
 	void	InvalidateItem( int) ;
 

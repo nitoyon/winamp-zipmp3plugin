@@ -1,7 +1,7 @@
 
 // ListWnd.cpp
 //============================================================================//
-// 更新：03/02/02(日)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -33,17 +33,15 @@ ListWnd::ListWnd( MainWnd* p)
 /******************************************************************************/
 // 
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 ListWnd::~ListWnd() 
 {
-	if( hFont)
-	{
-		DeleteObject( hFont) ;
-	}
+	if( hFont)	DeleteObject( hFont) ;
+	if( hFontSmall)	DeleteObject( hFontSmall) ;
 	DestroyMenu( hMenuPopup) ;
 }
 
@@ -53,7 +51,7 @@ ListWnd::~ListWnd()
 /******************************************************************************/
 // 初期化
 //============================================================================//
-// 更新：02/12/30(月)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -62,9 +60,14 @@ void ListWnd::Init()
 {
 	int intFontSize = GetPrivateProfileInt( "Winamp", "pe_fontsize", 10, Profile::strWinampIniPath.c_str()) ;
 
+	// フォント作成
 	hFont = CreateFont( intFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, 
 		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
 		VARIABLE_PITCH | FF_MODERN, "MS Pゴシック") ;
+	hFontSmall = CreateFont( 9, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, 
+		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
+		VARIABLE_PITCH | FF_MODERN, "MS Pゴシック") ;
+
 	hMenuPopup = LoadMenu( Profile::hInstance, MAKEINTRESOURCE( IDR_ITEMPOPUP)) ;
 	hMenuPopup = GetSubMenu( hMenuPopup, 0) ;
 }
@@ -454,13 +457,19 @@ LRESULT ListWnd::OnLButtonDblClk( WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // 描画
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 void ListWnd::DrawList( HDC hdc)
 {
+	if(Profile::blnCompact)
+	{
+		DrawCompactText( hdc) ;
+		return ;
+	}
+	
 	// リスト
 	int i ;
 
@@ -493,6 +502,113 @@ void ListWnd::DrawList( HDC hdc)
 		}
 		DrawItem( hdc, i) ;
 	}
+}
+
+
+/******************************************************************************/
+// コンパクトモードの時の文字列表示
+//============================================================================//
+// 更新：03/04/11(金)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void ListWnd::DrawCompactText( HDC hdc)
+{
+	RECT rc ;
+	rc.left		= 5 ;
+	rc.right	= intWidth - 60;
+	rc.top		= 4 ;
+	rc.bottom	= 12 ;
+
+	HFONT hFontOld = NULL ;
+	if( hFontSmall)
+	{
+		SelectObject( hdc, hFontSmall) ;
+	}
+
+	SetTextColor( hdc, colNormal) ;
+	SetBkColor( hdc, colNormalBG) ;
+	SetBkMode( hdc, TRANSPARENT) ;
+	HBITMAP hbmpText = pMainWnd->GetFontBmp() ;
+	HDC hdcBmp = CreateCompatibleDC( hdc);
+	SelectObject( hdcBmp, hbmpText);
+
+	// 時間描画
+	if( vecTime[ intCurrent] / 600 > 0)
+	{
+		BitBlt( hdc, intWidth - 60 +  5, 4, 5, 6, hdcBmp, ( ( vecTime[ intCurrent] / 60) / 10) * 5, 6, SRCCOPY) ;
+	}
+	BitBlt( hdc, intWidth - 60 + 10, 4, 5, 6, hdcBmp, ( ( vecTime[ intCurrent] / 60) % 10) * 5, 6, SRCCOPY) ;
+	BitBlt( hdc, intWidth - 60 + 14, 4, 5, 6, hdcBmp, 12 * 5, 6, SRCCOPY) ;
+	BitBlt( hdc, intWidth - 60 + 18, 4, 5, 6, hdcBmp, ( ( vecTime[ intCurrent] % 60) / 10) * 5, 6, SRCCOPY) ;
+	BitBlt( hdc, intWidth - 60 + 23, 4, 5, 6, hdcBmp, ( ( vecTime[ intCurrent] % 60) % 10) * 5, 6, SRCCOPY) ;
+
+	// 文字列描画
+	string str = vecList[ intCurrent] ;
+	for( int i = 0; i < str.size(); i++)
+	{
+		char c = str[ i] ;
+		if( c >= 'A' && c <= 'Z')
+		{
+			BitBlt( hdc, rc.left, 4, 5, 6, hdcBmp, ( c - 'A') * 5, 0, SRCCOPY) ;
+			rc.left += 5 ;
+		}
+		else if( c >= 'a' && c <= 'z')
+		{
+			BitBlt( hdc, rc.left, 4, 5, 6, hdcBmp, ( c - 'a') * 5, 0, SRCCOPY) ;
+			rc.left += 5 ;
+		}
+		else if( c >= '0' && c <= '9')
+		{
+			BitBlt( hdc, rc.left, 4, 5, 6, hdcBmp, ( c - '0') * 5, 6, SRCCOPY) ;
+			rc.left += 5 ;
+		}
+		else
+		{
+			char pszBuf[ 3] ;
+			pszBuf[ 0] = str[ i] ;
+			rc.top--;
+			if( i == str.size() - 1)
+			{
+				pszBuf[ 1] = '\0';
+			}
+			else
+			{
+				pszBuf[ 1] = str[ i + 1] ;
+			}
+			pszBuf[ 2] = '\0' ;
+			// ２バイト文字
+			if( IsDBCSLeadByte( *pszBuf))
+			{
+				DrawText( hdc, pszBuf, -1, &rc, DT_LEFT | DT_END_ELLIPSIS | DT_NOPREFIX) ;
+				i++ ;
+			}
+			// 1バイト文字
+			else
+			{
+				pszBuf[ 1] = '\0' ;
+				DrawText( hdc, pszBuf, -1, &rc, DT_LEFT | DT_END_ELLIPSIS | DT_NOPREFIX) ;
+			}
+
+			SIZE size ;
+			GetTextExtentPoint32( hdc, pszBuf, strlen( pszBuf), &size) ;
+			rc.left += size.cx ;
+			rc.top++;
+		}
+
+		if( rc.left > rc.right)
+		{
+			break ;
+		}
+	}
+
+	if( hFontOld)
+	{
+		SelectObject( hdc, hFontOld) ;
+	}
+
+	DeleteDC( hdcBmp);
 }
 
 

@@ -2,7 +2,7 @@
 // Profile.cpp
 // アプリケーションの設定
 //============================================================================//
-// 更新：03/02/22(土)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -24,6 +24,7 @@ string		Profile::strWinampIniPath = "" ;
 BOOL	Profile::blnShowOnlyZip = FALSE ;
 BOOL	Profile::blnShowOnlyUncompressedZip = FALSE ;
 BOOL	Profile::blnCountUp = FALSE ;
+BOOL	Profile::blnCompact = FALSE ;
 
 // リスト
 string	Profile::strListNormal ;
@@ -45,7 +46,7 @@ int	Profile::intBlockY = 0 ;
 /******************************************************************************/
 // 保存
 //============================================================================//
-// 更新：02/12/30(月)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -69,6 +70,7 @@ void Profile::Save()
 	WritePrivateProfileString( "Display", "ShowOnlyZip", blnShowOnlyZip ? "yes" : "no", pszFile) ;
 	WritePrivateProfileString( "Display", "ShowOnlyUncompressedZip", blnShowOnlyUncompressedZip ? "yes" : "no", pszFile) ;
 	WritePrivateProfileString( "Display", "CountUp", blnCountUp ? "yes" : "no", pszFile) ;
+	WritePrivateProfileString( "Display", "compact", blnCompact ? "yes" : "no", pszFile) ;
 
 	// リスト
 	WritePrivateProfileString( "List", "Normal", strListNormal.c_str(), pszFile) ;
@@ -88,7 +90,7 @@ void Profile::Save()
 /******************************************************************************/
 // 読みとり
 //============================================================================//
-// 更新：03/02/22(土)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -116,6 +118,8 @@ void Profile::Load()
 	blnShowOnlyUncompressedZip = ( strcmp( pszBuf, "yes") == 0) ;
 	GetPrivateProfileString( "Display", "CountUp", "yes", pszBuf, MAX_PATH, pszFile) ;
 	blnCountUp = ( stricmp( pszBuf, "yes") == 0) ;
+	GetPrivateProfileString( "Display", "compact", "no", pszBuf, MAX_PATH, pszFile) ;
+	blnCompact = ( strcmp( pszBuf, "yes") == 0) ;
 
 	// リスト
 	GetPrivateProfileString( "List", "Normal", "%FILE_NAME%", pszBuf, MAX_PATH, pszFile) ;

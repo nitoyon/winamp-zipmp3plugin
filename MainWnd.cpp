@@ -1,7 +1,7 @@
 
 // MainWnd.cpp
 //============================================================================//
-// 更新：03/01/05(日)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -20,7 +20,7 @@
 /******************************************************************************/
 // 
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -31,6 +31,7 @@ MainWnd::MainWnd()
 , intMin( -1), intSec( -1)
 , blnResize( FALSE), blnMove( FALSE), blnClose( FALSE), blnScroll( FALSE), blnSnapping( -1)
 {
+	// 場所
 	intLeftPos[ Item::CLOSE]	= -11 ;		intRightPos[  Item::CLOSE]	= -3 ;
 	intTopPos[  Item::CLOSE]	= 3 ;		intBottomPos[ Item::CLOSE]	= 12 ;
 	intLeftPos[ Item::COMPACT]	= -20 ;		intRightPos[  Item::COMPACT]	= -12 ;
@@ -61,19 +62,27 @@ MainWnd::MainWnd()
 	intTopPos[  Item::LIST]		= LIST_TOP ;	intBottomPos[ Item::LIST]	= -38 - LIST_XMARGIN ;
 	intLeftPos[ Item::SCROLLBAR]	= -15 ;		intRightPos[  Item::SCROLLBAR]	= -7 ;
 	intTopPos[  Item::SCROLLBAR]	= LIST_TOP ;	intBottomPos[ Item::SCROLLBAR]	= -38 ;
+
+	// コンパクト時
+	intLeftPos[ Item::COM_LIST]	= 5 ;	intRightPos[  Item::COM_LIST]	= -29 ;
+	intTopPos[  Item::COM_LIST]	= 5 ;	intBottomPos[ Item::COM_LIST]	= -4 ;
 }
 
 
 /******************************************************************************/
 // 
 //============================================================================//
-// 更新：02/12/16(月)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 MainWnd::~MainWnd() 
 {
+	if(hFont)
+	{
+		DeleteObject(hFont);
+	}
 }
 
 
@@ -109,7 +118,7 @@ END_MESSAGE_MAP()
 /******************************************************************************/
 // 作成
 //============================================================================//
-// 更新：02/12/30(月)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -123,7 +132,14 @@ LRESULT MainWnd::OnCreate( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	hbmpPlaylist = 0 ;
 
 	SetBlockSize( Profile::intBlockX, Profile::intBlockY) ;
-	MoveWindow( hWnd, Profile::intX, Profile::intY, intWidth, intHeight, FALSE) ;
+	if(Profile::blnCompact)
+	{
+		MoveWindow( hWnd, Profile::intX, Profile::intY, intWidth, Y_COMPACT_HEIGHT, FALSE) ;
+	}
+	else
+	{
+		MoveWindow( hWnd, Profile::intX, Profile::intY, intWidth, intHeight, FALSE) ;
+	}
 
 	// 大麻作成
 	SetTimer( hWnd, 0, 100, NULL) ;
@@ -213,7 +229,7 @@ LRESULT MainWnd::OnFocus( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // 描画
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -222,16 +238,34 @@ LRESULT MainWnd::OnPaint( HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps ;
 	HDC hdc = BeginPaint (hWnd, &ps) ;
+	HBITMAP hbmpBk;
+	HDC hdcBk;
+	HBITMAP hbmpOld;
 
-	// メモリ内のビットマップ作成
-	HBITMAP hbmpBk = CreateCompatibleBitmap( hdc, intWidth, intHeight) ;
-	HDC hdcBk = CreateCompatibleDC( hdc);
-	HBITMAP hbmpOld = (HBITMAP)SelectObject( hdcBk, hbmpBk);
-	
-	// 描画
-	DrawSkin( hdcBk) ;
-	pListWnd->DrawList( hdcBk) ;
-	DrawTime( hdcBk) ;
+	if(Profile::blnCompact)
+	{
+		// メモリ内のビットマップ作成
+		hbmpBk = CreateCompatibleBitmap( hdc, intWidth, Y_COMPACT_HEIGHT) ;
+		hdcBk = CreateCompatibleDC( hdc);
+		hbmpOld = (HBITMAP)SelectObject( hdcBk, hbmpBk);
+
+		// 描画
+		DrawSkinCompact( hdcBk) ;
+		pListWnd->DrawList( hdcBk) ;
+		DrawTime( hdcBk) ;
+	}
+	else
+	{
+		// メモリ内のビットマップ作成
+		hbmpBk = CreateCompatibleBitmap( hdc, intWidth, intHeight) ;
+		hdcBk = CreateCompatibleDC( hdc);
+		hbmpOld = (HBITMAP)SelectObject( hdcBk, hbmpBk);
+
+		// 描画
+		DrawSkinNormal( hdcBk) ;
+		pListWnd->DrawList( hdcBk) ;
+		DrawTime( hdcBk) ;
+	}
 
 	// 表に描画
 	BitBlt( hdc, 0, 0, intWidth, intHeight, hdcBk, 0, 0, SRCCOPY) ;
@@ -265,7 +299,7 @@ LRESULT MainWnd::OnDestroy( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // マウスダウン
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -281,9 +315,8 @@ LRESULT MainWnd::OnLButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 			::ShowWindow( hWnd, SW_HIDE) ;
 			break ;
 
-		case RESIZE :
-			blnResize = TRUE ;
-			SetCapture( hWnd) ;
+		case COMPACT :
+			ToggleCompact();
 			break ;
 
 		case MOVE :
@@ -301,6 +334,19 @@ LRESULT MainWnd::OnLButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		case TIME :
 			Profile::blnCountUp = !Profile::blnCountUp ;
 			InvalidateItem( Item::TIME) ;
+			break ;
+	}
+
+	if( Profile::blnCompact)
+	{
+		return 0;
+	}
+
+	switch( item)
+	{
+		case RESIZE :
+			blnResize = TRUE ;
+			SetCapture( hWnd) ;
 			break ;
 
 		case PREV:
@@ -477,6 +523,10 @@ LRESULT MainWnd::OnLButtonDblClk( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	{
 		pListWnd->OnLButtonDblClk( wParam, lParam) ;
 	}
+	else if( pt.y < Y_COMPACT_HEIGHT)
+	{
+		ToggleCompact();
+	}
 	return 0 ;
 }
 
@@ -623,14 +673,14 @@ void MainWnd::UpdateSkin( BOOL blnForce)
 
 
 /******************************************************************************/
-// スキン表示
+// 通常状態のスキンを表示
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-void MainWnd::DrawSkin( HDC hdc)
+void MainWnd::DrawSkinNormal( HDC hdc)
 {
 	if( !hbmpPlaylist)
 	{
@@ -681,9 +731,42 @@ void MainWnd::DrawSkin( HDC hdc)
 
 
 /******************************************************************************/
+// コンパクト状態のスキンを表示
+//============================================================================//
+// 更新：03/04/11(金)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void MainWnd::DrawSkinCompact( HDC hdc)
+{
+	if( !hbmpPlaylist)
+	{
+		return ;
+	}
+
+	HDC hdcBmp = CreateCompatibleDC( hdc);
+	SelectObject( hdcBmp, hbmpPlaylist);
+
+	int i ;
+
+	// ヘッダ
+	BitBlt( hdc,   0,   0,  25, 14, hdcBmp,   72, 42, SRCCOPY) ;	// 左端
+	BitBlt( hdc,  25,   0,  25, 14, hdcBmp,   72, 57, SRCCOPY) ;
+	for( i = 0; i < Profile::intBlockX + 3; i++)
+	{
+		BitBlt( hdc,  25 + 25 * i,   0,  25, 14, hdcBmp, 72, 57, SRCCOPY) ;
+	}
+	BitBlt( hdc, intWidth - 50,   0,  50, 14, hdcBmp, 99, 42, SRCCOPY) ;	// 右端
+
+	DeleteDC( hdcBmp);
+}
+
+
+/******************************************************************************/
 // 時間を表示
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -698,14 +781,30 @@ void MainWnd::DrawTime( HDC hdc)
 	HDC hdcBmp = CreateCompatibleDC( hdc);
 	SelectObject( hdcBmp, hbmpText);
 
-	if( !Profile::blnCountUp)
+	if(Profile::blnCompact)
 	{
-		BitBlt( hdc, intWidth - 82     , intHeight - 15, 5, 6, hdcBmp, 15 * 5, 6, SRCCOPY) ;
+/*		// タイマー
+		if( !Profile::blnCountUp)
+		{
+			BitBlt( hdc, intWidth - 60     , 4, 5, 6, hdcBmp, 15 * 5, 6, SRCCOPY) ;
+		}
+		BitBlt( hdc, intWidth - 60 +  5, 4, 5, 6, hdcBmp, ( intMin / 10) * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 60 + 10, 4, 5, 6, hdcBmp, ( intMin % 10) * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 60 + 14, 4, 5, 6, hdcBmp, 12 * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 60 + 18, 4, 5, 6, hdcBmp, ( intSec / 10) * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 60 + 23, 4, 5, 6, hdcBmp, ( intSec % 10) * 5, 6, SRCCOPY) ;*/
 	}
-	BitBlt( hdc, intWidth - 82 +  5, intHeight - 15, 5, 6, hdcBmp, ( intMin / 10) * 5, 6, SRCCOPY) ;
-	BitBlt( hdc, intWidth - 82 + 10, intHeight - 15, 5, 6, hdcBmp, ( intMin % 10) * 5, 6, SRCCOPY) ;
-	BitBlt( hdc, intWidth - 82 + 18, intHeight - 15, 5, 6, hdcBmp, ( intSec / 10) * 5, 6, SRCCOPY) ;
-	BitBlt( hdc, intWidth - 82 + 23, intHeight - 15, 5, 6, hdcBmp, ( intSec % 10) * 5, 6, SRCCOPY) ;
+	else
+	{
+		if( !Profile::blnCountUp)
+		{
+			BitBlt( hdc, intWidth - 82     , intHeight - 15, 5, 6, hdcBmp, 15 * 5, 6, SRCCOPY) ;
+		}
+		BitBlt( hdc, intWidth - 82 +  5, intHeight - 15, 5, 6, hdcBmp, ( intMin / 10) * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 82 + 10, intHeight - 15, 5, 6, hdcBmp, ( intMin % 10) * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 82 + 18, intHeight - 15, 5, 6, hdcBmp, ( intSec / 10) * 5, 6, SRCCOPY) ;
+		BitBlt( hdc, intWidth - 82 + 23, intHeight - 15, 5, 6, hdcBmp, ( intSec % 10) * 5, 6, SRCCOPY) ;
+	}
 
 	DeleteDC( hdcBmp);
 }
@@ -794,6 +893,32 @@ void MainWnd::AddList( const string& s, DWORD dwLength)
 
 
 /******************************************************************************/
+// コンパクトモードの切り替え
+//============================================================================//
+// 更新：03/04/11(金)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void MainWnd::ToggleCompact()
+{
+	Profile::blnCompact = !Profile::blnCompact;
+	RECT rect ;
+	GetWindowRect( m_hWnd, &rect) ;
+	if(Profile::blnCompact)
+	{
+		MoveWindow( m_hWnd, rect.left, rect.top, intWidth, Y_COMPACT_HEIGHT, TRUE) ;
+		InvalidateRect( m_hWnd, NULL, TRUE) ;
+	}
+	else
+	{
+		MoveWindow( m_hWnd, rect.left, rect.top, intWidth, intHeight, TRUE) ;
+		InvalidateRect( m_hWnd, NULL, TRUE) ;
+	}
+}
+
+
+/******************************************************************************/
 //		取得
 /******************************************************************************/
 // 現在の曲を取得
@@ -834,7 +959,7 @@ BOOL MainWnd::IsSnapping()
 /******************************************************************************/
 // 場所→アイテム
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -848,6 +973,10 @@ MainWnd::Item MainWnd::GetItem( POINT pt)
 		 && ( intTopPos[    i] >= 0 ? pt.y >= intTopPos[    i] : pt.y >= intHeight + intTopPos[ i])
 		 && ( intBottomPos[ i] >= 0 ? pt.y <= intBottomPos[ i] : pt.y <= intHeight + intBottomPos[ i]))
 		{
+			if( i == Item::COM_LIST)
+			{
+				continue ;
+			}
 			return (Item)i;
 		}
 	}
@@ -859,7 +988,7 @@ MainWnd::Item MainWnd::GetItem( POINT pt)
 /******************************************************************************/
 // アイテムを再描画
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：03/04/11(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -871,11 +1000,25 @@ void MainWnd::InvalidateItem( MainWnd::Item item)
 		return ;
 	}
 
+	if( item == Item::LIST && Profile::blnCompact)
+	{
+		item = Item::COM_LIST;
+	}
+
 	RECT rc ;
 	rc.left   = ( intLeftPos[   item] >= 0 ? intLeftPos[   item] : intWidth + intLeftPos[ item]) ;
 	rc.right  = ( intRightPos[  item] >= 0 ? intRightPos[  item] : intWidth + intRightPos[ item]) ;
 	rc.top    = ( intTopPos[    item] >= 0 ? intTopPos[    item] : intHeight + intTopPos[ item]) ;
 	rc.bottom = ( intBottomPos[ item] >= 0 ? intBottomPos[ item] : intHeight + intBottomPos[ item]) ;
+
+	// コンパクト時の時間
+/*	if( Profile::blnCompact && item == Item::TIME)
+	{
+		rc.left		= intWidth - 60;
+		rc.top		= 4;
+		rc.right	= intWidth - 60 + 28;
+		rc.bottom	= 10;
+	}*/
 
 	InvalidateRect( m_hWnd, &rc, TRUE) ;
 }
