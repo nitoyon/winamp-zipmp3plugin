@@ -123,7 +123,7 @@ BOOL ZipFile::ReadHeader()
 
 			// Šg’£q‚ª mp3 ‚Ì
 			string s = pFile->GetFilePath() ;
-			if( s.size() > 4 && s.substr( s.size() - 4) == ".mp3")
+			if( s.size() > 4 && stricmp( s.substr( s.size() - 4).c_str(), ".mp3") == 0)
 			{
 				// MP3 ‚Ìî•ñ‚ğæ“¾
 				Mp3File* pMp3File = new Mp3File( pFile) ;

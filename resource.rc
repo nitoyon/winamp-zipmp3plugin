@@ -114,8 +114,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,2,2,0
- PRODUCTVERSION 0,2,2,0
+ FILEVERSION 0,2,3,0
+ PRODUCTVERSION 0,2,3,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -133,14 +133,14 @@ BEGIN
             VALUE "Comments", "zip.mp3 の中身を見せろや(ﾟДﾟ)ｺﾞﾙｧ!!\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "ZIP.MP3 再生プラグイソ。\0"
-            VALUE "FileVersion", "0, 2, 2, 0\0"
+            VALUE "FileVersion", "0, 2, 3, 0\0"
             VALUE "InternalName", "gen_zipalbum\0"
             VALUE "LegalCopyright", "Copyright (C) 2002 nitoyon + 協力者募集中\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "gen_zipalbum.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "  gen_zipalbum\0"
-            VALUE "ProductVersion", "0, 2, 2, 0\0"
+            VALUE "ProductVersion", "0, 2, 3, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -160,13 +160,24 @@ END
 
 IDR_ITEMPOPUP MENU DISCARDABLE 
 BEGIN
-    POPUP "dummy"
+    POPUP "ListPopup"
     BEGIN
         MENUITEM "演奏\tEnter",                 IDM_PLAY
         MENUITEM SEPARATOR
         MENUITEM "ファイル情報(&I)\tAlt+3",     IDM_DISPTAG, GRAYED
         MENUITEM "解凍(&E)",                    IDM_EXTRACT, GRAYED
         MENUITEM "&MiniBroserで開く",           IDM_OPENMINI
+    END
+    POPUP "MainPopup"
+    BEGIN
+        MENUITEM "設定(&S)",                    IDM_SETTING
+        MENUITEM SEPARATOR
+        MENUITEM "単曲リピート(&R)",            ID_MENUITEM40006
+        MENUITEM "アルバムリピート(&A)",        ID_MENUITEM40007
+        MENUITEM SEPARATOR
+        MENUITEM "ランダム再生(全曲再生後、次へ)", ID_MENUITEM40010
+        MENUITEM "ランダム再生（アルバム内でずっとランダム）", 
+                                                ID_MENUITEM40011
     END
 END
 

@@ -227,9 +227,14 @@ BOOL Controller::Extract( UINT ui, const string& strPath)
 		BYTE pbyte[ BUF_SIZE] ;
 		if( fseek( fZip, ulHead, SEEK_SET) == 0)
 		{
-			ULONG ulSize = ( BUF_SIZE < ulFileLength ? BUF_SIZE : ulFileLength) ;
-			fread( pbyte, sizeof( BYTE), ulSize, fZip) ;
-			fwrite( pbyte, sizeof( BYTE), ulSize, fExtract) ;
+			while( ulFileLength > 0)
+			{
+				ULONG ulSize = ( BUF_SIZE < ulFileLength ? BUF_SIZE : ulFileLength) ;
+				fread( pbyte, sizeof( BYTE), ulSize, fZip) ;
+				fwrite( pbyte, sizeof( BYTE), ulSize, fExtract) ;
+
+				ulFileLength -= ulSize ;
+			}
 		}
 	}
 	fclose( fZip) ;
