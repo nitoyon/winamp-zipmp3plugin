@@ -3,19 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "dlgtest"=.\Dialog\dlgtest.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "zipheader"="C:\DOCUMENTS AND SETTINGS\NITOYON\MY DOCUMENTS\PROGRAM\ZIPMP3_PLUGIN\zipheader\zipheader.dsp" - Package Owner=<4>
+Project: "zipheader"=.\zipheader\zipheader.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

@@ -54,8 +54,8 @@ BEGIN
     CONTROL         "曲の位置をバーで表示する。(&B)",IDC_TIMEBAR,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,0,106,109,10
     LTEXT           "透明度(&T)：",IDC_STATIC,0,143,34,8
-    LTEXT           "% (0～100)  [2000/XP のみ]",IDC_STATIC,99,144,82,8
-    COMBOBOX        IDC_TRANSPARENCY,38,141,48,85,CBS_DROPDOWNLIST | 
+    LTEXT           "[2000/XP のみ]",IDC_STATIC,93,144,47,8
+    COMBOBOX        IDC_TRANSPARENCY,34,141,48,81,CBS_DROPDOWNLIST | 
                     CBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
 END
 
@@ -75,13 +75,13 @@ END
 IDD_SKIN DIALOGEX 0, 0, 180, 152
 STYLE WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
-FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x1
+FONT 9, "ＭＳ Ｐゴシック"
 BEGIN
     LTEXT           " ZIP.MP3 ウインドウのスキンを設定します。",IDC_TITLE,0,
                     0,180,14,SS_CENTERIMAGE | SS_SUNKEN
     GROUPBOX        "Winamp がデフォルトのスキンのとき。(&D)",IDC_STATIC,0,
                     21,179,58
-    CONTROL         "このプラグイン内臓のスキンを用いる(&P)",
+    CONTROL         "このプラグイン内蔵のスキンを用いる(&P)",
                     IDC_SKIN_PLUGIN1,"Button",BS_AUTORADIOBUTTON | WS_GROUP | 
                     WS_TABSTOP,5,34,131,10
     CONTROL         "外部のスキンを用いる(&O)",IDC_SKIN_OTHER1,"Button",
@@ -93,7 +93,7 @@ BEGIN
     CONTROL         "Winamp 本体と同じスキンを用いる(&S)",IDC_SKIN_WINAMP2,
                     "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,5,95,
                     123,10
-    CONTROL         "このプラグイン内臓のスキンを用いる(&G)",
+    CONTROL         "このプラグイン内蔵のスキンを用いる(&G)",
                     IDC_SKIN_PLUGIN2,"Button",BS_AUTORADIOBUTTON,5,107,131,
                     10
     CONTROL         "外部のスキンを用いる(&T)",IDC_SKIN_OTHER2,"Button",
@@ -342,7 +342,7 @@ BEGIN
             VALUE "OriginalFilename", "gen_zipalbum.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "gen_zipalbum\0"
-            VALUE "ProductVersion", "0. 3. 0. 0\0"
+            VALUE "ProductVersion", "0. 3. 2. 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -417,6 +417,8 @@ IDI_LIST                ICON    DISCARDABLE     "list.ico"
 IDI_FONT                ICON    DISCARDABLE     "font.ico"
 IDI_EXPERT              ICON    DISCARDABLE     "expert.ico"
 IDI_DLL                 ICON    DISCARDABLE     "dll.ico"
+IDI_DLL_NOTFOUND        ICON    DISCARDABLE     "dll_notfound.ico"
+IDI_DLL_FOUND           ICON    DISCARDABLE     "dll_found.ico"
 #endif    // 日本語 resources
 /////////////////////////////////////////////////////////////////////////////
 

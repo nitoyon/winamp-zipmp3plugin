@@ -31,6 +31,8 @@
 #define IDI_EXPERT                      124
 #define IDD_ABOUT                       124
 #define IDI_PATH                        125
+#define IDI_DLL_NOTFOUND                127
+#define IDI_DLL_FOUND                   128
 #define IDC_SHOW_ONLY_UNCOMPRESS        1000
 #define IDC_SHOW_ONLY_ZIP2              1001
 #define IDC_SHOW_ONLY_ZIP               1001
@@ -97,7 +99,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        127
+#define _APS_NEXT_RESOURCE_VALUE        129
 #define _APS_NEXT_COMMAND_VALUE         40015
 #define _APS_NEXT_CONTROL_VALUE         1046
 #define _APS_NEXT_SYMED_VALUE           101

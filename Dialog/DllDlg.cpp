@@ -130,11 +130,10 @@ BOOL DllDlg::OnInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 	// イメージ追加
 	hImgList = ImageList_Create(16, 16, ILC_COLOR32 | ILC_MASK, 3, 3);
 	HICON hicon;
-	hicon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINDOW));
+	hicon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_DLL_FOUND));
 	if(hicon) ImageList_AddIcon(hImgList, hicon);
-	hicon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FONT));
+	hicon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_DLL_NOTFOUND));
 	if(hicon) ImageList_AddIcon(hImgList, hicon);
-	hicon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SKIN));
 	ListView_SetImageList(hwndList, hImgList, LVSIL_SMALL);
 
 	// アイテム追加
@@ -393,7 +392,7 @@ BOOL DllDlg::InsertItem(int intIndex, const string& strFileName, BOOL blnChecked
 	item.pszText = (LPTSTR)str.c_str();
 	item.state  = 0;
 	item.stateMask = LVIS_CUT;
-	item.iImage = (blnExist ? 1 : 0);
+	item.iImage = (blnExist ? 0 : 1);
 	item.lParam = 0;
 	ListView_InsertItem(hwndList, &item);
 	ListView_SetItemText(hwndList, intIndex, 1, (LPTSTR)strFileName.c_str());

@@ -53,7 +53,14 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386 /out:"c:\program files\Winamp\Plugins\gen_zipalbum\zip_r.dll"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386 /out:"Release/zip_r.dll"
+# Begin Special Build Tool
+TargetPath=.\Release\zip_r.dll
+TargetName=zip_r
+SOURCE="$(InputPath)"
+PostBuild_Desc=install   <winamp>\Plugins\ 
+PostBuild_Cmds=..\install.js $(TargetPath) $(TargetName)
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "zipheader - Win32 Debug"
 
@@ -79,7 +86,13 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /out:"c:\program files\Winamp\Plugins\gen_zipalbum\r_zip.dll" /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /out:"Debug/zip_r.dll" /pdbtype:sept
+# Begin Special Build Tool
+TargetPath=.\Debug\zip_r.dll
+TargetName=zip_r
+SOURCE="$(InputPath)"
+PostBuild_Cmds=..\install.js $(TargetPath) $(TargetName)
+# End Special Build Tool
 
 !ENDIF 
 
