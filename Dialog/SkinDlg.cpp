@@ -1,15 +1,14 @@
 
-// File.cpp
+// SkinDlg.cpp
 //============================================================================//
-// 更新：03/02/02(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-#include "File.h"
-#include "define.h"
-#include "util.h"
-
+#include "SkinDlg.h"
+#include "..\Profile.h"
+#include "..\util.h"
+#include "..\resource.h"
 
 /******************************************************************************/
 //		コンストラクタおよびデストラクタ
@@ -20,12 +19,7 @@
 // 補足：なし。
 //============================================================================//
 
-File::File(FileInfo* p)
-: strArchivePath(p->strArchivePath), 
-strFilePath(p->strFilePath), 
-blnCompressed(p->blnCompressed), 
-uiStartPoint(p->uiStartPoint), 
-uiEndPoint(p->uiEndPoint)
+SkinDlg::SkinDlg() 
 {
 }
 
@@ -37,141 +31,102 @@ uiEndPoint(p->uiEndPoint)
 // 補足：なし。
 //============================================================================//
 
-File::~File()
+SkinDlg::~SkinDlg() 
 {
 }
 
 
 
 /******************************************************************************/
-//		取得
+//		メッセージハンドラ
 /******************************************************************************/
-// ファイル名取得
-//============================================================================//
-// 更新：02/12/28(土)
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-string File::GetFileName() const 
-{
-	return ::GetFileName(strFilePath);
-}
-
-
-/******************************************************************************/
-// ディレクトリ取得
+// メッセージマップ
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-string File::GetFileDir() const
-{
-	return GetDirName(strFilePath) ;
-}
+BEGIN_DLG_MESSAGE_MAP(SkinDlgProc, SkinDlg)
+	ON_MESSAGE( WM_INITDIALOG	, OnInitDialog)
+	ON_MESSAGE( WM_CTLCOLORSTATIC	, OnCtlColorStatic)
+	BEGIN_COMMAND_MAP()
+		ON_COMMAND( IDC_SKIN_PLUGIN1	, OnRadioChanged)
+		ON_COMMAND( IDC_SKIN_OTHER1	, OnRadioChanged)
+		ON_COMMAND( IDC_SKIN_WINAMP2	, OnRadioChanged)
+		ON_COMMAND( IDC_SKIN_PLUGIN2	, OnRadioChanged)
+		ON_COMMAND( IDC_SKIN_OTHER2	, OnRadioChanged)
+	END_COMMAND_MAP()
+END_DLG_MESSAGE_MAP()
 
 
 /******************************************************************************/
-// 再生時間取得
-//============================================================================//
-// 更新：02/12/26(木)
-// 概要：デフォルトは０ミリ秒。
-// 補足：なし。
-//============================================================================//
-
-ULONG File::GetPlayLength()
-{
-	return 0 ;
-}
-
-
-/******************************************************************************/
-// ヘッダ読み取り
+// ダイアログ初期化
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-BOOL File::ReadHeader()
+BOOL SkinDlg::OnInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
+	CheckRadioButton(hDlg, IDC_SKIN_PLUGIN1, IDC_SKIN_OTHER1, IDC_SKIN_PLUGIN1 + Profile::intSkin1);
+	CheckRadioButton(hDlg, IDC_SKIN_WINAMP2, IDC_SKIN_OTHER2, IDC_SKIN_WINAMP2 + Profile::intSkin2);
+	SetDlgItemText(hDlg, IDC_SKIN_DIR1, Profile::strSkinDir1.c_str());
+	SetDlgItemText(hDlg, IDC_SKIN_DIR2, Profile::strSkinDir2.c_str());
+
+	SetEnable();
+	return FALSE;
+}
+
+
+/******************************************************************************/
+// ラジオの状態が変化したとき
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL SkinDlg::OnRadioChanged(HWND hDlg, WPARAM wParam, LPARAM lParam)
+{
+	SetEnable();
 	return TRUE;
 }
 
 
 /******************************************************************************/
-//		表示名取得
-/******************************************************************************/
-// リスト追加用の文字列を取得
+// enable 状態を設定する
 //============================================================================//
-// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-string File::GetDisplayStr( const string& s)
+void SkinDlg::SetEnable()
 {
-	string	strRet ;
-	string	strVal ;
-	BOOL	blnEncode = FALSE ;
+	BOOL b1 = IsDlgButtonChecked(m_hWnd, IDC_SKIN_OTHER1);
+	BOOL b2 = IsDlgButtonChecked(m_hWnd, IDC_SKIN_OTHER2);
 
-	for( int i = 0; i < s.size(); i++)
-	{
-		if( blnEncode)
-		{
-			if( s[ i] != '%')
-			{
-				strVal += s[ i] ;
-			}
-			else
-			{
-				if( strVal == "")
-				{
-					strRet += '%' ;
-				}
-				else
-				{
-					strRet += GetVariable( strVal) ;
-				}
-
-				blnEncode = FALSE ;
-			}
-		}
-		else
-		{
-			if( s[ i] == '%')
-			{
-				blnEncode = TRUE ;
-				strVal = "" ;
-			}
-			else
-			{
-				strRet += s[ i] ;
-			}
-		}
-	}
-	return strRet ;
+	EnableWindow(GetDlgItem(m_hWnd, IDC_SKIN_DIR1), b1);
+	EnableWindow(GetDlgItem(m_hWnd, IDC_SKIN_BROWSE1), b1);
+	EnableWindow(GetDlgItem(m_hWnd, IDC_SKIN_DIR2), b2);
+	EnableWindow(GetDlgItem(m_hWnd, IDC_SKIN_BROWSE2), b2);
 }
 
 
 /******************************************************************************/
-// 変数展開
+// 適用
 //============================================================================//
-// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-string File::GetVariable( const string& strVal)
+void SkinDlg::DoApply()
 {
-	if( strVal == "FILE_NAME")
-	{
-		return GetFileName() ;
-	}
-	else if( strVal == "FILE_PATH")
-	{
-		return GetFilePath() ;
-	}
+	if(IsDlgButtonChecked(m_hWnd, IDC_SKIN_PLUGIN1))	Profile::intSkin1 = 0;
+	else if(IsDlgButtonChecked(m_hWnd, IDC_SKIN_OTHER1))	Profile::intSkin1 = 1;
 
-	return "" ;
+	if(IsDlgButtonChecked(m_hWnd, IDC_SKIN_PLUGIN2))	Profile::intSkin2 = 1;
+	else if(IsDlgButtonChecked(m_hWnd, IDC_SKIN_WINAMP2))	Profile::intSkin2 = 0;
+	else if(IsDlgButtonChecked(m_hWnd, IDC_SKIN_OTHER2))	Profile::intSkin2 = 2;
+
+	Profile::strSkinDir1 = GetWindowString(GetDlgItem(m_hWnd, IDC_SKIN_DIR1));
+	Profile::strSkinDir2 = GetWindowString(GetDlgItem(m_hWnd, IDC_SKIN_DIR2));
 }

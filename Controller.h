@@ -16,9 +16,9 @@
 //		’è‹`
 /******************************************************************************/
 
-class ZipFile ;
-class MainWnd ;
-class File ;
+class ArchiveFile;
+class MainWnd;
+class File;
 
 
 /******************************************************************************/
@@ -33,7 +33,7 @@ private:
 
 	string		strFilePath ;
 	string		strPrevTmpPath ;
-	ZipFile*	pZipFile ;
+	ArchiveFile*	pArchivePath ;
 	ULONG		ulCurSongLength ;
 	vector<ULONG>	vecSongHeadTime ;
 	ULONG		ulDisplayTime ;

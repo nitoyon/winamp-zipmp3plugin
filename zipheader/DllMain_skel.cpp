@@ -1,145 +1,96 @@
 
-// util.cpp
+// DllMain.cpp
 //============================================================================//
-// 更新：03/02/02(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
-
-#include "util.h"
 
 
 /******************************************************************************/
-// ushort
+//		定義
+/******************************************************************************/
+
+#define  TYPE_READHEADER	0x001
+#define  TYPE_WRITEHEADER	0x002
+
+
+/******************************************************************************/
+//		エクスポート関数郡
+/******************************************************************************/
+// DLL のタイプを表す
 //============================================================================//
-// 更新：02/12/22(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-USHORT makeword( BYTE* p)
+UINT GetDllType()
 {
-	return (USHORT)((p[1] << 8) | p[0]) ;
+	return TYPE_READHEADER;
 }
 
 
 /******************************************************************************/
-// ulong
+// ヘッダの読み取り
 //============================================================================//
-// 更新：02/12/22(日)
 // 概要：なし。
-// 補足：なし。
+// 補足：この DLL では対応できないファイルのときは FALSE を返す。
 //============================================================================//
 
-ULONG  makelong( BYTE* p)
+BOOL ReadHeader(PCTSTR pszBuf)
 {
-	return (((ULONG)p[3]) << 24)
-	     + (((ULONG)p[2]) << 16)
-	     + (((ULONG)p[1]) << 8)
-	     + ((ULONG)p[0]);
+	return TRUE;
 }
 
 
 /******************************************************************************/
-// ウインドウのタイトルを取得
+// ファイルの数を返す
 //============================================================================//
-// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-string GetWindowString( HWND hwnd)
+UINT GetFileCount()
 {
-	int intSize = GetWindowTextLength( hwnd) ;
-	char* pszBuf = new char[ intSize + 1] ;
-
-	GetWindowText( hwnd, pszBuf, intSize + 1) ;
-	string s = pszBuf ;
-	delete[] pszBuf ;
-
-	return s ;
+	return 0;
 }
 
 
 /******************************************************************************/
-// ウインドウの場所を取得
+// ファイル名を返す
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-RECT GetChildRect(HWND hwndParent, HWND hwndChild)
+PCTSTR GetFileName(UINT uiIndex)
 {
-	RECT rcChild;
-	RECT rect;
-	
-	GetWindowRect(hwndChild, &rcChild);
-
-	POINT pt = {rcChild.left, rcChild.top};
-	ScreenToClient(hwndParent, &pt);
-
-	rect.left	= pt.x;
-	rect.top	= pt.y;
-	rect.right	= rcChild.right - rcChild.left + pt.x;
-	rect.bottom	= rcChild.bottom - rcChild.top + pt.y;
-
-	return rect;
+	return "";
 }
 
 
 /******************************************************************************/
-// フルパスからディレクトリ取得
+// ファイルの始点を返す
 //============================================================================//
-// 更新：03/02/02(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-string GetDirName( const string& strPath)
+UINT GetFileStartPoint(UINT uiIndex)
 {
-	int	intLastYen = 0 ;
-	char	pszFile[ MAX_PATH] ;
-	char*	pszPointer = pszFile ;
-	strcpy( pszFile, strPath.c_str()) ;
-
-	for( int i = 0; i < strPath.size(); i++)
-	{
-		pszPointer = pszFile + i ;
-
-		if( IsDBCSLeadByte( *pszPointer))
-		{
-			// ２バイト文字なら２進む
-			i++ ;
-			continue ;
-		}
-
-		if( *pszPointer == '\\' || *pszPointer == '/')
-		{
-			intLastYen = i ;
-		}
-	}
-
-	if( intLastYen > 0)
-	{
-		return strPath.substr( 0, intLastYen + 1) ;	// Yen も含めて返す
-	}
-	else
-	{
-		return "" ;
-	}
+	return 0;
 }
 
 
 /******************************************************************************/
-// フルパスからファイル名取得
+// ファイルの終点を返す
 //============================================================================//
-// 更新：03/02/02(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-string GetFileName( const string& strPath)
+UINT GetFileStartPoint(UINT uiIndex)
 {
-	string strDirName = GetDirName( strPath) ;
-	return strDirName.substr( strDirName.size()) ;
+	return 0;
 }
+
+

@@ -1,0 +1,12 @@
+LIBRARY	 ZIPMP3
+
+DESCRIPTION     'archive_header'
+
+EXPORTS
+	GetDllType
+	ReadHeader
+	GetFileCount
+	GetFileName
+	GetFileStartPoint
+	GetFileEndPoint
+	IsCompressed

@@ -107,19 +107,19 @@ void ListWnd::SetFont()
 
 	// フォントサイズ
 	int intFontSize;
-	if(Profile::intFontSize == 0)
+	if(Profile::intListFontSize == 0)
 	{
 		intFontSize = GetPrivateProfileInt( "Winamp", "pe_fontsize", 10, Profile::strWinampIniPath.c_str()) ;
 	}
 	else
 	{
-		intFontSize = Profile::intFontSize;
+		intFontSize = Profile::intListFontSize;
 	}
 
 	// フォント作成
 	hFont = CreateFont( intFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, // DEFAULT_CHARSET
 		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
-		VARIABLE_PITCH | FF_MODERN, Profile::strFont.c_str()) ;
+		VARIABLE_PITCH | FF_MODERN, Profile::strListFont.c_str()) ;
 	if(!hFont)
 	{
 		hFont = CreateFont( intFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, 

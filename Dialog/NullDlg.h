@@ -1,36 +1,39 @@
 
-// CueFile.h
+// NullDlg.h
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-#ifndef  __CUE_FILE_H__
-#define  __CUE_FILE_H__
+#ifndef  __NULL_DLG_H__
+#define  __NULL_DLG_H__
 
-#include "include.h"
-#include "define.h"
-#include "File.h"
+#include "..\include.h"
+#include "..\MsgMap.h"
+#include "ChildDlg.h"
 
 
 /******************************************************************************/
 //		クラス定義
 /******************************************************************************/
 
-class CueFile : public File
+class NullDlg : public ChildDlg
 {
 private:
-	string	strData ;
 
 public:
 // コンストラクタおよびデストラクタ
-	CueFile(FileInfo*) ;
-	~CueFile() ;
+	NullDlg() ;
+	~NullDlg() ;
 
-// ヘッダから情報取得
-	void ReadCueFile() ;
-	void Compile( vector< UINT>*) ;
-	void CalcLength( const vector< File*>& vecChildList) ;
+// 適用
+	void DoApply();
+
+// メッセージハンドラ
+private:
+	DECLARE_DLG_MESSAGE_MAP(NullDlgProc)
+
+	BOOL OnInitDialog	(HWND, WPARAM, LPARAM);
 } ;
 
 #endif

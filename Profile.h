@@ -28,14 +28,32 @@ public:
 	static string strWinampIniPath ;
 	static string strOriginalSkin ;
 
-// 表示
-	static BOOL blnShowOnlyZip ;
-	static BOOL blnShowOnlyUncompressedZip ;
+// ウインドウ
+	static BOOL blnShowOnlyArchive ;
+	static BOOL blnShowOnlyUncompressed;
+	static BOOL blnAttachToWinamp;
+	static BOOL blnUseTimebar ;
+
+// フォント
+	static string	strListFont;
+	static int	intListFontSize;
+	static string	strCollapseFont;
+	static int	intCollapseFontSize;
+	static BOOL	blnUseSkinFont;
+
+// スキン
+	static int	intSkin1;
+	static int	intSkin2;
+	static string	strSkinDir1;
+	static string	strSkinDir2;
+
 	static BOOL blnCountUp ;
 	static BOOL blnCompact ;
-	static BOOL blnShowTimebar ;
-	static string strFont;
-	static int intFontSize;
+
+// MP3
+	static BOOL blnUseId3v2;
+	static BOOL blnUseCue;
+	static BOOL blnUseMp3Cue;
 
 // リスト
 	static string strListNormal ;
@@ -55,7 +73,12 @@ public:
 	static void Load() ;
 
 private:
-	static void WriteProfile( const string& s, LPTSTR pszSection, LPTSTR pszName, UINT ui) ;
+	static void	WriteProfileInt(LPTSTR pszSection, LPTSTR pszName, UINT ui, const string& s);
+	static void	WriteProfileStr(LPTSTR pszSection, LPTSTR pszName, const string&, const string& s) ;
+	static void	WriteProfileBln(LPTSTR pszSection, LPTSTR, BOOL, const string&);
+	static int	ReadProfileInt(LPTSTR pszSection, LPTSTR pszName, const string& s, int intDefault = 0);
+	static string	ReadProfileStr(LPTSTR pszSection, LPTSTR pszName, const string& s, const string& strDefault = "");
+	static BOOL	ReadProfileBln(LPTSTR pszSection, LPTSTR pszName, const string& s, BOOL blnDefault = FALSE);
 } ;
 
 

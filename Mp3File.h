@@ -32,7 +32,7 @@ private:
 
 public:
 // コンストラクタおよびデストラクタ
-	Mp3File( File*) ;
+	Mp3File(FileInfo*) ;
 	~Mp3File() ;
 
 // ヘッダから情報取得

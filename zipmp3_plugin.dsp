@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 comctl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wininet.lib /nologo /dll /debug /machine:I386 /out:"N:\soft\Media\winamp\Plugins\gen_zipalbum.dll" /pdbtype:sept
+# ADD LINK32 comctl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wininet.lib /nologo /dll /debug /machine:I386 /out:"C:\Program Files\Winamp\Plugins\gen_zipalbum.dll" /pdbtype:sept
 
 !ENDIF 
 
@@ -90,6 +90,10 @@ LINK32=link.exe
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\ArchiveFile.cpp
+# End Source File
 # Begin Source File
 
 SOURCE=.\Controller.cpp
@@ -132,24 +136,20 @@ SOURCE=.\resource.rc
 # End Source File
 # Begin Source File
 
-SOURCE=.\SettingDlg.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\util.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\WinampHook.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\ZipFile.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\ArchiveFile.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\Controller.h
@@ -224,10 +224,6 @@ SOURCE=.\WinampHook.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ZipFile.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\zipmp3.h
 # End Source File
 # End Group
@@ -236,7 +232,31 @@ SOURCE=.\zipmp3.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
+SOURCE=.\expert1.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\resource\hand.cur
+# End Source File
+# Begin Source File
+
+SOURCE=.\ico00001.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\list.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\list1.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\mp4.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\mp5.ico
 # End Source File
 # Begin Source File
 
@@ -256,7 +276,63 @@ SOURCE=.\resource\Posbar.bmp
 # End Source File
 # Begin Source File
 
+SOURCE=.\skin.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\resource\Text.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\window1.ico
+# End Source File
+# End Group
+# Begin Group "Dialog"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\Dialog\ChildDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\ChildDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\FontDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\FontDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\ListDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\Mp3Dlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\NullDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\SettingDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\SettingDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\SkinDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog\WindowDlg.cpp
 # End Source File
 # End Group
 # End Target

@@ -215,7 +215,7 @@ LRESULT WinampHook::OnKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	
 LRESULT WinampHook::OnMove( HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
-	if( pMainWnd->IsSnapping())
+	if( Profile::blnAttachToWinamp && pMainWnd->IsSnapping())
 	{
 		POINT pt = pMainWnd->GetOffsetSnap() ;
 		Profile::intX = (short)LOWORD( lParam) + pt.x ;

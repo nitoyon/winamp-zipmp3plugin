@@ -7,7 +7,7 @@
 //============================================================================//
 
 #include "Controller.h"
-#include "ZipFile.h"
+#include "ArchiveFile.h"
 #include "MainWnd.h"
 #include "Profile.h"
 #include "util.h"
@@ -34,7 +34,7 @@ Controller* Controller::pInstance = NULL ;
 //============================================================================//
 
 Controller::Controller() 
-: strFilePath( ""), strPrevTmpPath( ""), pZipFile( NULL), blnUseHotKey( FALSE)
+: strFilePath( ""), strPrevTmpPath( ""), pArchivePath( NULL), blnUseHotKey( FALSE)
 {
 }
 
@@ -100,17 +100,17 @@ void Controller::SetVisiblity( BOOL blnShow, BOOL blnForce)
 	}
 
 	BOOL b = TRUE ;
-	switch( pZipFile->GetStatus())
+	switch( pArchivePath->GetStatus())
 	{
-		case ZipFile::Status::UNCOMPRESSED :
+		case ArchiveFile::Status::UNCOMPRESSED :
 			b = TRUE ;
 			break ;
-		case ZipFile::Status::COMPRESSED :
-			b = ( Profile::blnShowOnlyZip && !Profile::blnShowOnlyUncompressedZip)
-			 || ( !Profile::blnShowOnlyZip) ;
+		case ArchiveFile::Status::COMPRESSED :
+			b = ( Profile::blnShowOnlyArchive && !Profile::blnShowOnlyUncompressed)
+			 || ( !Profile::blnShowOnlyArchive) ;
 			break ;
 		default :
-			b = !Profile::blnShowOnlyZip ;
+			b = !Profile::blnShowOnlyArchive ;
 			break ;
 	}
 	ShowWindow( pMainWnd->GetHwnd(), b ? SW_SHOW : SW_HIDE) ;
@@ -152,20 +152,20 @@ void Controller::ToggleVisiblity()
 
 void Controller::Play()
 {
-	if( !pZipFile)
+	if( !pArchivePath)
 	{
 		return ;
 	}
 
 	// 無圧縮じゃない場合
-	if(pZipFile->GetStatus() != ZipFile::Status::UNCOMPRESSED)
+	if(pArchivePath->GetStatus() != ArchiveFile::Status::UNCOMPRESSED)
 	{
 		SendMessage( pMainWnd->GetWinampWindow(), WM_COMMAND, WINAMP_BUTTON2, 0) ;
 		SendMessage( pMainWnd->GetWinampWindow(), WM_WA_IPC, 0, IPC_JUMPTOTIME) ;
 		return ;
 	}
 
-	ULONG ulMilisec = pZipFile->GetSongHead( pMainWnd->GetCurSong()) ;
+	ULONG ulMilisec = pArchivePath->GetSongHead( pMainWnd->GetCurSong()) ;
 	SendMessage( pMainWnd->GetWinampWindow(), WM_COMMAND, WINAMP_BUTTON2, 0) ;
 	SendMessage( pMainWnd->GetWinampWindow(), WM_WA_IPC, ulMilisec, IPC_JUMPTOTIME) ;
 }
@@ -181,23 +181,23 @@ void Controller::Play()
 
 void Controller::Go( UINT u, int intDiff)
 {
-	if( !pZipFile)
+	if( !pArchivePath)
 	{
 		return ;
 	}
-	if( u < 0 || u >= pZipFile->GetChildFileCount())
+	if( u < 0 || u >= pArchivePath->GetChildFileCount())
 	{
 		return;
 	}
 
 	HWND hwnd = pMainWnd->GetWinampWindow() ;
-	ULONG ulMilisec = pZipFile->GetSongHead( u) + intDiff;
+	ULONG ulMilisec = pArchivePath->GetSongHead( u) + intDiff;
 	SendMessage( hwnd, WM_WA_IPC, ulMilisec, IPC_JUMPTOTIME) ;
 
 	// 再生中でないならば、手動でファイル番号更新
 	if( SendMessage( hwnd, WM_WA_IPC, 0, IPC_ISPLAYING) != 1)
 	{
-		ULONG ulCurFileNum = pZipFile->GetSongIndex( ulMilisec) ;
+		ULONG ulCurFileNum = pArchivePath->GetSongIndex( ulMilisec) ;
 		if( pMainWnd->GetCurSong() != ulCurFileNum)
 		{
 			SendMessage( pMainWnd->GetWinampWindow(), WM_COMMAND, WINAMP_BUTTON2, 0) ;
@@ -216,25 +216,24 @@ void Controller::Go( UINT u, int intDiff)
 //============================================================================//
 BOOL Controller::Extract( UINT ui, const string& strPath)
 {
-	File* pFile = pZipFile->GetChildFile( ui) ;
+	File* pFile = pArchivePath->GetChildFile( ui) ;
 	if( !pFile)
 	{
 		return FALSE ;
 	}
 
-	if( pZipFile->GetStatus() != ZipFile::Status::UNCOMPRESSED)
+	if( pArchivePath->GetStatus() != ArchiveFile::Status::UNCOMPRESSED)
 	{
 		return FALSE ;
 	}
 
 
 	FILE* fExtract = fopen( strPath.c_str(), "wb") ;
-	FILE* fZip = fopen( pFile->GetZipPath().c_str(), "rb") ;
+	FILE* fZip = fopen( pFile->GetArchivePath().c_str(), "rb") ;
 	if( fExtract && fZip)
 	{
-		ULONG ulHead = pFile->GetFileHead() ;
-		ZipChildHeader zch = pFile->GetHeader() ;
-		ULONG ulFileLength = zch.ulCompressedSize ;
+		ULONG ulHead = pFile->GetStartPoint() ;
+		ULONG ulFileLength = pFile->GetEndPoint() - ulHead;
 
 #define BUF_SIZE 4048
 		BYTE pbyte[ BUF_SIZE] ;
@@ -267,7 +266,7 @@ BOOL Controller::Extract( UINT ui, const string& strPath)
 
 BOOL Controller::ExtractDetail( UINT ui, UINT uiMsg)
 {
-	if( pZipFile->GetStatus() != ZipFile::Status::UNCOMPRESSED)
+	if( pArchivePath->GetStatus() != ArchiveFile::Status::UNCOMPRESSED)
 	{
 		return FALSE ;
 	}
@@ -276,8 +275,8 @@ BOOL Controller::ExtractDetail( UINT ui, UINT uiMsg)
 
 	if( uiMsg == IDM_EXTRACT_HERE)
 	{
-		strOutPath = GetDirName( pZipFile->GetZipPath()) ;
-		strOutPath += pZipFile->GetChildFile( ui)->GetFileName() ;
+		strOutPath = GetDirName(pArchivePath->GetChildFile(ui)->GetArchivePath()) ;
+		strOutPath += pArchivePath->GetChildFile(ui)->GetFileName() ;
 	}
 	else if( uiMsg == IDM_EXTRACT_SELECT)
 	{
@@ -303,7 +302,7 @@ BOOL Controller::ExtractDetail( UINT ui, UINT uiMsg)
 	{
 		char pszBuf[ MAX_PATH] ;
 		SHGetSpecialFolderPath( NULL, pszBuf, CSIDL_DESKTOP, 0) ;
-		strOutPath = string( pszBuf) + "\\" + pZipFile->GetChildFile( ui)->GetFileName() ;
+		strOutPath = string( pszBuf) + "\\" + pArchivePath->GetChildFile( ui)->GetFileName() ;
 	}
 
 	return Extract( ui, strOutPath) ;
@@ -320,12 +319,12 @@ BOOL Controller::ExtractDetail( UINT ui, UINT uiMsg)
 
 void Controller::OpenInMiniBrowser( UINT i)
 {
-	if( pZipFile->GetStatus() != ZipFile::Status::UNCOMPRESSED)
+	if( pArchivePath->GetStatus() != ArchiveFile::Status::UNCOMPRESSED)
 	{
 		return ;
 	}
 
-	File* pFile = pZipFile->GetChildFile( i) ;
+	File* pFile = pArchivePath->GetChildFile( i) ;
 	if( !pFile)
 	{
 		return ;
@@ -370,17 +369,17 @@ void Controller::SetMp3Pos( const string& s, ULONG ulMil)
 		SetVisiblity( TRUE) ;
 	}
 
-	if( pZipFile->GetStatus() == ZipFile::Status::UNCOMPRESSED)
+	if( pArchivePath->GetStatus() == ArchiveFile::Status::UNCOMPRESSED)
 	{
 		// ファイル番号更新
-		ULONG ulCurFileNum = pZipFile->GetSongIndex( ulMil) ;
-		if( pMainWnd->GetCurSong() != ulCurFileNum && ulCurFileNum < pZipFile->GetChildFileCount())
+		ULONG ulCurFileNum = pArchivePath->GetSongIndex( ulMil) ;
+		if( pMainWnd->GetCurSong() != ulCurFileNum && ulCurFileNum < pArchivePath->GetChildFileCount())
 		{
-			pMainWnd->SetCurSong( ulCurFileNum, pZipFile->GetChildFile( ulCurFileNum)->GetPlayLength()) ;
+			pMainWnd->SetCurSong( ulCurFileNum, pArchivePath->GetChildFile( ulCurFileNum)->GetPlayLength()) ;
 		}
 
 		// 表示時刻更新
-		ULONG u = pZipFile->GetSongTime( ulCurFileNum, ulMil) ;
+		ULONG u = pArchivePath->GetSongTime( ulCurFileNum, ulMil) ;
 		u /= 1000 ;
 		if( ulDisplayTime != u)
 		{
@@ -390,7 +389,7 @@ void Controller::SetMp3Pos( const string& s, ULONG ulMil)
 	}
 	else
 	{
-		if( Profile::blnShowOnlyZip)
+		if( Profile::blnShowOnlyArchive)
 		{
 			SetVisiblity( FALSE) ;
 		}
@@ -410,44 +409,43 @@ void Controller::UpdateFileInfo( const string& s)
 {
 	strFilePath = s ;
 
-	// pZipFile の更新
-	if( pZipFile)
+	// pArchivePath の更新
+	if( pArchivePath)
 	{
 		pMainWnd->ClearList() ;
-		delete pZipFile ;
+		delete pArchivePath ;
 	}
-	pZipFile = new ZipFile( strFilePath) ;
-	pZipFile->ReadHeader() ;
+	pArchivePath = new ArchiveFile(strFilePath) ;
+	pArchivePath->ReadHeader() ;
 
 	// zip ファイルなら
-	switch( pZipFile->GetStatus())
+	switch( pArchivePath->GetStatus())
 	{
-		case ZipFile::Status::OPEN_ERROR :
+		case ArchiveFile::Status::OPEN_ERROR :
 			pMainWnd->AddList( "ファイルを開けませんでした") ;
 			break ;
 
-		case ZipFile::Status::NOT_ZIP :
-			pMainWnd->AddList( "ZIP ファイルではありません") ;
+		case ArchiveFile::Status::NO_HEADER:
+			pMainWnd->AddList( "ヘッダ情報を読み取れませんでした") ;
 			pMainWnd->SetCurSong( 0, 0) ;
 			break ;
 
-		case ZipFile::Status::INVALID_HEADER :
-			pMainWnd->AddList( "ZIP ファイルのヘッダ情報の読みとりに失敗しました。") ;
-			pMainWnd->AddList( "正しい ZIP ファイルではないか、このプラグインがヘボい可能性があります。") ;
+		case ArchiveFile::Status::INVALID_HEADER :
+			pMainWnd->AddList( "ヘッダ情報の読みとりに失敗しました。") ;
 			pMainWnd->SetCurSong( 0, 0) ;
 			break ;
 
-		case ZipFile::Status::UNCOMPRESSED :
-		case ZipFile::Status::COMPRESSED :
+		case ArchiveFile::Status::UNCOMPRESSED :
+		case ArchiveFile::Status::COMPRESSED :
 		{
 			// コンピレーションアルバムかどうかの判断
 			BOOL blnCompi = FALSE ;
 			if( Profile::blnListCompilation)
 			{
 				string strArtist = "" ;
-				for( int i = 0; i < pZipFile->GetChildFileCount(); i++)
+				for( int i = 0; i < pArchivePath->GetChildFileCount(); i++)
 				{
-					File* pFile = pZipFile->GetChildFile( i) ;
+					File* pFile = pArchivePath->GetChildFile( i) ;
 					if( !pFile->HasID3Tag())
 					{
 						continue ;
@@ -467,9 +465,9 @@ void Controller::UpdateFileInfo( const string& s)
 			}
 
 			// リストに追加していく
-			for( int i = 0; i < pZipFile->GetChildFileCount(); i++)
+			for( int i = 0; i < pArchivePath->GetChildFileCount(); i++)
 			{
-				File* pFile = pZipFile->GetChildFile( i) ;
+				File* pFile = pArchivePath->GetChildFile( i) ;
 				
 				if( blnCompi && pFile->HasID3Tag())
 				{
@@ -484,7 +482,7 @@ void Controller::UpdateFileInfo( const string& s)
 					pMainWnd->AddList( pFile->GetFileName(), pFile->GetPlayLength()) ;
 				}
 			}
-			pMainWnd->SetCurSong( 0, i > 0 ? pZipFile->GetChildFile( 0)->GetPlayLength() : 0) ;
+			pMainWnd->SetCurSong( 0, i > 0 ? pArchivePath->GetChildFile( 0)->GetPlayLength() : 0) ;
 			break ;
 		}
 	}

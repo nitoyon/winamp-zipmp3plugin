@@ -536,7 +536,10 @@ LRESULT MainWnd::OnMouseMove( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		GetCursorPos( &pt) ;
 		pt.x -= ptOffsetMove.x ;
 		pt.y -= ptOffsetMove.y ;
-		pt = CalcSnappedPos( pt) ;
+		if(Profile::blnAttachToWinamp)
+		{
+			pt = CalcSnappedPos( pt) ;
+		}
 		Profile::intX = pt.x ;
 		Profile::intY = pt.y ;
 		SetWindowPos( hWnd, 0, Profile::intX, Profile::intY, 0, 0, SWP_NOSIZE | SWP_NOZORDER) ;
@@ -895,7 +898,7 @@ void MainWnd::DrawTime( HDC hdc)
 		BitBlt( hdc, intWidth - 82 + 23, intHeight - 15, 5, 6, hdcFont, ( intSec % 10) * 5, 6, SRCCOPY) ;
 
 		// ÉoÅ[ï\é¶
-		if( Profile::blnShowTimebar)
+		if( Profile::blnUseTimebar)
 		{
 			BitBlt( hdc, intWidth - 147, intHeight - 30, 95, 10, hdcPos, 0, 0, SRCCOPY) ;
 			UINT uiPos = 95 - 30 ;

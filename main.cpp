@@ -10,7 +10,7 @@
 #include "Controller.h"
 #include "MainWnd.h"
 #include "WinampHook.h"
-#include "SettingDlg.h"
+#include "Dialog\SettingDlg.h"
 #include "Profile.h"
 #include "resource.h"
 
@@ -57,8 +57,8 @@ DLLEXPORT winampGeneralPurposePlugin* winampGetGeneralPurposePlugin()
 
 void config()
 {
-	SettingDlg sd ;
-	DialogBoxParam( plugin.hDllInstance, MAKEINTRESOURCE( IDD_SETTING), GetForegroundWindow(), SettingDlgProc, (LPARAM)&sd) ;
+	SettingDlg sd(plugin.hDllInstance);
+	DialogBoxParam(plugin.hDllInstance, MAKEINTRESOURCE(IDD_SETTING), GetForegroundWindow(), SettingDlgProc, (LPARAM)&sd) ;
 }
 
 
@@ -122,7 +122,7 @@ int init()
 	pwh->Init( plugin.hwndParent) ;
 
 	// show the window
-	ShowWindow( hMainWnd, Profile::blnShowOnlyZip ? SW_HIDE : SW_SHOW) ;
+	ShowWindow( hMainWnd, Profile::blnShowOnlyArchive ? SW_HIDE : SW_SHOW) ;
 	return 0;
 }
 

@@ -14,36 +14,21 @@
 /******************************************************************************/
 //		コンストラクタおよびデストラクタ
 /******************************************************************************/
-// 
+// コンストラクタ
 //============================================================================//
-// 更新：03/03/15(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-CueFile::CueFile( File* f)
-: File( f->GetZipPath(), f->GetCentralDir())
+CueFile::CueFile(FileInfo* p)
+: File(p)
 {
-	zipheader = f->GetHeader() ;
-	ulFileHead = f->GetFileHead() ;
-
-	// Extra フィールドの再割り当て
-	if( zipheader.usExtraFieldLength)
-	{
-		BYTE* pbyte = zipheader.pbyteExtra ;
-		zipheader.pbyteExtra = new BYTE[ zipheader.usExtraFieldLength] ;
-		for( int i = 0; i < zipheader.usExtraFieldLength; i++)
-		{
-			zipheader.pbyteExtra[ i] = pbyte[ i] ;
-		}
-	}
 }
 
 
 /******************************************************************************/
 // デストラクタ
 //============================================================================//
-// 更新：03/03/15(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -66,12 +51,12 @@ CueFile::~CueFile()
 
 void CueFile::ReadCueFile()
 {
-	ULONG ulPos = ulFileHead ;
-	ULONG ulEnd = ulFileHead + zipheader.ulCompressedSize ;
+	ULONG ulPos = uiStartPoint;
+	ULONG ulEnd = uiEndPoint;
 	ULONG ulBufSize ;
 
 	// 読みとり
-	FILE* fzip = fopen( strZipPath.c_str(), "rb") ;
+	FILE* fzip = fopen(strArchivePath.c_str(), "rb") ;
 	strData ;
 	char pszBuf[ BUF_SIZE + 1] ;
 	if( fzip)

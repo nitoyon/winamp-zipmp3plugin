@@ -12,6 +12,46 @@
 /******************************************************************************/
 // 		定義
 /******************************************************************************/
+// ヘッダDLLのエクスポート関数
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+typedef UINT	(WINAPI *PGET_DLL_TYPE)();
+typedef BOOL	(WINAPI *PREAD_HEADER)(PCTSTR);
+typedef UINT	(WINAPI *PGET_FILE_COUNT)();
+typedef PCTSTR	(WINAPI *PGET_FILE_NAME)(UINT);
+typedef UINT	(WINAPI *PGET_FILE_START_POINT)(UINT);
+typedef UINT	(WINAPI *PGET_FILE_END_POINT)(UINT);
+typedef BOOL	(WINAPI *PIS_COMPRESSED)(UINT);
+
+
+/******************************************************************************/
+// エクスポート関数一覧の構造体
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+struct HeaderDllFunc
+{
+	PGET_DLL_TYPE		GetDllType;
+	PREAD_HEADER		ReadHeader;
+	PGET_FILE_COUNT		GetFileCount;
+	PGET_FILE_NAME		GetFileName;
+	PGET_FILE_START_POINT	GetFileStartPoint;
+	PGET_FILE_END_POINT	GetFileEndPoint;
+	PIS_COMPRESSED		IsCompressed;
+};
+
+
+/******************************************************************************/
+// 読みとり
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
 
 // Local file header
 #define L_VERSION_NEEDED_TO_EXTRACT_0     0

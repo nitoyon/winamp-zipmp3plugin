@@ -17,28 +17,14 @@
 //		構造体定義
 /******************************************************************************/
 
-struct ZipChildHeader
+struct FileInfo
 {
-	USHORT	usVersionMadeBy ;
-	USHORT	usVersionNeededToExtract ;
-	USHORT	usGeneralPurposeBitFlag;
-	USHORT	usCompressionMethod;
-	USHORT	usLastModFileTime;
-	USHORT	usLastModFileDate;
-	ULONG	ulCrc32;
-	ULONG	ulCompressedSize;
-	ULONG	ulUncompressedSize;
-	USHORT	usFilenameLength;
-	USHORT	usExtraFieldLength;
-	USHORT	usFileCommentLength;
-	USHORT	usDiskNumberStart;
-	USHORT	usInternalFileAttributes;
-	ULONG	ulExternalFileAttributes;
-	ULONG	ulRelativeOffsetLocalHeader;
-	string	strFilename ;
-	BYTE*	pbyteExtra ;
-	string	strComment ;
-} ;
+	string	strArchivePath;
+	string	strFilePath;
+	BOOL	blnCompressed;
+	UINT	uiStartPoint;
+	UINT	uiEndPoint;
+};
 
 
 /******************************************************************************/
@@ -49,38 +35,38 @@ class File
 {
 protected:
 // ファイル情報
-	string		strZipPath ;
-	ULONG		ulCentralDir ;
-	ULONG		ulFileHead ;
-	ZipChildHeader	zipheader ;
+	string		strArchivePath;
+	string		strFilePath;
+	BOOL		blnCompressed;
+	UINT		uiStartPoint;
+	UINT		uiEndPoint;
 
 public:
 // コンストラクタおよびデストラクタ
-	File( const string&, ULONG) ;
+	//File(const string&, UINT _uiStart = 0, UINT _uiEnd = 0);
+	File(FileInfo*);
 	~File() ;
 
 // ファイル情報取得
-	string GetFilePath() const{ return zipheader.strFilename ;} ;
-	string GetZipPath() const{ return strZipPath ;}
-	ULONG GetCentralDirSize() const ;
-	string GetFileName() const ;
-	string GetFileDir() const ;
+	string GetArchivePath() const{ return strArchivePath ;}
+	string GetFilePath() const{ return strFilePath;};
+	string GetFileName() const;
+	string GetFileDir() const;
+	BOOL IsCompressed() const{return blnCompressed;}
+	UINT GetStartPoint() const{return uiStartPoint;}
+	UINT GetEndPoint() const{return uiEndPoint;}
 
-// ZIP の子情報取得
-	ZipChildHeader GetHeader() const{ return zipheader ;}
-	BOOL IsCompressed() const{ return zipheader.ulCompressedSize != zipheader.ulUncompressedSize ;}
 	virtual ULONG GetPlayLength() ;
-	virtual BOOL ReadHeader() ;
-	ULONG GetCentralDir() const{ return ulCentralDir ;}
-	ULONG GetFileHead() const{ return ulFileHead ;}
+	virtual BOOL ReadHeader();
+
 
 // 表示名取得
-	string GetDisplayStr( const string&) ;
-	virtual BOOL HasID3Tag() const{ return FALSE ;}
-	virtual const ID3Tag GetID3Tag() const{ ID3Tag i ;return i ;}
+	string GetDisplayStr(const string&) ;
+	virtual BOOL HasID3Tag() const{return FALSE;}
+	virtual const ID3Tag GetID3Tag() const{ID3Tag i ;return i;}
 
 protected:
 	virtual string GetVariable( const string&) ;
-} ;
+};
 
 #endif

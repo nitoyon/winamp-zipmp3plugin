@@ -1,14 +1,13 @@
 
-// File.cpp
+// Mp3Dlg.cpp
 //============================================================================//
-// 更新：03/02/02(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-#include "File.h"
-#include "define.h"
-#include "util.h"
+#include "Mp3Dlg.h"
+#include "..\resource.h"
+#include "..\Profile.h"
 
 
 /******************************************************************************/
@@ -20,12 +19,7 @@
 // 補足：なし。
 //============================================================================//
 
-File::File(FileInfo* p)
-: strArchivePath(p->strArchivePath), 
-strFilePath(p->strFilePath), 
-blnCompressed(p->blnCompressed), 
-uiStartPoint(p->uiStartPoint), 
-uiEndPoint(p->uiEndPoint)
+Mp3Dlg::Mp3Dlg() 
 {
 }
 
@@ -37,141 +31,86 @@ uiEndPoint(p->uiEndPoint)
 // 補足：なし。
 //============================================================================//
 
-File::~File()
+Mp3Dlg::~Mp3Dlg() 
 {
 }
 
 
 
 /******************************************************************************/
-//		取得
+//		メッセージハンドラ
 /******************************************************************************/
-// ファイル名取得
-//============================================================================//
-// 更新：02/12/28(土)
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-string File::GetFileName() const 
-{
-	return ::GetFileName(strFilePath);
-}
-
-
-/******************************************************************************/
-// ディレクトリ取得
+// メッセージマップ
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-string File::GetFileDir() const
-{
-	return GetDirName(strFilePath) ;
-}
+BEGIN_DLG_MESSAGE_MAP(Mp3DlgProc, Mp3Dlg)
+	ON_MESSAGE( WM_INITDIALOG	, OnInitDialog)
+	ON_MESSAGE( WM_CTLCOLORSTATIC	, OnCtlColorStatic)
+	BEGIN_COMMAND_MAP()
+		ON_COMMAND( IDC_USE_CUE		, OnChecked)
+//		ON_COMMAND( IDCANCEL		, OnCancel)
+	END_COMMAND_MAP()
+END_DLG_MESSAGE_MAP()
 
 
 /******************************************************************************/
-// 再生時間取得
-//============================================================================//
-// 更新：02/12/26(木)
-// 概要：デフォルトは０ミリ秒。
-// 補足：なし。
-//============================================================================//
-
-ULONG File::GetPlayLength()
-{
-	return 0 ;
-}
-
-
-/******************************************************************************/
-// ヘッダ読み取り
+// ダイアログ初期化
 //============================================================================//
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-BOOL File::ReadHeader()
+BOOL Mp3Dlg::OnInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
+	CheckDlgButton(hDlg, IDC_USE_ID3V2, Profile::blnUseId3v2 ? BST_CHECKED : BST_UNCHECKED);
+	CheckDlgButton(hDlg, IDC_USE_CUE,Profile::blnUseCue ? BST_CHECKED : BST_UNCHECKED);
+	CheckDlgButton(hDlg, IDC_USE_MP3CUE, Profile::blnUseMp3Cue ? BST_CHECKED : BST_UNCHECKED);
+
+	SetEnable();
+	return FALSE;
+}
+
+
+/******************************************************************************/
+// チェックされた
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL Mp3Dlg::OnChecked(HWND hDlg, WPARAM wParam, LPARAM lParam)
+{
+	SetEnable();
 	return TRUE;
 }
 
 
 /******************************************************************************/
-//		表示名取得
-/******************************************************************************/
-// リスト追加用の文字列を取得
+// 有効無効切り替え
 //============================================================================//
-// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-string File::GetDisplayStr( const string& s)
+void Mp3Dlg::SetEnable()
 {
-	string	strRet ;
-	string	strVal ;
-	BOOL	blnEncode = FALSE ;
-
-	for( int i = 0; i < s.size(); i++)
-	{
-		if( blnEncode)
-		{
-			if( s[ i] != '%')
-			{
-				strVal += s[ i] ;
-			}
-			else
-			{
-				if( strVal == "")
-				{
-					strRet += '%' ;
-				}
-				else
-				{
-					strRet += GetVariable( strVal) ;
-				}
-
-				blnEncode = FALSE ;
-			}
-		}
-		else
-		{
-			if( s[ i] == '%')
-			{
-				blnEncode = TRUE ;
-				strVal = "" ;
-			}
-			else
-			{
-				strRet += s[ i] ;
-			}
-		}
-	}
-	return strRet ;
+	EnableWindow(GetDlgItem(m_hWnd, IDC_USE_MP3CUE), IsDlgButtonChecked(m_hWnd, IDC_USE_CUE));
 }
 
 
 /******************************************************************************/
-// 変数展開
+// 適用
 //============================================================================//
-// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-string File::GetVariable( const string& strVal)
+void Mp3Dlg::DoApply()
 {
-	if( strVal == "FILE_NAME")
-	{
-		return GetFileName() ;
-	}
-	else if( strVal == "FILE_PATH")
-	{
-		return GetFilePath() ;
-	}
-
-	return "" ;
+	Profile::blnUseId3v2	= IsDlgButtonChecked(m_hWnd, IDC_USE_ID3V2);
+	Profile::blnUseCue	= IsDlgButtonChecked(m_hWnd, IDC_USE_CUE);
+	Profile::blnUseMp3Cue	= IsDlgButtonChecked(m_hWnd, IDC_USE_MP3CUE);
 }

@@ -23,23 +23,10 @@
 // 補足：なし。
 //============================================================================//
 
-Mp3File::Mp3File( File* f) 
-: File( f->GetZipPath(), f->GetCentralDir())
+Mp3File::Mp3File(FileInfo* p) 
+: File(p)
 , ulMpegHeader( 0), intMpeg( 0), intLayer( 0), intBitrate( 0), ulLengthCache( 0)
 {
-	zipheader = f->GetHeader() ;
-	ulFileHead = f->GetFileHead() ;
-
-	// Extra フィールドの再割り当て
-	if( zipheader.usExtraFieldLength)
-	{
-		BYTE* pbyte = zipheader.pbyteExtra ;
-		zipheader.pbyteExtra = new BYTE[ zipheader.usExtraFieldLength] ;
-		for( int i = 0; i < zipheader.usExtraFieldLength; i++)
-		{
-			zipheader.pbyteExtra[ i] = pbyte[ i] ;
-		}
-	}
 }
 
 
@@ -60,53 +47,43 @@ Mp3File::~Mp3File()
 /******************************************************************************/
 // ヘッダ読みとり
 //============================================================================//
-// 更新：03/03/15(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 BOOL Mp3File::ReadHeader()
 {
-	FILE* fzip = fopen( strZipPath.c_str(), "rb") ;
-	if( fzip)
+	FILE* fzip = fopen( strArchivePath.c_str(), "rb") ;
+	if(!fzip)
 	{
-		// zip ではないかのチェック（今はいい加減）
-		fseek( fzip, LOCAL_HEADER_SIZE, SEEK_SET) ;
-		if( fgetc( fzip) == 0x50
-		 && fgetc( fzip) == 0x4b
-		 && fgetc( fzip) == 0x03
-		 && fgetc( fzip) == 0x04)
-		{
-			fclose( fzip) ;
-			return FALSE ;
-		}
-
-		if( FindMpegHeader( fzip))
-		{
-			ReadMpegHeader( fzip) ;
-			ReadID3v1( fzip) ;
-
-			// ID3 v2タグ読みとり
-			if( fseek( fzip, ulFileHead, SEEK_SET) == 0)
-			{
-				CId3tagv2 tagv2 ;
-				tagv2.Load( fzip) ;
-				if(tagv2.IsEnable())
-				{
-					blnHasID3Tag = TRUE ;
-					id3tag.strTrackName	= tagv2.GetTitle() ;
-					id3tag.strArtistName	= tagv2.GetArtist() ;
-					id3tag.strAlbumName	= tagv2.GetAlbum() ;
-					id3tag.intYear		= atoi( tagv2.GetYear().c_str()) ;
-					id3tag.strComment	= tagv2.GetComment() ;
-					id3tag.intTrackNum	= atoi( tagv2.GetTrackNo().c_str()) ;
-				}
-			}
-		}
-
-		fclose( fzip) ;
+		return FALSE;
 	}
 
+	// zip ではないかのチェック（今はいい加減）
+	if( FindMpegHeader( fzip))
+	{
+		ReadMpegHeader( fzip) ;
+		ReadID3v1( fzip) ;
+
+		// ID3 v2タグ読みとり
+		if( fseek( fzip, uiStartPoint, SEEK_SET) == 0)
+		{
+			CId3tagv2 tagv2 ;
+			tagv2.Load( fzip) ;
+			if(tagv2.IsEnable())
+			{
+				blnHasID3Tag = TRUE ;
+				id3tag.strTrackName	= tagv2.GetTitle() ;
+				id3tag.strArtistName	= tagv2.GetArtist() ;
+				id3tag.strAlbumName	= tagv2.GetAlbum() ;
+				id3tag.intYear		= atoi( tagv2.GetYear().c_str()) ;
+				id3tag.strComment	= tagv2.GetComment() ;
+				id3tag.intTrackNum	= atoi( tagv2.GetTrackNo().c_str()) ;
+			}
+		}
+	}
+
+	fclose( fzip) ;
 	return TRUE ;
 }
 
@@ -114,7 +91,6 @@ BOOL Mp3File::ReadHeader()
 /******************************************************************************/
 // MPEGヘッダを探す
 //============================================================================//
-// 更新：02/12/22(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -126,8 +102,8 @@ BOOL Mp3File::FindMpegHeader( FILE* fzip)
 	byte[ BUF_SIZE    ] = '\0' ;
 	byte[ BUF_SIZE + 1] = '\0' ;
 
-	ULONG ulPos = ulFileHead ;
-	ULONG ulEnd = zipheader.ulRelativeOffsetLocalHeader + zipheader.ulCompressedSize ;
+	ULONG ulPos = uiStartPoint;
+	ULONG ulEnd = uiEndPoint;
 	ULONG ulBufSize = 0 ;
 	while( TRUE)
 	{
@@ -240,7 +216,7 @@ BOOL Mp3File::ReadMpegHeader( FILE* fzip)
 void Mp3File::ReadID3v1( FILE* fzip)
 {
 	blnHasID3Tag = FALSE ;
-	if( fseek( fzip, ulFileHead + zipheader.ulUncompressedSize - ID3_TAG_SIZE, SEEK_SET) != 0)
+	if( fseek( fzip, uiEndPoint - ID3_TAG_SIZE, SEEK_SET) != 0)
 	{
 		return ;
 	}
@@ -353,7 +329,7 @@ ULONG Mp3File::GetPlayLength()
 	}
 	else if( intBitrate != 0)
 	{
-		return zipheader.ulCompressedSize * 8 / intBitrate ;
+		return (uiEndPoint - uiStartPoint) * 8 / intBitrate ;
 	}
 	else
 	{

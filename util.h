@@ -17,7 +17,11 @@
 
 USHORT makeword( BYTE*) ;
 ULONG  makelong( BYTE*) ;
+
 string GetWindowString( HWND) ;
+RECT GetChildRect(HWND, HWND);
+
 string GetDirName( const string&) ;
+string GetFileName( const string&);
 
 #endif
