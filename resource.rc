@@ -65,7 +65,7 @@ BEGIN
     PUSHBUTTON      "今すぐ表示(&D)",IDC_DISPLAY,127,278,50,14,NOT 
                     WS_VISIBLE
     GROUPBOX        "バージョン情報",IDC_STATIC,213,7,90,97
-    LTEXT           "zip.mp3 表示プラグイソ。 \nver 0.2.14b",IDC_STATIC,218,
+    LTEXT           "zip.mp3 表示プラグイソ。 \nver 0.2.15b",IDC_STATIC,218,
                     20,77,19
     LTEXT           "http://www.nitoyon.com/",IDC_URL,225,85,75,8,SS_NOTIFY
     LTEXT           "姉妹品の MP3アルバムメーカーもよろしく！",IDC_STATIC,
@@ -139,8 +139,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,2,14,0
- PRODUCTVERSION 0,2,14,0
+ FILEVERSION 0,2,15,0
+ PRODUCTVERSION 0,2,15,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -158,14 +158,14 @@ BEGIN
             VALUE "Comments", "zip.mp3 の中身を見せろや(ﾟДﾟ)ｺﾞﾙｧ!!\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "ZIP.MP3 再生プラグイソ。\0"
-            VALUE "FileVersion", "0. 2. 14. 0\0"
+            VALUE "FileVersion", "0. 2. 15. 0\0"
             VALUE "InternalName", "gen_zipalbum\0"
             VALUE "LegalCopyright", "Copyright (C) 2003 nitoyon + 協力者募集中\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "gen_zipalbum.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "gen_zipalbum\0"
-            VALUE "ProductVersion", "0. 2. 14. 0\0"
+            VALUE "ProductVersion", "0. 2. 15. 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
