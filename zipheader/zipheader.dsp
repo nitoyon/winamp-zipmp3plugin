@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386 /out:"c:\program files\Winamp\Plugins\gen_zipalbum\r_zip.dll"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386 /out:"c:\program files\Winamp\Plugins\gen_zipalbum\zip_r.dll"
 
 !ELSEIF  "$(CFG)" == "zipheader - Win32 Debug"
 
@@ -101,6 +101,10 @@ SOURCE=N:\program\zipmp3_plugin\zipheader\export.def
 # Begin Source File
 
 SOURCE=N:\program\zipmp3_plugin\zipheader\ZipFile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=N:\program\zipmp3_plugin\zipheader\zipheader.rc
 # End Source File
 # End Group
 # Begin Group "Header Files"

@@ -8,6 +8,7 @@
 //============================================================================//
 
 #include "Profile.h"
+#include "util.h"
 
 
 /******************************************************************************/
@@ -19,7 +20,7 @@ string	Profile::strPath = "" ;
 // 参照用
 HINSTANCE	Profile::hInstance = 0 ;
 string		Profile::strWinampIniPath = "" ;
-string		Profile::strOriginalSkin = "" ;
+string		Profile::strPluginDir;
 
 // ウインドウ
 BOOL	Profile::blnShowOnlyArchive;
@@ -33,9 +34,6 @@ int	Profile::intListFontSize;
 string	Profile::strCollapseFont;
 int	Profile::intCollapseFontSize;
 BOOL	Profile::blnUseSkinFont;
-
-BOOL	Profile::blnCountUp;
-BOOL	Profile::blnCompact;
 
 // スキン
 int	Profile::intSkin1;
@@ -64,6 +62,8 @@ int	Profile::intX = 0 ;
 int	Profile::intY = 0 ;
 int	Profile::intBlockX = 0 ;
 int	Profile::intBlockY = 0 ;
+BOOL	Profile::blnCountUp;
+BOOL	Profile::blnCompact;
 
 
 /******************************************************************************/
@@ -83,6 +83,7 @@ void Profile::Save()
 		char pszPath[ MAX_PATH + 1] ;
 		GetModuleFileName( hInstance, pszPath, MAX_PATH) ;
 		strPath = pszPath ;
+		strPluginDir = GetDirName(strPath);
 		strPath.replace( strPath.rfind( "."), 4, ".ini", 5) ;
 
 		GetModuleFileName( GetModuleHandle( NULL), pszPath, MAX_PATH) ;
@@ -110,9 +111,6 @@ void Profile::Save()
 	WriteProfileStr("skin", "SkinDir1",	strSkinDir1, 	strPath);
 	WriteProfileStr("skin", "SkinDir2",	strSkinDir2, 	strPath);
 
-	WriteProfileBln( "Display", "CountUp", blnCountUp, pszFile) ;
-	WriteProfileBln( "Display", "compact", blnCompact, pszFile) ;
-
 	// MP3
 	WriteProfileBln("mp3", "UseId3v2", 		blnUseId3v2, 	strPath);
 	WriteProfileBln("mp3", "UseCue", 		blnUseCue, 	strPath);
@@ -136,11 +134,14 @@ void Profile::Save()
 	const char* p = strData.c_str();
 	WritePrivateProfileSection("Dll", strData.c_str(), strPath.c_str());
 
-	// 場所
+	// キャッシュ
 	WriteProfileInt("pos", "x", intX, pszFile) ;
 	WriteProfileInt("pos", "y", intY, pszFile) ;
 	WriteProfileInt("pos", "width", intBlockX, pszFile) ;
 	WriteProfileInt("pos", "height", intBlockY, pszFile) ;
+	WriteProfileBln("Display", "CountUp", blnCountUp, pszFile) ;
+	WriteProfileBln("Display", "compact", blnCompact, pszFile) ;
+
 }
 
 
@@ -159,19 +160,14 @@ void Profile::Load()
 		char pszPath[ MAX_PATH + 1] ;
 		GetModuleFileName( hInstance, pszPath, MAX_PATH) ;
 		strPath = pszPath ;
+		strPluginDir = GetDirName(strPath);
 		strPath.replace( strPath.rfind( "."), 4, ".ini", 5) ;
-
-		strOriginalSkin = pszPath ;
-		strOriginalSkin = strOriginalSkin.substr( 0, strOriginalSkin.rfind( ".")) ;
-		strOriginalSkin += '\\' ;
 
 		GetModuleFileName( GetModuleHandle( NULL), pszPath, MAX_PATH) ;
 		strWinampIniPath = pszPath ;
 		strWinampIniPath.replace( strWinampIniPath.rfind( "."), 4, ".ini", 5) ;
 
 	}
-	const char* pszFile = strPath.c_str() ;
-	char	pszBuf[ MAX_PATH] ;
 
 	// ウインドウ
 	blnShowOnlyArchive	= ReadProfileBln("window", "ShowOnlyArchive", strPath, FALSE);
@@ -193,11 +189,6 @@ void Profile::Load()
 	strSkinDir2	= ReadProfileStr("skin", "SkinDir2", strPath, "");
 	intSkin1	= (intSkin1 < 0 || intSkin1 > 1) ? 0 : intSkin1;
 	intSkin2	= (intSkin2 < 0 || intSkin2 > 2) ? 0 : intSkin2;
-
-	GetPrivateProfileString( "window", "CountUp", "yes", pszBuf, MAX_PATH, pszFile) ;
-	blnCountUp = ( stricmp( pszBuf, "yes") == 0) ;
-	GetPrivateProfileString( "Display", "compact", "no", pszBuf, MAX_PATH, pszFile) ;
-	blnCompact = ( strcmp( pszBuf, "yes") == 0) ;
 
 	// MP3
 	blnUseId3v2	= ReadProfileBln("mp3", "UseId3v2",	strPath, TRUE);
@@ -243,17 +234,19 @@ void Profile::Load()
 		}
 	}
 
-	// 場所
+	// キャッシュ
+	intX		= ReadProfileInt("pos", "x", strPath, 50) ;
+	intY		= ReadProfileInt("pos", "y", strPath, 30) ;
+	intBlockX	= ReadProfileInt("pos", "width", strPath, 5) ;
+	intBlockY	= ReadProfileInt("pos", "height", strPath, 3) ;
+	blnCountUp	= ReadProfileBln("Display", "CountUp", strPath, TRUE) ;
+	blnCompact	= ReadProfileBln("Display", "compact", strPath, FALSE) ;
+
 	RECT rc ;
 	GetWindowRect( GetDesktopWindow(), &rc) ;
-	intX = GetPrivateProfileInt( "pos", "x", 50, pszFile) ;
 	intX = ( intX < 0 ? 0 : ( intX > rc.right ? 50 : intX)) ;
-	intY = GetPrivateProfileInt( "pos", "y", 30, pszFile) ;
 	intY = ( intY < 0 ? 0 : ( intY > rc.bottom ? 30 : intY)) ;
-
-	intBlockX = GetPrivateProfileInt( "pos", "width", 5, pszFile) ;
 	intBlockX = ( intBlockX < 5 ? 5 : intBlockX) ;
-	intBlockY = GetPrivateProfileInt( "pos", "height", 3, pszFile) ;
 	intBlockY = ( intBlockY < 2 ? 2 : intBlockY) ;
 }
 

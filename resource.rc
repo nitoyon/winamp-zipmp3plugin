@@ -55,15 +55,17 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,0,106,109,10
 END
 
-IDD_UNAVAILABLE DIALOGEX 0, 0, 180, 136
+IDD_UNAVAILABLE DIALOGEX 0, 0, 180, 161
 STYLE WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
-FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x1
+FONT 9, "ＭＳ Ｐゴシック"
 BEGIN
     LTEXT           " まだ利用できません。",IDC_TITLE,0,0,180,14,
                     SS_CENTERIMAGE | SS_SUNKEN
-    LTEXT           "作者の怠惰により、まだ利用できなかったりします。",
-                    IDC_STATIC,0,28,148,8
+    LTEXT           "作者の怠惰により、まだ利用できなかったりします。\n\nというか、どんな項目がここにはいるか考えていなかったりも。",
+                    IDC_STATIC,0,20,179,32
+    CONTROL         109,IDC_STATIC,"Static",SS_BITMAP,53,93,57,67
+    CONTROL         112,IDC_STATIC,"Static",SS_BITMAP,53,61,57,27
 END
 
 IDD_SKIN DIALOGEX 0, 0, 180, 152
@@ -98,7 +100,7 @@ END
 
 IDD_SETTING DIALOG DISCARDABLE  0, 0, 269, 193
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "ﾀﾞｲｱﾛｸﾞ"
+CAPTION "設定。"
 FONT 9, "ＭＳ Ｐゴシック"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,7,175,50,14,WS_GROUP
@@ -109,6 +111,7 @@ BEGIN
                     TVS_HASLINES | TVS_SHOWSELALWAYS | TVS_TRACKSELECT | 
                     TVS_NONEVENHEIGHT | WS_BORDER | WS_TABSTOP,7,19,67,147
     LTEXT           "",IDC_PANEL,82,7,180,159,NOT WS_VISIBLE
+    PUSHBUTTON      "ﾊﾞｰｼﾞｮﾝ情報(&V)",IDC_ABOUT,183,175,50,14
 END
 
 IDD_MP3 DIALOGEX 0, 0, 180, 136
@@ -121,11 +124,11 @@ BEGIN
     CONTROL         "ID3v2 タグを読み取る(&V)",IDC_USE_ID3V2,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,0,20,87,10
     CONTROL         "cue ファイルがあるときはそちらの時間を優先。(&C)",
-                    IDC_USE_CUE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,0,36,
-                    160,10
+                    IDC_USE_CUE,"Button",BS_AUTOCHECKBOX | WS_DISABLED | 
+                    WS_TABSTOP,0,36,160,10
     CONTROL         "MP3 が１曲のみの場合、mp3+cue として解釈する。(&M)",
-                    IDC_USE_MP3CUE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,
-                    50,173,10
+                    IDC_USE_MP3CUE,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | 
+                    WS_TABSTOP,8,50,173,10
 END
 
 IDD_LIST DIALOGEX 0, 0, 180, 152
@@ -183,12 +186,27 @@ BEGIN
                     180,14,SS_CENTERIMAGE | SS_SUNKEN
     LTEXT           "一覧(&D):",IDC_STATIC,0,20,37,12
     CONTROL         "List1",IDC_DLL_LIST,"SysListView32",LVS_REPORT | 
-                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_EDITLABELS | 
-                    WS_BORDER | WS_TABSTOP,0,33,180,97
-    LTEXT           "※ 上の DLL から順番に試します。",IDC_STATIC,6,136,102,
+                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | WS_BORDER | 
+                    WS_TABSTOP,0,33,180,97
+    LTEXT           "上の DLL から、読み取れるかどうか試していきます。\nチェックが外れているものは、とばします。",
+                    IDC_STATIC,17,135,156,17
+    LTEXT           "※",IDC_STATIC,6,135,8,8
+    PUSHBUTTON      "+",IDC_ADD,125,17,13,14
+    PUSHBUTTON      "-",IDC_DEL,139,17,13,14
+    PUSHBUTTON      "↑",IDC_UP,153,17,13,14
+    PUSHBUTTON      "↓",IDC_DOWN,166,17,13,14
+END
+
+IDD_ABOUT DIALOG DISCARDABLE  0, 0, 154, 57
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "バージョン情報。"
+FONT 9, "ＭＳ Ｐゴシック"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,128,7,19,43
+    LTEXT           "ZIP.MP3 再生プラグイソ。(Winamp用)",IDC_STATIC,7,7,108,
                     8
-    LTEXT           "※ チェックがついていない DLL は飛ばします。",
-                    IDC_STATIC,6,148,136,8
+    LTEXT           "ver. 0.3.0",IDC_STATIC,7,19,26,8
+    LTEXT           "http://www.nitoyon.com/",IDC_URL,21,39,73,8,SS_NOTIFY
 END
 
 
@@ -212,7 +230,7 @@ BEGIN
 
     IDD_UNAVAILABLE, DIALOG
     BEGIN
-        BOTTOMMARGIN, 135
+        BOTTOMMARGIN, 160
     END
 
     IDD_SKIN, DIALOG
@@ -254,6 +272,14 @@ BEGIN
         VERTGUIDE, 6
         BOTTOMMARGIN, 152
     END
+
+    IDD_ABOUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 147
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 50
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -291,8 +317,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,2,15,0
- PRODUCTVERSION 0,2,15,0
+ FILEVERSION 0,3,0,0
+ PRODUCTVERSION 0,3,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -308,16 +334,16 @@ BEGIN
         BLOCK "041104b0"
         BEGIN
             VALUE "Comments", "zip.mp3 の中身を見せろや(ﾟДﾟ)ｺﾞﾙｧ!!\0"
-            VALUE "CompanyName", "\0"
+            VALUE "CompanyName", "nitoyon\0"
             VALUE "FileDescription", "ZIP.MP3 再生プラグイソ。\0"
-            VALUE "FileVersion", "0. 2. 15. 0\0"
+            VALUE "FileVersion", "0. 3. 0. 0\0"
             VALUE "InternalName", "gen_zipalbum\0"
             VALUE "LegalCopyright", "Copyright (C) 2003 nitoyon + 協力者募集中\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "gen_zipalbum.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "gen_zipalbum\0"
-            VALUE "ProductVersion", "0. 2. 15. 0\0"
+            VALUE "ProductVersion", "0. 3. 0. 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -392,7 +418,6 @@ IDI_LIST                ICON    DISCARDABLE     "list.ico"
 IDI_FONT                ICON    DISCARDABLE     "font.ico"
 IDI_EXPERT              ICON    DISCARDABLE     "expert.ico"
 IDI_DLL                 ICON    DISCARDABLE     "dll.ico"
-IDI_ICON1               ICON    DISCARDABLE     "resource\\icon1.ico"
 #endif    // 日本語 resources
 /////////////////////////////////////////////////////////////////////////////
 

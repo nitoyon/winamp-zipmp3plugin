@@ -26,7 +26,7 @@ public:
 // 参照用
 	static HINSTANCE hInstance ;
 	static string strWinampIniPath ;
-	static string strOriginalSkin ;
+	static string strPluginDir ;
 
 // ウインドウ
 	static BOOL blnShowOnlyArchive ;

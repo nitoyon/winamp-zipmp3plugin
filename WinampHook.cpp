@@ -173,7 +173,7 @@ LRESULT WinampHook::OnSysKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	else if( hWnd == hwndMB)	w = wpcWinampMB ;
 	else				return 0 ;
 
-	return CallWindowProc( wpcWinampEQ, hWnd, WM_SYSKEYDOWN, wParam, lParam) ;
+	return CallWindowProc( w, hWnd, WM_SYSKEYDOWN, wParam, lParam) ;
 }
 
 
@@ -201,7 +201,7 @@ LRESULT WinampHook::OnKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	else if( hWnd == hwndMB)	w = wpcWinampMB ;
 	else				return 0 ;
 
-	return CallWindowProc( wpcWinampEQ, hWnd, WM_KEYDOWN, wParam, lParam) ;
+	return CallWindowProc( w, hWnd, WM_KEYDOWN, wParam, lParam) ;
 }
 
 

@@ -66,7 +66,7 @@ BOOL Mp3File::ReadHeader()
 		ReadID3v1( fzip) ;
 
 		// ID3 v2É^ÉOì«Ç›Ç∆ÇË
-		if( fseek( fzip, uiStartPoint, SEEK_SET) == 0)
+		if(Profile::blnUseId3v2 && fseek( fzip, uiStartPoint, SEEK_SET) == 0)
 		{
 			CId3tagv2 tagv2 ;
 			tagv2.Load( fzip) ;

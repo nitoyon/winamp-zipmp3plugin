@@ -40,6 +40,7 @@ RSC=rc.exe
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
 # ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
@@ -227,6 +228,10 @@ SOURCE=..\resource\icon1.ico
 # End Source File
 # Begin Source File
 
+SOURCE=..\resource\icon2.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\list.ico
 # End Source File
 # Begin Source File
@@ -248,6 +253,14 @@ SOURCE=.\mp4.ico
 # Begin Source File
 
 SOURCE=.\mp5.ico
+# End Source File
+# Begin Source File
+
+SOURCE=..\resource\nocccd1.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=..\resource\nocccd2.bmp
 # End Source File
 # Begin Source File
 

@@ -129,6 +129,7 @@ void ListDlg::SetEnable()
 
 	EnableWindow(GetDlgItem(m_hWnd, IDC_LIST_ID3), b1);
 	EnableWindow(GetDlgItem(m_hWnd, IDC_ID3_VARIABLE), b1);
+	EnableWindow(GetDlgItem(m_hWnd, IDC_CHK_COMPI), b1);
 
 	EnableWindow(GetDlgItem(m_hWnd, IDC_LIST_COMPI), b2);
 	EnableWindow(GetDlgItem(m_hWnd, IDC_COMPI_VARIABLE), b2);

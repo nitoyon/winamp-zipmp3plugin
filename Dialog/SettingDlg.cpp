@@ -17,6 +17,7 @@
 #include "ListDlg.h"
 #include "DllDlg.h"
 #include "NullDlg.h"
+#include "AboutDlg.h"
 
 
 /******************************************************************************/
@@ -76,6 +77,7 @@ BEGIN_DLG_MESSAGE_MAP( SettingDlgProc, SettingDlg)
 		ON_COMMAND( IDOK		, OnOk)
 		ON_COMMAND( IDCANCEL		, OnCancel)
 		ON_COMMAND( IDC_APPLY		, OnApply)
+		ON_COMMAND( IDC_ABOUT		, OnAbout)
 	END_COMMAND_MAP()
 END_DLG_MESSAGE_MAP()
 
@@ -304,6 +306,21 @@ BOOL SettingDlg::OnApply(HWND hDlg, WPARAM wParam, LPARAM lParam)
 	}
 
 	Profile::Save();
+	return TRUE;
+}
+
+
+/******************************************************************************/
+// バージョン情報
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL SettingDlg::OnAbout(HWND hDlg, WPARAM wParam, LPARAM lParam)
+{
+	AboutDlg ad;
+	DialogBoxParam(Profile::hInstance, MAKEINTRESOURCE(IDD_ABOUT), hDlg, AboutDlgProc, (LPARAM)&ad);
 	return TRUE;
 }
 
