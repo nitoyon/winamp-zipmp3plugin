@@ -360,14 +360,14 @@ IDC_HANDCUR             CURSOR  DISCARDABLE     "resource\\hand.cur"
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_MP3                 ICON    DISCARDABLE     "mp5.ico"
-IDI_WINDOW              ICON    DISCARDABLE     "window1.ico"
+IDI_MP3                 ICON    DISCARDABLE     "mp3.ico"
+IDI_WINDOW              ICON    DISCARDABLE     "window.ico"
 IDI_SKIN                ICON    DISCARDABLE     "skin.ico"
-IDI_PATH                ICON    DISCARDABLE     "ico00001.ico"
+IDI_PATH                ICON    DISCARDABLE     "path.ico"
 IDI_LIST                ICON    DISCARDABLE     "list.ico"
-IDI_FONT                ICON    DISCARDABLE     "mp4.ico"
-IDI_EXPERT              ICON    DISCARDABLE     "expert1.ico"
-IDI_DLL                 ICON    DISCARDABLE     "list1.ico"
+IDI_FONT                ICON    DISCARDABLE     "font.ico"
+IDI_EXPERT              ICON    DISCARDABLE     "expert.ico"
+IDI_DLL                 ICON    DISCARDABLE     "dll.ico"
 #endif    // “ú–{Œê resources
 /////////////////////////////////////////////////////////////////////////////
 

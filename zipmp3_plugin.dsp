@@ -232,7 +232,19 @@ SOURCE=.\zipmp3.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
+SOURCE=.\dll.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\expert.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\expert1.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\font.ico
 # End Source File
 # Begin Source File
 
@@ -252,6 +264,10 @@ SOURCE=.\list1.ico
 # End Source File
 # Begin Source File
 
+SOURCE=.\mp3.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\mp4.ico
 # End Source File
 # Begin Source File
@@ -268,6 +284,10 @@ SOURCE=.\resource\nocccd2.bmp
 # End Source File
 # Begin Source File
 
+SOURCE=.\path.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\resource\Pledit.bmp
 # End Source File
 # Begin Source File
@@ -281,6 +301,10 @@ SOURCE=.\skin.ico
 # Begin Source File
 
 SOURCE=.\resource\Text.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\window.ico
 # End Source File
 # Begin Source File
 
