@@ -1,13 +1,14 @@
 
 // ZipFile.cpp
 //============================================================================//
-// 更新：02/12/31(火)
+// 更新：03/03/16(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 #include "ZipFile.h"
 #include "Mp3File.h"
+#include "CueFile.h"
 #include "util.h"
 #include "define.h"
 #include "Profile.h"
@@ -58,6 +59,7 @@ ZipFile::~ZipFile()
 {
 	for( int i = 0; i < vecChildList.size(); i++)
 	{
+		File* pFile = (File*)vecChildList[i];
 		delete vecChildList[ i] ;
 	}
 }
@@ -68,7 +70,7 @@ ZipFile::~ZipFile()
 /******************************************************************************/
 // 読みとり
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：03/03/16(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -104,6 +106,7 @@ BOOL ZipFile::ReadHeader()
 
 	ULONG ulHeaderPos = ulOffsetStartCentralDir ;
 	status = Status::COMPRESSED ;
+	CueFile* pCueFile = NULL ;
 
 	for( UINT i = 0; i < usTotalEntriesCentralDir; i++)
 	{
@@ -132,6 +135,17 @@ BOOL ZipFile::ReadHeader()
 				delete pFile ;
 				vecChildList.push_back( pMp3File) ;
 			}
+			// 拡張子が cue のとき
+			else if( s.size() > 4 && stricmp( s.substr( s.size() - 4).c_str(), ".cue") == 0)
+			{
+				if( pCueFile)
+				{
+					delete pCueFile ;
+				}
+				pCueFile = new CueFile( pFile) ;
+				pCueFile->ReadCueFile() ;
+				vecChildList.push_back( pFile) ;
+			}
 			else
 			{
 				vecChildList.push_back( pFile) ;
@@ -141,6 +155,12 @@ BOOL ZipFile::ReadHeader()
 		{
 			vecChildList.push_back( pFile) ;
 		}
+	}
+
+	// CUE ファイルがある場合は、曲の長さを変更
+	if( pCueFile)
+	{
+		pCueFile->CalcLength( vecChildList) ;
 	}
 
 	// 曲の長さキャッシュ作成

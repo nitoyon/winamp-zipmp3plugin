@@ -1,7 +1,7 @@
 
 // Mp3File.h
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：03/03/16(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -25,6 +25,7 @@ private:
 	int		intMpeg ;	// 1 : MPEG1, 2 : MPEG2, 3: MPEG2.5
 	int		intLayer ;
 	int		intBitrate ;
+	UINT		ulLengthCache ;
 
 	BOOL		blnHasID3Tag ;
 	ID3Tag		id3tag ;
@@ -43,8 +44,9 @@ private:
 	string StripSpace( const char*) ;
 
 public:
-// 長さ取得
+// 長さ設定・取得
 	ULONG GetPlayLength() ;
+	void  SetPlayLength( ULONG) ;
 	string GetVariable( const string&) ;
 
 // ID3v1 タグ取得
