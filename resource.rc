@@ -119,8 +119,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,2,6,0
- PRODUCTVERSION 0,2,6,0
+ FILEVERSION 0,2,7,0
+ PRODUCTVERSION 0,2,7,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -138,14 +138,14 @@ BEGIN
             VALUE "Comments", "zip.mp3 の中身を見せろや(ﾟДﾟ)ｺﾞﾙｧ!!\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "ZIP.MP3 再生プラグイソ。\0"
-            VALUE "FileVersion", "0, 2, 6, 0\0"
+            VALUE "FileVersion", "0, 2, 7, 0\0"
             VALUE "InternalName", "gen_zipalbum\0"
             VALUE "LegalCopyright", "Copyright (C) 2003 nitoyon + 協力者募集中\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "gen_zipalbum.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "  gen_zipalbum\0"
-            VALUE "ProductVersion", "0, 2, 6, 0\0"
+            VALUE "ProductVersion", "0, 2, 7, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
