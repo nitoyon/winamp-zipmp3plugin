@@ -1,7 +1,7 @@
 
 // MainWnd.cpp
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：02/12/29(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -10,6 +10,9 @@
 #include "ListWnd.h"
 #include "Profile.h"
 #include "Controller.h"
+#include "resource.h"
+#include <zmouse.h>	// WM_MOUSEWHEEL
+#include "main.h"
 
 #define  IDC_TITLE  100
 
@@ -82,7 +85,7 @@ MainWnd::~MainWnd()
 /******************************************************************************/
 // メッセージマップ定義
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：02/12/29(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -90,6 +93,7 @@ MainWnd::~MainWnd()
 BEGIN_MESSAGE_MAP( MainWndProc, MainWnd)
 	ON_MESSAGE( WM_CREATE			, OnCreate)
 	ON_MESSAGE( WM_TIMER			, OnTimer)
+	ON_MESSAGE( WM_HOTKEY			, OnHotKey)
 	ON_MESSAGE( WM_SIZE			, OnSize)
 	ON_MESSAGE( WM_SETFOCUS			, OnFocus)
 	ON_MESSAGE( WM_PAINT			, OnPaint)
@@ -98,6 +102,7 @@ BEGIN_MESSAGE_MAP( MainWndProc, MainWnd)
 	ON_MESSAGE( WM_LBUTTONUP		, OnLButtonUp)
 	ON_MESSAGE( WM_MOUSEMOVE		, OnMouseMove)
 	ON_MESSAGE( WM_LBUTTONDBLCLK		, OnLButtonDblClk)
+	ON_MESSAGE( WM_MOUSEWHEEL		, OnMouseWheel)
 	ON_MESSAGE( WM_KEYDOWN			, OnKeyDown)
 END_MESSAGE_MAP()
 
@@ -105,7 +110,7 @@ END_MESSAGE_MAP()
 /******************************************************************************/
 // 作成
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：02/12/29(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -118,7 +123,7 @@ LRESULT MainWnd::OnCreate( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		0, 0, 0, 0, 
 		hWnd, 0, hInst, 0) ;
 
-	pListWnd = new ListWnd( hWnd) ;
+	pListWnd = new ListWnd( this) ;
 	pListWnd->Init() ;
 	hbmpPlaylist = 0 ;
 
@@ -128,6 +133,9 @@ LRESULT MainWnd::OnCreate( HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 	// 大麻作成
 	SetTimer( hWnd, 0, 100, NULL) ;
+
+	// スキン読み込み
+	UpdateSkin( TRUE) ;
 
 	return 0 ;
 }
@@ -216,18 +224,23 @@ LRESULT MainWnd::OnPaint( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps ;
 	HDC hdc = BeginPaint (hWnd, &ps) ;
 
-	// メモリ内のビットマップに描画
+	// メモリ内のビットマップ作成
 	HBITMAP hbmpBk = CreateCompatibleBitmap( hdc, intWidth, intHeight) ;
 	HDC hdcBk = CreateCompatibleDC( hdc);
-	SelectObject( hdcBk, hbmpBk);
-	DrawSkin( hdcBk) ;	
+	HBITMAP hbmpOld = (HBITMAP)SelectObject( hdcBk, hbmpBk);
+	
+	// 描画
+	DrawSkin( hdcBk) ;
 	pListWnd->DrawList( hdcBk) ;
 	DrawTime( hdcBk) ;
 
 	// 表に描画
 	BitBlt( hdc, 0, 0, intWidth, intHeight, hdcBk, 0, 0, SRCCOPY) ;
-	DeleteObject( hbmpBk) ;
+
+	// 破棄
+	SelectObject( hdcBk, hbmpOld) ;
 	DeleteDC( hdcBk) ;
+	DeleteObject( hbmpBk) ;
 
 	EndPaint (hWnd, &ps) ;
 	return 0 ;
@@ -245,7 +258,7 @@ LRESULT MainWnd::OnPaint( HWND hWnd, WPARAM wParam, LPARAM lParam)
 LRESULT MainWnd::OnDestroy( HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
 	PostQuitMessage(0) ;
-	pListWnd->Destroy() ;
+	delete pListWnd ;
 	return 0 ;
 }
 
@@ -343,10 +356,28 @@ LRESULT MainWnd::OnRButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	if( item == LIST)
 	{
 		pListWnd->OnRButtonDown( wParam, lParam) ;
-		return 0 ;
 	}
+	else
+	{
+		HMENU  hmenu = CreateMenu() ;
+		AppendMenu( hmenu, MF_STRING, 1, "設定") ;
+		HMENU  hmnPopup = CreateMenu() ;
+		AppendMenu( hmnPopup, MF_POPUP, (UINT)hmenu, "") ;
 
-	return -1 ;	
+		// 表示
+		POINT pt ;
+		GetCursorPos( &pt) ;
+		UINT intRet = TrackPopupMenu( hmenu, TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RETURNCMD, 
+				pt.x, pt.y, 0, m_hWnd, NULL) ;
+		if( intRet != 0)
+		{
+			config() ;
+		}
+
+		DestroyMenu( hmenu) ;
+		DestroyMenu( hmnPopup) ;
+	}
+	return 0 ;
 }
 
 
@@ -380,7 +411,7 @@ LRESULT MainWnd::OnLButtonUp( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // マウスドラッグ
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：02/12/29(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -408,7 +439,7 @@ LRESULT MainWnd::OnMouseMove( HWND hWnd, WPARAM wParam, LPARAM lParam)
 			RECT rc ;
 			GetWindowRect( hWnd, &rc) ;
 			MoveWindow( hWnd, rc.left, rc.top, intWidth, intHeight, TRUE) ;
-			InvalidateRect( hWnd, FALSE, TRUE) ;
+			InvalidateRect( hWnd, NULL, FALSE) ;
 		}
 	}
 	else if( blnMove)
@@ -422,7 +453,6 @@ LRESULT MainWnd::OnMouseMove( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	else  if( blnScroll)
 	{
 		pListWnd->ScrollTo( HIWORD( lParam) - LIST_TOP) ;
-		InvalidateItem( SCROLLBAR) ;
 	}
 	return 0 ;
 }
@@ -450,9 +480,32 @@ LRESULT MainWnd::OnLButtonDblClk( HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 
 /******************************************************************************/
+// マウスホイール
+//============================================================================//
+// 更新：02/12/29(日)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+LRESULT MainWnd::OnMouseWheel( HWND hWnd, WPARAM wParam, LPARAM lParam)
+{
+	if( (short)HIWORD( wParam) > 0)
+	{
+		pListWnd->PageUp() ;
+	}
+	else
+	{
+		pListWnd->PageDown() ;
+	}
+
+	return 0 ;
+}
+
+
+/******************************************************************************/
 // キーダウン
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：02/12/29(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -463,23 +516,18 @@ LRESULT MainWnd::OnKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	{
 		case VK_UP:
 			pListWnd->ScrollUp() ;
-			InvalidateRect( hWnd, NULL, FALSE) ;
 			break ;
 		case VK_DOWN:
 			pListWnd->ScrollDown() ;
-			InvalidateRect( hWnd, NULL, FALSE) ;
 			break ;
 		case VK_PRIOR:
 			pListWnd->PageUp() ;
-			InvalidateRect( hWnd, NULL, FALSE) ;
 			break ;
 		case VK_NEXT:
 			pListWnd->PageDown() ;
-			InvalidateRect( hWnd, NULL, FALSE) ;
 			break ;
 		case VK_RETURN:
 			Controller::GetInstance()->Go( pListWnd->GetSelectedItem()) ;
-			InvalidateRect( hWnd, NULL, FALSE) ;
 			break ;
 	}
 
@@ -492,26 +540,18 @@ LRESULT MainWnd::OnKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // 現在のスキン読みとり
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：02/12/29(日)
 // 概要：スキンが変更されていれば、スキン情報を更新する。
 // 補足：なし。
 //============================================================================//
 
-void MainWnd::UpdateSkin()
+void MainWnd::UpdateSkin( BOOL blnForce)
 {
 	char pszBuf[ MAX_PATH + 1] ;
 	string s = (char*)SendMessage( hwndWinamp, WM_WA_IPC,(WPARAM)pszBuf, IPC_GETSKIN) ;
-	if( s != strSkinName || s == "")
+	if( blnForce || s != strSkinName)
 	{
-		if( s == "")
-		{
-			strSkinPath = Profile::strDefaultSkin ;
-		}
-		else
-		{
-			strSkinPath = pszBuf ;
-		}
-
+		// オブジェクトの削除
 		if( hbmpPlaylist)
 		{
 			DeleteObject( hbmpPlaylist) ;
@@ -522,6 +562,10 @@ void MainWnd::UpdateSkin()
 			DeleteObject( hbmpText) ;
 			hbmpText = NULL ;
 		}
+
+		// デフォルトのスキン
+		strSkinPath = pszBuf ;
+		strSkinName = s ;
 
 		// ビットマップのロード
 		string strBmp ;
@@ -537,6 +581,16 @@ void MainWnd::UpdateSkin()
 		if( dw != -1 && ( dw & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
 		{
 			hbmpText = (HBITMAP)LoadImage( NULL, strBmp.c_str(), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR | LR_LOADFROMFILE) ;
+		}
+
+		// 失敗した場合はデフォルトをロード
+		if( hbmpPlaylist == NULL)
+		{
+			hbmpPlaylist = (HBITMAP)LoadImage( Profile::hInstance, MAKEINTRESOURCE( IDB_PLEDIT), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR) ;
+		}
+		if( hbmpText == NULL)
+		{
+			hbmpText = (HBITMAP)LoadImage( Profile::hInstance, MAKEINTRESOURCE( IDB_TEXT), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR) ;
 		}
 
 		// テキストカラー

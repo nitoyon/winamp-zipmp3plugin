@@ -3,18 +3,6 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "test_zip"=.\test_zip\test_zip.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "zipmp3_plugin"=.\zipmp3_plugin.dsp - Package Owner=<4>
 
 Package=<5>

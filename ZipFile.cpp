@@ -76,9 +76,10 @@ ZipFile::~ZipFile()
 BOOL ZipFile::ReadHeader()
 {
 	FILE* fzip = fopen( strZipPath.c_str(), "rb") ;
-	if( fzip)
+	if( !fzip)
 	{
 		status = Status::OPEN_ERROR ;
+		return FALSE ;
 	}
 
 	// ヘッダチェック

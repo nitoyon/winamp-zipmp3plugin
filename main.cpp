@@ -115,6 +115,18 @@ int init()
 
 	Controller* pController = Controller::GetInstance() ;
 	pController->SetWindow( pMainWnd) ;
+	if( Profile::wrdHotKey != 0 && !pController->SetHotKey( Profile::wrdHotKey))
+	{
+		LPVOID lpMsgBuf;
+		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, 
+			NULL, GetLastError(), 
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, NULL) ;
+		string s = string( "ホットキーを登録できませんでした。\n理由：") + (char*)lpMsgBuf ;
+		LocalFree(lpMsgBuf);
+
+		MessageBox( plugin.hwndParent, s.c_str(), "ZIP.MP3 プラグイソ。", MB_OK) ;
+		Profile::wrdHotKey = 0 ;	
+	}
 
 	// show the window
 	ShowWindow( hMainWnd, Profile::blnShowOnlyZip ? SW_HIDE : SW_SHOW) ;

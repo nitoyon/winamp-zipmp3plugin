@@ -1,7 +1,7 @@
 
 // SettingDlg.cpp
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：02/12/29(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -12,6 +12,8 @@
 #include "resource.h"
 #include "Util.h"
 
+
+HWND SettingDlg::hwndStatic = NULL ;
 
 /******************************************************************************/
 //		コンストラクタおよびデストラクタ
@@ -69,13 +71,20 @@ END_DLG_MESSAGE_MAP()
 /******************************************************************************/
 // 初期化
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：02/12/29(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
+	if( hwndStatic != 0 && IsWindow( hwndStatic))
+	{
+		EndDialog( hDlg, FALSE) ;
+		SetFocus( hwndStatic) ;
+		return TRUE ;
+	}
+
 	// ウインドウハンドル取得
 	hwndHotKey	= GetDlgItem( hDlg, IDC_HOTKEY) ;
 
@@ -92,6 +101,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	SetDlgItemText( hDlg, IDC_LIST_ID3, Profile::strListID3.c_str()) ;
 
 	Validiate() ;
+	hwndStatic = hDlg ;
 	return TRUE ;
 }
 
@@ -99,7 +109,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // OK
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：02/12/29(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -108,19 +118,18 @@ BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
 	// ホットキー設定
 	WORD w = SendMessage( hwndHotKey, HKM_GETHOTKEY, 0, 0) ;
-	switch( Controller::GetInstance()->SetHotKey( w))
+	if( !Controller::GetInstance()->SetHotKey( w))
 	{
-		case 1 :
-			break ;
-		case 0 :
-			MessageBox( hDlg, "ウインドウハンドルが適切ではありませんでした", "ホットキー割り当ての失敗", MB_OK) ;
-			return TRUE ;
-		case -1 :
-			MessageBox( hDlg, "ホットキーが不適切でした。", "ホットキー割り当ての失敗", MB_OK) ;
-			return TRUE ;
-		case 2 :
-			MessageBox( hDlg, "他のアプリケーションが既に使っています。", "ホットキー割り当ての失敗", MB_OK) ;
-			return TRUE ;
+		LPVOID lpMsgBuf;
+		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, 
+			NULL, GetLastError(), 
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, NULL) ;
+		string s = string( "ホットキーを登録できませんでした。\n理由：") + (char*)lpMsgBuf ;
+		LocalFree(lpMsgBuf);
+
+		MessageBox( hDlg, s.c_str(), "エラー", MB_OK) ;
+		SendMessage( hwndHotKey, HKM_SETHOTKEY, 0, 0) ;
+		return TRUE ;
 	}
 
 	// ダイアログから読みとり
@@ -133,6 +142,7 @@ BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	Profile::Save() ;
 
 	EndDialog( hDlg, TRUE) ;
+	hwndStatic = NULL ;
 	return TRUE ;
 }
 
@@ -140,7 +150,7 @@ BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // キャンセル
 //============================================================================//
-// 更新：02/12/15(日)
+// 更新：02/12/29(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -148,6 +158,7 @@ BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 BOOL SettingDlg::OnCancel( HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
 	EndDialog( hDlg, FALSE) ;
+	hwndStatic = NULL ;
 	return TRUE ;
 }
 

@@ -117,15 +117,24 @@ void Controller::SetVisiblity( BOOL blnShow, BOOL blnForce)
 // •â‘«F‚È‚µB
 //============================================================================//
 
-LRESULT Controller::SetHotKey( WORD w)
+LRESULT Controller::SetHotKey( WORD wHotKey)
 {
 	if( blnUseHotKey)
 	{
 		UnregisterHotKey( pMainWnd->GetHwnd(), HOTKEY_SHOW) ;
 	}
 
+	// Œ`Ž®•ÏŠ·
+	UINT uModifiers = (UINT)HIBYTE(wHotKey);
+	UINT uVirtual   = (UINT)LOBYTE(wHotKey);
+	UINT uMod = 0 ;
+	if( uModifiers & HOTKEYF_ALT)		uMod |= MOD_ALT ;
+	if( uModifiers & HOTKEYF_CONTROL)	uMod |= MOD_CONTROL ;
+	if( uModifiers & HOTKEYF_SHIFT)		uMod |= MOD_SHIFT ;
+
 	HWND h = pMainWnd->GetHwnd() ;
-	return SendMessage( pMainWnd->GetHwnd(), WM_SETHOTKEY, (WPARAM)w, 0) ;
+	blnUseHotKey = RegisterHotKey( pMainWnd->GetHwnd(), HOTKEY_SHOW, uMod, uVirtual) ;
+	return blnUseHotKey ;
 }
 
 

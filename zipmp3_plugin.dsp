@@ -144,11 +144,23 @@ SOURCE=.\Controller.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\define.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\File.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\frontend.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\GEN.H
+# End Source File
+# Begin Source File
+
+SOURCE=.\include.h
 # End Source File
 # Begin Source File
 
@@ -168,6 +180,10 @@ SOURCE=.\Mp3File.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\MsgMap.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Profile.h
 # End Source File
 # Begin Source File
@@ -176,7 +192,15 @@ SOURCE=.\SettingDlg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\util.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\vis.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ZipFile.h
 # End Source File
 # Begin Source File
 
@@ -186,6 +210,14 @@ SOURCE=.\zipmp3.h
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\resource\Pledit.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\resource\Text.bmp
+# End Source File
 # End Group
 # End Target
 # End Project

@@ -1,7 +1,7 @@
 
 // MainWnd.h
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：02/12/29(日)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -102,6 +102,7 @@ private:
 	LRESULT OnLButtonUp	( HWND, WPARAM, LPARAM) ;
 	LRESULT OnMouseMove	( HWND, WPARAM, LPARAM) ;
 	LRESULT OnLButtonDblClk	( HWND, WPARAM, LPARAM) ;
+	LRESULT OnMouseWheel	( HWND, WPARAM, LPARAM) ;
 	LRESULT OnKeyDown	( HWND, WPARAM, LPARAM) ;
 
 public:
@@ -124,7 +125,7 @@ public:
 
 private:
 // 描画
-	void UpdateSkin() ;
+	void UpdateSkin( BOOL = FALSE) ;
 	void DrawSkin( HDC) ;
 	void DrawTime( HDC) ;
 } ;
