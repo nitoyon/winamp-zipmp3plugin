@@ -1,7 +1,7 @@
 
 // SettingDlg.h
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -21,6 +21,7 @@ class SettingDlg
 {
 private:
 	HWND	m_hWnd ;
+	HWND	hwndHotKey ;
 
 public:
 // コンストラクタおよびデストラクタ
@@ -34,6 +35,13 @@ private:
 	BOOL OnInitDialog	( HWND, WPARAM, LPARAM) ;
 	BOOL OnOk		( HWND, WPARAM, LPARAM) ;
 	BOOL OnCancel		( HWND, WPARAM, LPARAM) ;
+	BOOL OnCheck		( HWND, WPARAM, LPARAM) ;
+	BOOL OnBtnNormal	( HWND, WPARAM, LPARAM) ;
+	BOOL OnBtnID3		( HWND, WPARAM, LPARAM) ;
+
+// その他
+	void Validiate() ;
+	void VarMenu( vector<string>&, int, int) ;
 } ;
 
 #endif

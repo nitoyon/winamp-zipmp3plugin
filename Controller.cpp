@@ -1,7 +1,7 @@
 
 // Controller.cpp
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -30,7 +30,7 @@ Controller* Controller::pInstance = NULL ;
 //============================================================================//
 
 Controller::Controller() 
-: strFilePath( ""), pZipFile( NULL)
+: strFilePath( ""), pZipFile( NULL), blnUseHotKey( FALSE)
 {
 }
 
@@ -68,9 +68,87 @@ Controller* Controller::GetInstance()
 
 
 /******************************************************************************/
+//		ウインドウ
+/******************************************************************************/
+// ウインドウ表示の切り替え
+//============================================================================//
+// 更新：02/12/28(土)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void Controller::SetVisiblity( BOOL blnShow, BOOL blnForce)
+{
+	if( blnShow == FALSE)
+	{
+		ShowWindow( pMainWnd->GetHwnd(), SW_HIDE) ;
+		return ;
+	}
+
+	if( blnForce)
+	{
+		ShowWindow( pMainWnd->GetHwnd(), SW_SHOW) ;
+		return ;
+	}
+
+	BOOL b = TRUE ;
+	switch( pZipFile->GetStatus())
+	{
+		case ZipFile::Status::UNCOMPRESSED :
+			b = TRUE ;
+			break ;
+		case ZipFile::Status::COMPRESSED :
+			b = ( Profile::blnShowOnlyZip && !Profile::blnShowOnlyUncompressedZip)
+			 || ( !Profile::blnShowOnlyZip) ;
+			break ;
+		default :
+			b = !Profile::blnShowOnlyZip ;
+			break ;
+	}
+	ShowWindow( pMainWnd->GetHwnd(), b ? SW_SHOW : SW_HIDE) ;
+}
+
+
+/******************************************************************************/
+// ホットキーの登録
+//============================================================================//
+// 更新：02/12/28(土)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+LRESULT Controller::SetHotKey( WORD w)
+{
+	if( blnUseHotKey)
+	{
+		UnregisterHotKey( pMainWnd->GetHwnd(), HOTKEY_SHOW) ;
+	}
+
+	HWND h = pMainWnd->GetHwnd() ;
+	return SendMessage( pMainWnd->GetHwnd(), WM_SETHOTKEY, (WPARAM)w, 0) ;
+}
+
+
+/******************************************************************************/
 //		設定
 /******************************************************************************/
-// Go
+// 再生
+//============================================================================//
+// 更新：02/12/27(金)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void Controller::Play()
+{
+	ULONG ulMilisec = pZipFile->GetSongHead( pMainWnd->GetCurSong()) ;
+	SendMessage( pMainWnd->GetWinampWindow(), WM_COMMAND, WINAMP_BUTTON2, 0) ;
+	SendMessage( pMainWnd->GetWinampWindow(), WM_WA_IPC, ulMilisec, IPC_JUMPTOTIME) ;
+}
+
+
+/******************************************************************************/
+// 移動
 //============================================================================//
 // 更新：02/12/24(火)
 // 概要：なし。
@@ -84,14 +162,26 @@ void Controller::Go( UINT u)
 		return;
 	}
 
-	SendMessage( pMainWnd->GetWinampWindow(), WM_WA_IPC, pZipFile->GetSongHead( u), IPC_JUMPTOTIME) ;
+	HWND hwnd = pMainWnd->GetWinampWindow() ;
+	ULONG ulMilisec = pZipFile->GetSongHead( u) ;
+	SendMessage( hwnd, WM_WA_IPC, ulMilisec, IPC_JUMPTOTIME) ;
+
+	// 再生中でないならば、手動でファイル番号更新
+	if( SendMessage( hwnd, WM_WA_IPC, 0, IPC_ISPLAYING) != 1)
+	{
+		ULONG ulCurFileNum = pZipFile->GetSongIndex( ulMilisec) ;
+		if( pMainWnd->GetCurSong() != ulCurFileNum)
+		{
+			pMainWnd->SetCurSong( ulCurFileNum) ;
+		}
+	}
 }
 
 
 /******************************************************************************/
 // 時刻設定
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -101,30 +191,23 @@ void Controller::SetMp3Pos( const string& s, ULONG ulMil)
 	if( strFilePath != s)
 	{
 		UpdateFileInfo( s) ;
-
-		if( Profile::blnShowOnlyZip)
-		{
-			pMainWnd->ShowWindow( 
-				pZipFile->GetStatus() == ZipFile::Status::UNCOMPRESSED || pZipFile->GetStatus() == ZipFile::Status::COMPRESSED ? 
-					SW_SHOW : SW_HIDE) ;
-		}
+		SetVisiblity( TRUE) ;
 	}
 
 	if( pZipFile->GetStatus() == ZipFile::Status::UNCOMPRESSED)
 	{
 
-		ulCurTime = ulMil ;
+		ulMil ;
 
 		// ファイル番号更新
-		ULONG ulCurFileNum = pZipFile->GetSongIndex( ulCurTime) ;
-		if( ulCurFileNum != ulFileNum)
+		ULONG ulCurFileNum = pZipFile->GetSongIndex( ulMil) ;
+		if( pMainWnd->GetCurSong() != ulCurFileNum)
 		{
-			ulFileNum = ulCurFileNum ;
-			pMainWnd->SetCurSong( ulFileNum) ;
+			pMainWnd->SetCurSong( ulCurFileNum) ;
 		}
 
 		// 表示時刻更新
-		ULONG u = pZipFile->GetSongTime( ulCurFileNum, ulCurTime) ;
+		ULONG u = pZipFile->GetSongTime( ulCurFileNum, ulMil) ;
 		u /= 1000 ;
 		if( ulDisplayTime != u)
 		{
@@ -136,7 +219,7 @@ void Controller::SetMp3Pos( const string& s, ULONG ulMil)
 	{
 		if( Profile::blnShowOnlyZip)
 		{
-			pMainWnd->ShowWindow( FALSE) ;
+			SetVisiblity( FALSE) ;
 		}
 	}
 }
@@ -153,19 +236,17 @@ void Controller::SetMp3Pos( const string& s, ULONG ulMil)
 void Controller::UpdateFileInfo( const string& s)
 {
 	strFilePath = s ;
-	ulFileNum = 0 ;
-	pMainWnd->SetCurSong( 0) ;
 
 	// pZipFile の更新
 	if( pZipFile)
 	{
+		pMainWnd->ClearList() ;
 		delete pZipFile ;
 	}
 	pZipFile = new ZipFile( strFilePath) ;
 	pZipFile->ReadHeader() ;
 
 	// zip ファイルなら
-	pMainWnd->ClearList() ;
 	switch( pZipFile->GetStatus())
 	{
 		case ZipFile::Status::OPEN_ERROR :
@@ -186,7 +267,10 @@ void Controller::UpdateFileInfo( const string& s)
 		{
 			for( int i = 0; i < pZipFile->GetChildFileCount(); i++)
 			{
-				pMainWnd->AddList( pZipFile->GetFileName( i)) ;
+				File* pFile = pZipFile->GetChildFile( i) ;
+				pMainWnd->AddList( pFile->GetDisplayStr( 
+					pFile->HasID3Tag() &&  Profile::blnListID3 ? Profile::strListID3 : Profile::strListNormal
+				)) ;
 			}
 			break ;
 		}

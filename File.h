@@ -1,7 +1,7 @@
 
 // File.h
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -48,7 +48,7 @@ class File
 {
 protected:
 // ファイル情報
-	string		strFilePath ;
+	string		strZipPath ;
 	ULONG		ulCentralDir ;
 	ULONG		ulFileHead ;
 	ZipChildHeader	zipheader ;
@@ -58,18 +58,28 @@ public:
 	File( const string&, ULONG) ;
 	~File() ;
 
-// 取得
-	string GetFilePath() const{ return strFilePath ;}
+// ファイル情報取得
+	string GetFilePath() const{ return zipheader.strFilename ;} ;
+	string GetZipPath() const{ return strZipPath ;}
+	ULONG GetCentralDirSize() const ;
+	string GetFileName() const ;
+private :
+	string GetFileDir() const ;
+
+// ZIP の子情報取得
+public :
+	ZipChildHeader GetHeader() const{ return zipheader ;}
+	BOOL IsCompressed() const{ return zipheader.ulCompressedSize != zipheader.ulUncompressedSize ;}
+	virtual ULONG GetPlayLength() ;
+	virtual BOOL ReadHeader() ;
 	ULONG GetCentralDir() const{ return ulCentralDir ;}
 	ULONG GetFileHead() const{ return ulFileHead ;}
 
-	ZipChildHeader GetHeader() const{ return zipheader ;}
-	BOOL IsCompressed() const{ return zipheader.ulCompressedSize != zipheader.ulUncompressedSize ;}
-	string GetFileName() const{ return string( zipheader.strFilename) ;}
-
-	ULONG GetCentralDirSize() const ;
-	virtual BOOL ReadHeader() ;
-	virtual ULONG GetPlayLength() ;
+// 表示名取得
+	string GetDisplayStr( const string&) ;
+	virtual BOOL HasID3Tag() const{ return FALSE ;}
+protected:
+	virtual string GetVariable( const string&) ;
 } ;
 
 #endif

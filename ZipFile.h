@@ -1,7 +1,7 @@
 
 // ZipFile.h
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -64,7 +64,7 @@ public:
 	File*	GetChildFile( int) ;
 	int	GetChildFileCount() const ;
 	Status	GetStatus() const{ return status ;}
-	int	GetSongIndex( ULONG ulMilisec) ;
+	int	GetSongIndex( ULONG ulMilisec) const ;
 	ULONG	GetSongHead( int) const ;
 	ULONG	GetSongTime( int, ULONG) const ;
 } ;

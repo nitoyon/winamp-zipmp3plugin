@@ -1,7 +1,7 @@
 
 // define.h
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -62,5 +62,25 @@
 
 #define  END_OF_CENTRAL_SIZE	22
 #define  MAX_END_OF_CENTRAL	(65536 + END_OF_CENTRAL_SIZE)
+
+
+// ID3 v1.1
+#define  ID3_TAG_SIZE		128
+#define  ID3_DATA_SIZE		30
+#define  ID3_YEAR_SIZE		4
+#define  TRACK_NUM_UNDEF	-1
+
+#include <string>
+struct ID3Tag
+{
+	string		strTrackName ;
+	string		strArtistName ;
+	string		strAlbumName ;
+	int		intYear ;
+	string		strComment ;
+	int		intTrackNum ;
+	int		intGenre ;
+} ;
+
 
 #endif

@@ -1,7 +1,7 @@
 
 // ZipFile.cpp
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -12,6 +12,11 @@
 #include "define.h"
 #include "Profile.h"
 
+
+/******************************************************************************/
+//		定義
+/******************************************************************************/
+
 #define  BUF_SIZE		4096
 
 
@@ -20,7 +25,7 @@
 /******************************************************************************/
 // コンストラクタ
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/26(木)h
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -70,7 +75,7 @@ ZipFile::~ZipFile()
 
 BOOL ZipFile::ReadHeader()
 {
-	FILE* fzip = fopen( strFilePath.c_str(), "rb") ;
+	FILE* fzip = fopen( strZipPath.c_str(), "rb") ;
 	if( fzip)
 	{
 		status = Status::OPEN_ERROR ;
@@ -101,7 +106,7 @@ BOOL ZipFile::ReadHeader()
 	for( UINT i = 0; i < usTotalEntriesCentralDir; i++)
 	{
 		// 各ファイルのヘッダ読みとり
-		File* pFile = new File( strFilePath, ulHeaderPos) ;
+		File* pFile = new File( strZipPath, ulHeaderPos) ;
 		if( !pFile->ReadHeader())
 		{
 			status = Status::INVALID_HEADER ;
@@ -116,8 +121,8 @@ BOOL ZipFile::ReadHeader()
 			status = Status::UNCOMPRESSED ;
 
 			// 拡張子が mp3 の時
-			string s = pFile->GetFileName() ;
-			if( s.substr( s.size() - 4) == ".mp3")
+			string s = pFile->GetFilePath() ;
+			if( s.size() > 4 && s.substr( s.size() - 4) == ".mp3")
 			{
 				// MP3 の情報を取得
 				Mp3File* pMp3File = new Mp3File( pFile) ;
@@ -130,13 +135,18 @@ BOOL ZipFile::ReadHeader()
 				vecChildList.push_back( pFile) ;
 			}
 		}
+		else
+		{
+			vecChildList.push_back( pFile) ;
+		}
 	}
 
 	// 曲の長さキャッシュ作成
 	vecHeadMilisec.assign( usTotalEntriesCentralDir + 1) ;
+	vecHeadMilisec[ 0] = 0 ;
 	for( i = 0; i < usTotalEntriesCentralDir; i++)
 	{
-		vecHeadMilisec[ i] = 0 ;
+		vecHeadMilisec[ i + 1] = vecHeadMilisec[ i] + vecChildList[ i]->GetPlayLength() ;
 	}
 
 	return TRUE ;
@@ -243,8 +253,8 @@ BOOL ZipFile::GetEndCentralDirRecPos( FILE* fzip)
 /******************************************************************************/
 // 再生時間取得
 //============================================================================//
-// 更新：02/12/26(木)
-// 概要：なし。
+// 更新：02/12/27(金)
+// 概要：zipファイルのトータルの再生時間を取得。
 // 補足：なし。
 //============================================================================//
 
@@ -252,7 +262,7 @@ ULONG ZipFile::GetPlayLength()
 {
 	ULONG ulPlayLength = 0 ;
 
-	for( int i = 0; i < usTotalEntriesCentralDir; i++)
+	for( int i = 0; i < vecChildList.size(); i++)
 	{
 		if( !vecChildList[ i])
 		{
@@ -267,14 +277,14 @@ ULONG ZipFile::GetPlayLength()
 /******************************************************************************/
 // ファイル名取得
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 string ZipFile::GetFileName( int i)
 {
-	if( i < 0 && i >= usTotalEntriesCentralDir)
+	if( i < 0 && i >= vecChildList.size())
 	{
 		return "" ;
 	}
@@ -285,14 +295,14 @@ string ZipFile::GetFileName( int i)
 /******************************************************************************/
 // 子供ファイルの取得
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 File* ZipFile::GetChildFile( int i)
 {
-	if( i < 0 && i >= usTotalEntriesCentralDir)
+	if( i < 0 && i >= vecChildList.size())
 	{
 		return NULL ;
 	}
@@ -303,40 +313,34 @@ File* ZipFile::GetChildFile( int i)
 /******************************************************************************/
 // 子供ファイルの数を取得
 //============================================================================//
-// 更新：02/12/22(日)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 int ZipFile::GetChildFileCount() const
 {
-	return usTotalEntriesCentralDir ;
+	return vecChildList.size() ;
 }
 
 
 /******************************************************************************/
 // ミリ秒から曲番号を取得
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-int ZipFile::GetSongIndex( ULONG ulMilisec)
+int ZipFile::GetSongIndex( ULONG ulMilisec) const
 {
 	if( vecHeadMilisec.size() != usTotalEntriesCentralDir + 1)
 	{
 		return -1 ;
 	}
 
-	for( int i = 0; i < vecHeadMilisec.size(); i++)
+	for( int i = 0; i < vecHeadMilisec.size() - 1; i++)
 	{
-		// 未登録の場合はキャッシュに登録
-		if( vecHeadMilisec[ i + 1] == 0)
-		{
-			vecHeadMilisec[ i + 1] = vecHeadMilisec[ i] + vecChildList[ i]->GetPlayLength() ;
-		}
-
 		if( ulMilisec < vecHeadMilisec[ i + 1])
 		{
 			return i ;
@@ -350,33 +354,33 @@ int ZipFile::GetSongIndex( ULONG ulMilisec)
 /******************************************************************************/
 // 曲番号を取得
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-ULONG ZipFile::GetSongHead( int i) const
+ULONG ZipFile::GetSongHead( int intNum) const
 {
-	if( i < 0 || i >= vecHeadMilisec.size())
+	if( intNum < 0 || intNum >= vecHeadMilisec.size() - 1)
 	{
 		return 0 ;
 	}
 
-	return vecHeadMilisec[ i] ;
+	return vecHeadMilisec[ intNum] ;
 }
 
 
 /******************************************************************************/
 // 曲の時間を取得
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 ULONG ZipFile::GetSongTime( int intSongIndex, ULONG ulMilisec) const
 {
-	if( intSongIndex < 0 || intSongIndex >= vecHeadMilisec.size())
+	if( intSongIndex < 0 || intSongIndex >= vecHeadMilisec.size() - 1)
 	{
 		return 0 ;
 	}

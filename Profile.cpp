@@ -2,7 +2,7 @@
 // Profile.cpp
 // アプリケーションの設定
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -20,9 +20,19 @@ string	Profile::strPath = "" ;
 HINSTANCE	Profile::hInstance = 0 ;
 string		Profile::strDefaultSkin = "" ;
 
-// リスト
+// ウインドウ
 BOOL	Profile::blnShowOnlyZip = FALSE ;
+BOOL	Profile::blnShowOnlyUncompressedZip = FALSE ;
 BOOL	Profile::blnCountUp = FALSE ;
+WORD	Profile::wrdHotKey = 0 ;
+
+// リスト
+string	Profile::strListNormal ;
+string	Profile::strListID3 ;
+string	Profile::strListCompilation ;
+BOOL	Profile::blnListID3 ;
+BOOL	Profile::blnListCompilation ;
+
 
 // 場所
 int	Profile::intX = 0 ;
@@ -36,7 +46,7 @@ int	Profile::intBlockY = 0 ;
 /******************************************************************************/
 // 保存
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -55,9 +65,18 @@ void Profile::Save()
 	}
 	const char* pszFile = strPath.c_str() ;
 
-	// リスト
+	// ウインドウ
 	WritePrivateProfileString( "Display", "ShowOnlyZip", blnShowOnlyZip ? "yes" : "no", pszFile) ;
+	WritePrivateProfileString( "Display", "ShowOnlyUncompressedZip", blnShowOnlyUncompressedZip ? "yes" : "no", pszFile) ;
 	WritePrivateProfileString( "Display", "CountUp", blnCountUp ? "yes" : "no", pszFile) ;
+	WriteProfile( pszFile, "Display", "DispHotKey", wrdHotKey) ;
+
+	// リスト
+	WritePrivateProfileString( "List", "Normal", strListNormal.c_str(), pszFile) ;
+	WritePrivateProfileString( "List", "ID3", strListID3.c_str(), pszFile) ;
+	WritePrivateProfileString( "List", "Compilation", strListCompilation.c_str(), pszFile) ;
+	WritePrivateProfileString( "List", "useID3", blnListID3 ? "yes" : "no", pszFile) ;
+	WritePrivateProfileString( "List", "useCompilation", blnListCompilation ? "yes" : "no", pszFile) ;
 
 	// 場所
 	WriteProfile( pszFile, "pos", "x", intX) ;
@@ -90,11 +109,26 @@ void Profile::Load()
 	const char* pszFile = strPath.c_str() ;
 	char	pszBuf[ MAX_PATH] ;
 
-	// 表示
+	// ウインドウ
 	GetPrivateProfileString( "Display", "ShowOnlyZip", "no", pszBuf, MAX_PATH, pszFile) ;
 	blnShowOnlyZip = ( strcmp( pszBuf, "yes") == 0) ;
+	GetPrivateProfileString( "Display", "ShowOnlyUncompressedZip", "no", pszBuf, MAX_PATH, pszFile) ;
+	blnShowOnlyUncompressedZip = ( strcmp( pszBuf, "yes") == 0) ;
 	GetPrivateProfileString( "Display", "CountUp", "yes", pszBuf, MAX_PATH, pszFile) ;
-	blnCountUp = ( strcmp( pszBuf, "yes") == 0) ;
+	blnCountUp = ( stricmp( pszBuf, "yes") == 0) ;
+	wrdHotKey = GetPrivateProfileInt( "Display", "DispHotKey", 0, pszFile) ;
+
+	// リスト
+	GetPrivateProfileString( "List", "Normal", "%FILE_NAME%", pszBuf, MAX_PATH, pszFile) ;
+	strListNormal = pszBuf ;
+	GetPrivateProfileString( "List", "ID3", "%TRACK_NUMBER2%. %TRACK_NAME%", pszBuf, MAX_PATH, pszFile) ;
+	strListID3 = pszBuf ;
+	GetPrivateProfileString( "List", "Compilation", "%TRACK_NUMBER2%. (%ARTIST_NAME%)%TRACK_NAME%", pszBuf, MAX_PATH, pszFile) ;
+	strListCompilation = pszBuf ;
+	GetPrivateProfileString( "List", "useID3", "no", pszBuf, MAX_PATH, pszFile) ;
+	blnListID3 = ( stricmp( pszBuf, "yes") == 0) ;
+	GetPrivateProfileString( "List", "useCompilation", "no", pszBuf, MAX_PATH, pszFile) ;
+	blnListCompilation = ( stricmp( pszBuf, "yes") == 0) ;
 
 	// 場所
 	intX = GetPrivateProfileInt( "pos", "x", 50, pszFile) ;

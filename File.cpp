@@ -1,7 +1,7 @@
 
 // File.cpp
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -22,7 +22,7 @@
 //============================================================================//
 
 File::File( const string& s, ULONG u)
-: strFilePath( s), ulCentralDir( u)
+: strZipPath( s), ulCentralDir( u)
 {
 	ZeroMemory( &zipheader, sizeof( ZipChildHeader)) ;
 }
@@ -51,14 +51,14 @@ File::~File()
 /******************************************************************************/
 // ヘッダ情報取得
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 BOOL File::ReadHeader()
 {
-	FILE* fzip = fopen( strFilePath.c_str(), "rb") ;
+	FILE* fzip = fopen( strZipPath.c_str(), "rb") ;
 	if( !fzip)
 	{
 		return FALSE ;
@@ -110,6 +110,7 @@ BOOL File::ReadHeader()
 		fread( pszFilename, sizeof( char), zipheader.usFilenameLength, fzip) ;
 		pszFilename[ zipheader.usFilenameLength] = '\0' ;
 		zipheader.strFilename = pszFilename ;
+		delete[] pszFilename ;
 	}
 
 	// 拡張領域
@@ -127,6 +128,7 @@ BOOL File::ReadHeader()
 		fread( pszComment, sizeof( char), zipheader.usFileCommentLength, fzip) ;
 		pszComment[ zipheader.usFileCommentLength] = '\0' ;
 		zipheader.strComment = pszComment ;
+		delete[] pszComment ;
 	}
 
 	// ローカルヘッダ
@@ -145,10 +147,90 @@ BOOL File::ReadHeader()
 	fread( byte, sizeof( BYTE), LOCAL_HEADER_SIZE, fzip) ;
 	USHORT usFilenameLength2	= makeword( &byte[ L_FILENAME_LENGTH]) ;
 	USHORT	usExtraFieldLength2	= makeword( &byte[ L_EXTRA_FIELD_LENGTH]) ;
-	ulFileHead = zipheader.ulRelativeOffsetLocalHeader + LOCAL_HEADER_SIZE + usFilenameLength2 + usExtraFieldLength2 ;
+	ulFileHead = zipheader.ulRelativeOffsetLocalHeader + 4 + LOCAL_HEADER_SIZE
+		   + usFilenameLength2 + usExtraFieldLength2 ;
 
 	fclose( fzip) ;
 	return TRUE ;
+}
+
+
+/******************************************************************************/
+// ファイル名取得
+//============================================================================//
+// 更新：02/12/28(土)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+string File::GetFileName() const 
+{
+	string strPath = zipheader.strFilename ;
+	if( strPath == "")
+	{
+		return "" ;
+	}
+
+	int i = GetFileDir().size() ;
+
+	// フォルダの場合
+	if( i >= strPath.size())
+	{
+		return "" ;
+	}
+	else
+	{
+		return strPath.substr( i) ;
+	}
+}
+
+
+/******************************************************************************/
+// ディレクトリ取得
+//============================================================================//
+// 更新：02/12/28(土)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+string File::GetFileDir() const
+{
+	string strPath = zipheader.strFilename ;
+	if( strPath == "")
+	{
+		return "" ;
+	}
+
+	int	intLastYen = 0 ;
+	char	pszFile[ MAX_PATH] ;
+	char*	pszPointer = pszFile ;
+	strcpy( pszFile, strPath.c_str()) ;
+
+	for( int i = 0; i < strPath.size(); i++)
+	{
+		pszPointer = pszFile + i ;
+
+		if( IsDBCSLeadByte( *pszPointer))
+		{
+			// ２バイト文字なら２進む
+			i++ ;
+			continue ;
+		}
+
+		if( *pszPointer == '\\' || *pszPointer == '/')
+		{
+			intLastYen = i ;
+		}
+	}
+
+	if( intLastYen > 0)
+	{
+		return strPath.substr( 0, intLastYen + 1) ;	// Yen も含めて返す
+	}
+	else
+	{
+		return "" ;
+	}
 }
 
 
@@ -183,3 +265,80 @@ ULONG File::GetPlayLength()
 	return 0 ;
 }
 
+
+/******************************************************************************/
+//		表示名取得
+/******************************************************************************/
+// リスト追加用の文字列を取得
+//============================================================================//
+// 更新：02/12/28(土)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+string File::GetDisplayStr( const string& s)
+{
+	string	strRet ;
+	string	strVal ;
+	BOOL	blnEncode = FALSE ;
+
+	for( int i = 0; i < s.size(); i++)
+	{
+		if( blnEncode)
+		{
+			if( s[ i] != '%')
+			{
+				strVal += s[ i] ;
+			}
+			else
+			{
+				if( strVal == "")
+				{
+					strRet += '%' ;
+				}
+				else
+				{
+					strRet += GetVariable( strVal) ;
+				}
+
+				blnEncode = FALSE ;
+			}
+		}
+		else
+		{
+			if( s[ i] == '%')
+			{
+				blnEncode = TRUE ;
+				strVal = "" ;
+			}
+			else
+			{
+				strRet += s[ i] ;
+			}
+		}
+	}
+	return strRet ;
+}
+
+
+/******************************************************************************/
+// 変数展開
+//============================================================================//
+// 更新：02/12/28(土)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+string File::GetVariable( const string& strVal)
+{
+	if( strVal == "FILE_NAME")
+	{
+		return GetFileName() ;
+	}
+	else if( strVal == "FILE_PATH")
+	{
+		return GetFilePath() ;
+	}
+
+	return "" ;
+}

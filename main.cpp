@@ -57,7 +57,7 @@ DLLEXPORT winampGeneralPurposePlugin* winampGetGeneralPurposePlugin()
 void config()
 {
 	SettingDlg sd ;
-	DialogBoxParam( plugin.hDllInstance, MAKEINTRESOURCE( IDD_SETTING), plugin.hwndParent, SettingDlgProc, (LPARAM)&sd) ;
+	DialogBoxParam( plugin.hDllInstance, MAKEINTRESOURCE( IDD_SETTING), GetForegroundWindow(), SettingDlgProc, (LPARAM)&sd) ;
 }
 
 
@@ -76,11 +76,14 @@ int init()
 	Profile::Load() ;
 
 	// Register our window class
+	INITCOMMONCONTROLSEX ic = { sizeof( INITCOMMONCONTROLSEX), ICC_HOTKEY_CLASS } ;
+	InitCommonControlsEx( &ic) ;
 	WNDCLASS wc;
 	memset(&wc,0,sizeof(wc));
 	wc.lpfnWndProc = (WNDPROC)MainWndProc ;				// our window procedure
-	wc.hbrBackground = (HBRUSH) GetStockObject (WHITE_BRUSH) ;
 	wc.hInstance = plugin.hDllInstance;	// hInstance of DLL
+	wc.hCursor = LoadCursor( NULL, IDC_ARROW) ;
+	wc.style = CS_DBLCLKS ;
 	wc.lpszClassName = APP_NAME ;			// our window class name
 
 	if (!RegisterClass(&wc)) 

@@ -1,12 +1,13 @@
 
 // MainWnd.cpp
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 #include "MainWnd.h"
+#include "ListWnd.h"
 #include "Profile.h"
 #include "Controller.h"
 
@@ -25,21 +26,18 @@
 
 MainWnd::MainWnd() 
 : hbmpPlaylist( NULL), hbmpText( NULL), strSkinName( ""), strSkinPath( "")
+, pListWnd( NULL)
 , intMin( -1), intSec( -1)
 , blnResize( FALSE), blnMove( FALSE), blnClose( FALSE), blnScroll( FALSE)
-, intListSelected( 0), intCurrent( 0)
 {
-	intWidth  = X_BLOCK_CONST + X_BLOCK_SIZE * Profile::intBlockX ;
-	intHeight = Y_BLOCK_CONST + Y_BLOCK_SIZE * Profile::intBlockY ;
-
 	intLeftPos[ Item::CLOSE]	= -11 ;		intRightPos[  Item::CLOSE]	= -3 ;
 	intTopPos[  Item::CLOSE]	= 3 ;		intBottomPos[ Item::CLOSE]	= 12 ;
 	intLeftPos[ Item::COMPACT]	= -20 ;		intRightPos[  Item::COMPACT]	= -12 ;
 	intTopPos[  Item::COMPACT]	= 3 ;		intBottomPos[ Item::COMPACT]	= 14 ;
 	intLeftPos[ Item::PAGEDOWN]	= -15 ;		intRightPos[  Item::PAGEDOWN]	= -8 ;
-	intTopPos[  Item::PAGEDOWN]	= -36 ;		intBottomPos[ Item::PAGEDOWN]	= -32 ;
+	intTopPos[  Item::PAGEDOWN]	= -32 ;		intBottomPos[ Item::PAGEDOWN]	= -28 ;
 	intLeftPos[ Item::PAGEUP]	= -15 ;		intRightPos[  Item::PAGEUP]	= -8 ;
-	intTopPos[  Item::PAGEUP]	= 3 ;		intBottomPos[ Item::PAGEUP]	= 14 ;
+	intTopPos[  Item::PAGEUP]	= -36 ;		intBottomPos[ Item::PAGEUP]	= -32 ;
 	intLeftPos[ Item::PREV]		= -145 ;	intRightPos[  Item::PREV]	= -135 ;
 	intTopPos[  Item::PREV]		= -16 ;		intBottomPos[ Item::PREV]	= -8 ;
 	intLeftPos[ Item::PLAY]		= -136 ;	intRightPos[  Item::PLAY]	= -126 ;
@@ -56,10 +54,12 @@ MainWnd::MainWnd()
 	intTopPos[  Item::MOVE]		= 1 ;		intBottomPos[ Item::MOVE]	= 0 ;
 	intLeftPos[ Item::RESIZE]	= -19 ;		intRightPos[  Item::RESIZE]	= -1 ;
 	intTopPos[  Item::RESIZE]	= -19 ;		intBottomPos[ Item::RESIZE]	= -1 ;
-	intLeftPos[ Item::LIST]		= LIST_LEFT ;	intRightPos[  Item::LIST]	= -LIST_RIGHT ;
-	intTopPos[  Item::LIST]		= LIST_TOP + LIST_MARGIN ;	intBottomPos[ Item::LIST]	= -38 - LIST_MARGIN ;
 	intLeftPos[ Item::TIME]		= -89 ;		intRightPos[  Item::TIME]	= -53 ;
 	intTopPos[  Item::TIME]		= -17 ;		intBottomPos[ Item::TIME]	= -8 ;
+	intLeftPos[ Item::LIST]		= LIST_LEFT ;	intRightPos[  Item::LIST]	= -LIST_RIGHT ;
+	intTopPos[  Item::LIST]		= LIST_TOP ;	intBottomPos[ Item::LIST]	= -38 - LIST_XMARGIN ;
+	intLeftPos[ Item::SCROLLBAR]	= -15 ;		intRightPos[  Item::SCROLLBAR]	= -8 ;
+	intTopPos[  Item::SCROLLBAR]	= LIST_TOP ;	intBottomPos[ Item::SCROLLBAR]	= -38 ;
 }
 
 
@@ -82,7 +82,7 @@ MainWnd::~MainWnd()
 /******************************************************************************/
 // メッセージマップ定義
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -94,15 +94,18 @@ BEGIN_MESSAGE_MAP( MainWndProc, MainWnd)
 	ON_MESSAGE( WM_SETFOCUS			, OnFocus)
 	ON_MESSAGE( WM_PAINT			, OnPaint)
 	ON_MESSAGE( WM_LBUTTONDOWN		, OnLButtonDown)
+	ON_MESSAGE( WM_RBUTTONDOWN		, OnRButtonDown)
 	ON_MESSAGE( WM_LBUTTONUP		, OnLButtonUp)
 	ON_MESSAGE( WM_MOUSEMOVE		, OnMouseMove)
+	ON_MESSAGE( WM_LBUTTONDBLCLK		, OnLButtonDblClk)
+	ON_MESSAGE( WM_KEYDOWN			, OnKeyDown)
 END_MESSAGE_MAP()
 
 
 /******************************************************************************/
 // 作成
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -115,10 +118,11 @@ LRESULT MainWnd::OnCreate( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		0, 0, 0, 0, 
 		hWnd, 0, hInst, 0) ;
 
-	hFont = CreateFont( 10, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, 
-		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
-		FIXED_PITCH | FF_MODERN, "MS Pゴシック") ;
+	pListWnd = new ListWnd( hWnd) ;
+	pListWnd->Init() ;
 	hbmpPlaylist = 0 ;
+
+	SetBlockSize( Profile::intBlockX, Profile::intBlockY) ;
 
 	MoveWindow( hWnd, Profile::intX, Profile::intY, intWidth, intHeight, FALSE) ;
 
@@ -139,6 +143,8 @@ LRESULT MainWnd::OnCreate( HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 LRESULT MainWnd::OnTimer( HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
+	UpdateSkin() ;
+
 	// 再生中？
 	if( SendMessage( hwndWinamp, WM_WA_IPC, 0, IPC_ISPLAYING) == 1)
 	{
@@ -151,6 +157,21 @@ LRESULT MainWnd::OnTimer( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		pController->SetMp3Pos( pszFile, ulMil) ;
 	}
 	return 0;
+}
+
+
+/******************************************************************************/
+// ホットキー
+//============================================================================//
+// 更新：02/12/28(土)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+LRESULT MainWnd::OnHotKey( HWND hWnd, WPARAM wParam, LPARAM lParam)
+{
+	ShowWindow( m_hWnd, IsWindowVisible( m_hWnd) ? SW_HIDE : SW_SHOW) ;
+	return 0 ;
 }
 
 
@@ -185,22 +206,28 @@ LRESULT MainWnd::OnFocus( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // 描画
 //============================================================================//
-// 更新：02/12/23(月)
+// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 LRESULT MainWnd::OnPaint( HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
-	// スキンの設定
-	UpdateSkin() ;
-
 	PAINTSTRUCT ps ;
 	HDC hdc = BeginPaint (hWnd, &ps) ;
 
-	DrawSkin( hdc) ;	
-	DrawList( hdc) ;
-	DrawTime( hdc) ;
+	// メモリ内のビットマップに描画
+	HBITMAP hbmpBk = CreateCompatibleBitmap( hdc, intWidth, intHeight) ;
+	HDC hdcBk = CreateCompatibleDC( hdc);
+	SelectObject( hdcBk, hbmpBk);
+	DrawSkin( hdcBk) ;	
+	pListWnd->DrawList( hdcBk) ;
+	DrawTime( hdcBk) ;
+
+	// 表に描画
+	BitBlt( hdc, 0, 0, intWidth, intHeight, hdcBk, 0, 0, SRCCOPY) ;
+	DeleteObject( hbmpBk) ;
+	DeleteDC( hdcBk) ;
 
 	EndPaint (hWnd, &ps) ;
 	return 0 ;
@@ -218,7 +245,7 @@ LRESULT MainWnd::OnPaint( HWND hWnd, WPARAM wParam, LPARAM lParam)
 LRESULT MainWnd::OnDestroy( HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
 	PostQuitMessage(0) ;
-	DeleteObject( hFont) ;
+	pListWnd->Destroy() ;
 	return 0 ;
 }
 
@@ -226,7 +253,7 @@ LRESULT MainWnd::OnDestroy( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // マウスダウン
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -266,11 +293,11 @@ LRESULT MainWnd::OnLButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 		case PREV:
 		case NEXT:
-			Controller::GetInstance()->Go( intCurrent + ( item == PREV ? -1 : 1)) ;
+			Controller::GetInstance()->Go( pListWnd->GetCurrentItem() + ( item == PREV ? -1 : 1)) ;
 			break ;
 
 		case PLAY:
-			SendMessage( hwndWinamp, WM_COMMAND, WINAMP_BUTTON2, 0) ;
+			Controller::GetInstance()->Play() ;
 			break ;
 		case PAUSE:
 			SendMessage( hwndWinamp, WM_COMMAND, WINAMP_BUTTON3, 0) ;
@@ -278,15 +305,55 @@ LRESULT MainWnd::OnLButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		case STOP:
 			SendMessage( hwndWinamp, WM_COMMAND, WINAMP_BUTTON4, 0) ;
 			break ;
-	}
+
+		case LIST:
+			return pListWnd->OnLButtonDown( wParam, lParam) ;
+		case PAGEUP:
+			pListWnd->PageUp() ;
+			InvalidateRect( hWnd, NULL, FALSE) ;
+			break ;
+		case PAGEDOWN:
+			pListWnd->PageDown() ;
+			InvalidateRect( hWnd, NULL, FALSE) ;
+			break ;
+		case SCROLLBAR:
+			pListWnd->ScrollTo( pt.y - LIST_TOP) ;
+			blnScroll = TRUE ;
+			SetCapture( hWnd) ;
+			InvalidateItem( SCROLLBAR) ;
+			break ;
+		}
 	return 0 ;
+}
+
+
+/******************************************************************************/
+// 右クリック
+//============================================================================//
+// 更新：02/12/27(金)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+LRESULT MainWnd::OnRButtonDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
+{
+	POINT pt = { LOWORD( lParam), HIWORD( lParam)} ;
+	Item item = GetItem( pt) ;
+
+	if( item == LIST)
+	{
+		pListWnd->OnRButtonDown( wParam, lParam) ;
+		return 0 ;
+	}
+
+	return -1 ;	
 }
 
 
 /******************************************************************************/
 // マウスアップ
 //============================================================================//
-// 更新：02/12/23(月)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -299,6 +366,12 @@ LRESULT MainWnd::OnLButtonUp( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		blnMove = FALSE ;
 		ReleaseCapture() ;
 	}
+	else if( blnScroll)
+	{
+		blnScroll = FALSE ;
+		ReleaseCapture() ;
+		InvalidateItem( Item::SCROLLBAR) ;
+	}
 
 	return 0 ;
 }
@@ -307,7 +380,7 @@ LRESULT MainWnd::OnLButtonUp( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // マウスドラッグ
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -330,10 +403,7 @@ LRESULT MainWnd::OnMouseMove( HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 		if( intNewBlockX != Profile::intBlockX || intNewBlockY != Profile::intBlockY)
 		{
-			Profile::intBlockX = intNewBlockX ;
-			Profile::intBlockY = intNewBlockY ;
-			intWidth  = X_BLOCK_CONST + X_BLOCK_SIZE * Profile::intBlockX ;
-			intHeight = Y_BLOCK_CONST + Y_BLOCK_SIZE * Profile::intBlockY ;
+			SetBlockSize( intNewBlockX, intNewBlockY) ;
 
 			RECT rc ;
 			GetWindowRect( hWnd, &rc) ;
@@ -349,6 +419,70 @@ LRESULT MainWnd::OnMouseMove( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		Profile::intY = pt.y - ptOffsetMove.y ;
 		SetWindowPos( hWnd, 0, Profile::intX, Profile::intY, 0, 0, SWP_NOSIZE | SWP_NOZORDER) ;
 	}
+	else  if( blnScroll)
+	{
+		pListWnd->ScrollTo( HIWORD( lParam) - LIST_TOP) ;
+		InvalidateItem( SCROLLBAR) ;
+	}
+	return 0 ;
+}
+
+
+/******************************************************************************/
+// ダブルクリック
+//============================================================================//
+// 更新：02/12/27(金)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+LRESULT MainWnd::OnLButtonDblClk( HWND hWnd, WPARAM wParam, LPARAM lParam)
+{
+	POINT pt = { LOWORD( lParam), HIWORD( lParam)} ;
+	Item item = GetItem( pt) ;
+
+	if( item == Item::LIST)
+	{
+		pListWnd->OnLButtonDblClk( wParam, lParam) ;
+	}
+	return 0 ;
+}
+
+
+/******************************************************************************/
+// キーダウン
+//============================================================================//
+// 更新：02/12/27(金)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+LRESULT MainWnd::OnKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
+{
+	switch( wParam)
+	{
+		case VK_UP:
+			pListWnd->ScrollUp() ;
+			InvalidateRect( hWnd, NULL, FALSE) ;
+			break ;
+		case VK_DOWN:
+			pListWnd->ScrollDown() ;
+			InvalidateRect( hWnd, NULL, FALSE) ;
+			break ;
+		case VK_PRIOR:
+			pListWnd->PageUp() ;
+			InvalidateRect( hWnd, NULL, FALSE) ;
+			break ;
+		case VK_NEXT:
+			pListWnd->PageDown() ;
+			InvalidateRect( hWnd, NULL, FALSE) ;
+			break ;
+		case VK_RETURN:
+			Controller::GetInstance()->Go( pListWnd->GetSelectedItem()) ;
+			InvalidateRect( hWnd, NULL, FALSE) ;
+			break ;
+	}
+
 	return 0 ;
 }
 
@@ -358,7 +492,7 @@ LRESULT MainWnd::OnMouseMove( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // 現在のスキン読みとり
 //============================================================================//
-// 更新：02/12/26(木)
+// 更新：02/12/27(金)
 // 概要：スキンが変更されていれば、スキン情報を更新する。
 // 補足：なし。
 //============================================================================//
@@ -406,15 +540,7 @@ void MainWnd::UpdateSkin()
 		}
 
 		// テキストカラー
-		string strIni = ( strSkinPath + "\\Pledit.txt") ;
-		GetPrivateProfileString( "Text", "Normal", "#ffffff", pszBuf, MAX_PATH, strIni.c_str()) ;
-		colNormal = GetColor( pszBuf) ;
-		GetPrivateProfileString( "Text", "Current", "#ffffff", pszBuf, MAX_PATH, strIni.c_str()) ;
-		colCurrent = GetColor( pszBuf) ;
-		GetPrivateProfileString( "Text", "NormalBG", "#ffffff", pszBuf, MAX_PATH, strIni.c_str()) ;
-		colNormalBG = GetColor( pszBuf) ;
-		GetPrivateProfileString( "Text", "SelectedBG", "#ffffff", pszBuf, MAX_PATH, strIni.c_str()) ;
-		colSelectedBG = GetColor( pszBuf) ;
+		pListWnd->SetSkin( strSkinPath + "\\Pledit.txt") ;
 
 		InvalidateRect( m_hWnd, NULL, TRUE) ;
 	}
@@ -424,7 +550,7 @@ void MainWnd::UpdateSkin()
 /******************************************************************************/
 // スキン表示
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -472,85 +598,17 @@ void MainWnd::DrawSkin( HDC hdc)
 	}
 	BitBlt( hdc, intWidth - 150,  intHeight - 38, 150,  38, hdcBmp, 126, 72, SRCCOPY) ;
 
+	// スクロールバー
+	BitBlt( hdc,  intWidth - 15, 20 + pListWnd->GetScrollBarPos(), 8, 18, hdcBmp, 52 + ( blnScroll ? 9 : 0), 53, SRCCOPY) ;
+
 	DeleteDC( hdcBmp);
-}
-
-
-/******************************************************************************/
-// リスト表示
-//============================================================================//
-// 更新：02/12/23(月)
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-void MainWnd::DrawList( HDC hdc)
-{
-	// リスト
-	RECT rc ;
-	int i ;
-	rc.top		= LIST_TOP ;
-	rc.left		= LIST_LEFT + LIST_MARGIN ;
-	rc.right	= intWidth - LIST_RIGHT ;
-
-	// 塗りつぶし
-	HBRUSH hBrush = CreateSolidBrush( colNormalBG) ;
-	HBRUSH hBrushOld = (HBRUSH)SelectObject( hdc, (HGDIOBJ)hBrush) ;
-	HPEN hPen = CreatePen( PS_SOLID, 1, colNormalBG);
-	HPEN hPenOld = (HPEN)SelectObject( hdc, (HGDIOBJ)hPen) ;
-	Rectangle( hdc, LIST_LEFT, LIST_TOP, intWidth - LIST_RIGHT, LIST_TOP + Profile::intBlockY * 29) ;
-	DeleteObject( SelectObject( hdc, hBrushOld)) ;
-	DeleteObject( SelectObject( hdc, hPenOld)) ;
-
-	SelectObject( hdc, hFont) ;
-
-	TEXTMETRIC tm ;
-	GetTextMetrics( hdc, &tm) ;
-	for( i = 0; i < 3 * Profile::intBlockY - 1 ; i++)
-	{
-		if( i >= vecList.size())
-		{
-			break ;
-		}
-
-		rc.top		= LIST_TOP + i * tm.tmHeight + LIST_MARGIN ;
-		rc.bottom	= LIST_TOP + ( i + 1) * tm.tmHeight + LIST_MARGIN ;
-
-		// 背景色変更
-		if( i == intListSelected)
-		{
-			HBRUSH hBrush = CreateSolidBrush( colSelectedBG) ;
-			HBRUSH hBrushOld = (HBRUSH)SelectObject( hdc, (HGDIOBJ)hBrush) ;
-			HPEN hPen = CreatePen( PS_SOLID, 1, colSelectedBG);
-			HPEN hPenOld = (HPEN)SelectObject( hdc, (HGDIOBJ)hPen) ;
-			Rectangle( hdc, rc.left, rc.top, rc.right, rc.bottom) ;
-			DeleteObject( SelectObject( hdc, hBrushOld)) ;
-			DeleteObject( SelectObject( hdc, hPenOld)) ;
-			SetBkColor( hdc, colSelectedBG) ;
-		}
-		else
-		{
-			SetBkColor( hdc, colNormalBG) ;
-		}
-		// 文字色変更
-		if( i == intCurrent)
-		{
-			SetTextColor( hdc, colCurrent) ;
-		}
-		else
-		{
-			SetTextColor( hdc, colNormal) ;
-		}
-
-		DrawText( hdc, vecList[ i].c_str(), -1, &rc, DT_LEFT | DT_END_ELLIPSIS) ;
-	}
 }
 
 
 /******************************************************************************/
 // 時間を表示
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/28(土)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -579,62 +637,28 @@ void MainWnd::DrawTime( HDC hdc)
 
 
 /******************************************************************************/
-// 文字列の色を数値化
-//============================================================================//
-// 更新：02/12/23(月)
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-COLORREF MainWnd::GetColor( const string& s)
-{
-	if( s.size() >= 7)
-	{
-		BYTE byte[ 3] ;
-
-		for( int i = 0; i < 3; i++)
-		{
-			byte[ i] = 0 ;
-			for( int j = 0; j < 2; j++)
-			{
-				byte[ i] <<= 4 ;
-
-				if( '0' <= s[ i * 2 + j + 1] && s[ i * 2 + j + 1] <= '9')
-				{
-					byte[ i] += s[ i * 2 + j + 1] - '0' ;
-				}
-				else if( 'a' <= s[ i * 2 + j + 1] && s[ i * 2 + j + 1] <= 'f')
-				{
-					byte[ i] += s[ i * 2 + j + 1] - 'a' + 10 ;
-				}
-				else if( 'A' <= s[ i * 2 + j + 1] && s[ i * 2 + j + 1] <= 'F')
-				{
-					byte[ i] += s[ i * 2 + j + 1] - 'A' + 10 ;
-				}
-			}
-		}
-
-		return RGB( byte[ 0], byte[ 1], byte[ 2]) ;
-	}
-
-	return 0 ;
-}
-
-
-/******************************************************************************/
 //		設定
 /******************************************************************************/
-// 表示切り替え
+// サイズ変更
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-void MainWnd::ShowWindow( BOOL b) const
+void MainWnd::SetBlockSize( int intNewBlockX, int intNewBlockY)
 {
-	::ShowWindow( m_hWnd, b ? SW_SHOW : SW_HIDE) ;
+	Profile::intBlockX = intNewBlockX ;
+	Profile::intBlockY = intNewBlockY ;
+	intWidth  = X_BLOCK_CONST + X_BLOCK_SIZE * Profile::intBlockX ;
+	intHeight = Y_BLOCK_CONST + Y_BLOCK_SIZE * Profile::intBlockY ;
+
+	if( pListWnd)
+	{
+		pListWnd->SetSize() ;
+	}
 }
+
 
 /******************************************************************************/
 // 文字設定
@@ -655,53 +679,56 @@ void MainWnd::SetTime( int _intMin, int _intSec)
 /******************************************************************************/
 // カレントアイテムを変更
 //============================================================================//
-// 更新：02/12/24(火)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 void MainWnd::SetCurSong( int i)
 {
-	if( i < 0 || i >= vecList.size())
-	{
-		return ;
-	}
-
-	intCurrent = i ;
-	InvalidateItem( Item::LIST) ;
+	pListWnd->SetCurrentItem( i) ;
 }
 
 
 /******************************************************************************/
 // リストクリア
 //============================================================================//
-// 更新：02/12/23(月)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 void MainWnd::ClearList()
 {
-	vecList.clear() ;
-	RECT rc = { LIST_LEFT, LIST_TOP, intWidth - LIST_RIGHT, LIST_TOP + Profile::intBlockY * 29} ;
-	InvalidateRect( m_hWnd, &rc, TRUE) ;
+	pListWnd->ClearList() ;
 }
 
 
 /******************************************************************************/
 // リスト追加
 //============================================================================//
-// 更新：02/12/23(月)
+// 更新：02/12/27(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 void MainWnd::AddList( const string& s)
 {
-	vecList.push_back( s) ;
+	pListWnd->AddList( s) ;
+}
 
-	RECT rc = { LIST_LEFT, LIST_TOP, intWidth - LIST_RIGHT, LIST_TOP + Profile::intBlockY * 29} ;
-	InvalidateRect( m_hWnd, &rc, TRUE) ;
+
+/******************************************************************************/
+// 現在の曲を取得
+//============================================================================//
+// 更新：02/12/27(金)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+int MainWnd::GetCurSong() const
+{
+	return pListWnd->GetCurrentItem() ;
 }
 
 

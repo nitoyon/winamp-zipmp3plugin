@@ -12,6 +12,7 @@
 #pragma warning( disable : 4786 )   // C4786‚È‚ñ‚Ä•\Ž¦‚·‚ñ‚È( ß„Dß)ºÞÙ§
 
 #include <windows.h>
+#include <commctrl.h>
 #include "frontend.h"
 #include <string>
 #include <vector>
