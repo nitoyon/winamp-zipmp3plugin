@@ -28,6 +28,7 @@ BOOL	Profile::blnCountUp = FALSE ;
 BOOL	Profile::blnCompact = FALSE ;
 BOOL	Profile::blnShowTimebar = TRUE ;
 string	Profile::strFont = "" ;
+int	Profile::intFontSize = 0 ;
 
 // リスト
 string	Profile::strListNormal ;
@@ -76,6 +77,7 @@ void Profile::Save()
 	WritePrivateProfileString( "Display", "compact", blnCompact ? "yes" : "no", pszFile) ;
 	WritePrivateProfileString( "Display", "timebar", blnShowTimebar ? "yes" : "no", pszFile) ;
 	WritePrivateProfileString( "Display", "font", strFont.c_str(), pszFile) ;
+	WriteProfile( pszFile, "Display", "fontsize", intFontSize) ;
 
 	// リスト
 	WritePrivateProfileString( "List", "Normal", strListNormal.c_str(), pszFile) ;
@@ -134,6 +136,7 @@ void Profile::Load()
 	blnShowTimebar = ( strcmp( pszBuf, "yes") == 0) ;
 	GetPrivateProfileString( "Display", "font", "MS Pゴシック", pszBuf, MAX_PATH, pszFile) ;
 	strFont = pszBuf ;
+	intFontSize = GetPrivateProfileInt("Display", "fontsize", 0, pszFile);
 
 	// リスト
 	GetPrivateProfileString( "List", "Normal", "%FILE_NAME%", pszBuf, MAX_PATH, pszFile) ;

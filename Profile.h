@@ -35,6 +35,7 @@ public:
 	static BOOL blnCompact ;
 	static BOOL blnShowTimebar ;
 	static string strFont;
+	static int intFontSize;
 
 // ƒŠƒXƒg
 	static string strListNormal ;

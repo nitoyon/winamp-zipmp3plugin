@@ -152,6 +152,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
 	// 旧データを一時的に保存
+	int intOldFontSize = Profile::intFontSize ;
 	string strOldFont = Profile::strFont ;
 
 	// ダイアログから読みとり
@@ -164,9 +165,10 @@ BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	Profile::strListCompilation = GetWindowString( GetDlgItem( hDlg, IDC_LIST_COMPI)) ;
 	Profile::blnListCompilation = IsDlgButtonChecked( hDlg, IDC_CHK_COMPI) ? TRUE : FALSE ;
 	Profile::strFont = GetWindowString( GetDlgItem( hDlg, IDC_FONT)) ;
+	Profile::intFontSize = atoi(GetWindowString(GetDlgItem(hDlg, IDC_FONTSIZE)).c_str());
 	Profile::Save() ;
 
-	if(strOldFont != Profile::strFont)
+	if(strOldFont != Profile::strFont || intOldFontSize != Profile::intFontSize)
 	{
 		Controller::GetInstance()->GetWindow()->GetListWnd()->SetFont() ;
 	}
@@ -393,32 +395,25 @@ void SettingDlg::SetFontSize()
 		SendMessage( hwndFontSize, CB_DELETESTRING, 0, 0) ;
 	}
 
-	// フォントサイズ取得
-	string strFont = GetWindowString( hwndCombo) ;
+	// フォントサイズ追加
+	SendMessage(hwndFontSize, CB_ADDSTRING, 0, (LPARAM)"Winamp のフォントサイズ");
+	if(Profile::intFontSize == 0)
+	{
+		SendMessage(hwndFontSize, CB_SETCURSEL, 0, 0);
+	}
 
-	HDC hdc = GetWindowDC( Controller::GetInstance()->GetWindow()->GetHwnd()) ;
-	EnumFonts( hdc, strFont.c_str(), (FONTENUMPROC)FontEnumProc, (LPARAM)this) ;
+	for(int i = 6; i < 25; i++)
+	{
+		char pszBuf[3];
+		wsprintf(pszBuf, "%d", i);
+		SendMessage(hwndFontSize, CB_ADDSTRING, 0, (LPARAM)pszBuf);
+
+		if(i == Profile::intFontSize)
+		{
+			SendMessage(hwndFontSize, CB_SETCURSEL, i - 5, 0);
+		}
+	}
 }
-
-
-/******************************************************************************/
-// フォントプロシージャ
-//============================================================================//
-// 概要：なし。
-// 補足：なし。
-//============================================================================//
-
-int CALLBACK FontEnumProc( LOGFONT* lplf, TEXTMETRIC* lptm, DWORD dwType, LPARAM lParam)
-{
-	SettingDlg* p = (SettingDlg*)lParam ;
-	HWND hwndCombo = GetDlgItem( p->m_hWnd, IDC_FONTSIZE) ;
-
-	char pszBuf[ 100] ;
-	wsprintf( pszBuf, "%d", lptm->tmHeight) ;
-	SendMessage( hwndCombo, CB_ADDSTRING, 0, (LPARAM)pszBuf) ;
-	return 1 ;
-}
-
 
 
 /******************************************************************************/
