@@ -134,6 +134,7 @@ public:
 // Žæ“¾
 	HWND GetWinampWindow() const{ return hwndWinamp ;}
 	HWND GetHwnd() const{ return m_hWnd ;}
+	ListWnd* GetListWnd() const{ return pListWnd ;}
 	int GetCurSong() const ;
 	BOOL IsSnapping() ;
 	POINT GetOffsetSnap() const{ return ptOffsetSnap ;} ;

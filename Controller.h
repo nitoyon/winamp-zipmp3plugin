@@ -48,6 +48,7 @@ public:
 
 // ウインドウ
 	void SetWindow( MainWnd* p){ pMainWnd = p ;} ;
+	MainWnd* GetWindow() const{ return pMainWnd ;}
 	void SetVisiblity( BOOL, BOOL = TRUE) ;
 	void ToggleVisiblity() ;
 

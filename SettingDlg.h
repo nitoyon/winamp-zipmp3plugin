@@ -30,6 +30,8 @@ public:
 
 // メッセージハンドラ
 private:
+	friend int CALLBACK FontFamEnumProc( ENUMLOGFONTEX* lpelf, NEWTEXTMETRICEX* lpntm, int FontType, LPARAM lParam) ;
+	friend int CALLBACK FontEnumProc( LOGFONT*, TEXTMETRIC*, DWORD, LPARAM) ;
 	DECLARE_DLG_MESSAGE_MAP( SettingDlgProc)
 	DECLARE_SUBCLASS_MESSAGE_MAP( LinkStaticProc)
 
@@ -45,6 +47,7 @@ private:
 	BOOL OnCtlColorStatic	( HWND, WPARAM, LPARAM) ;
 
 // その他
+	void SetFontSize() ;
 	void Validiate() ;
 	void VarMenu( vector<string>&, int, int) ;
 } ;

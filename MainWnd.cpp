@@ -489,7 +489,7 @@ LRESULT MainWnd::OnLButtonUp( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		InvalidateItem( Item::TIMEBAR) ;
 
 		Controller* pController = Controller::GetInstance() ;
-		pController->Go(pListWnd->GetCurrentItem(), pListWnd->GetCurrentLength() * 1000 * intTimeBarDrag / ( 95 - 30)) ;
+		pController->Go(pListWnd->GetCurrentItem(), pListWnd->GetCurrentLength() * 1000 * ( intTimeBarDrag - 15) / ( 95 - 30)) ;
 	}
 
 	return 0 ;
@@ -552,7 +552,7 @@ LRESULT MainWnd::OnMouseMove( HWND hWnd, WPARAM wParam, LPARAM lParam)
 		RECT rect ;
 		GetWindowRect( hWnd, &rect) ;
 		pt.x -= rect.left + intWidth + intLeftPos[ Item::TIMEBAR] ;
-		intTimeBarDrag = ( pt.x < 0 ? 0 : ( pt.x >= 95 - 30 ? 95 - 30 : pt.x)) ;
+		intTimeBarDrag = ( pt.x < 15 ? 15 : ( pt.x >= 95 - 15 ? 95 - 15 : pt.x)) ;
 
 		InvalidateItem( Item::TIMEBAR) ;
 	}
@@ -908,13 +908,14 @@ void MainWnd::DrawTime( HDC hdc)
 				uiPos = uiPos * ( dwCurSongLength - ( intMin * 60 + intSec) * 1000) / dwCurSongLength ;
 			}
 
+			// ƒhƒ‰ƒbƒO’†
 			if( !blnTimeBarDrag)
 			{
 				BitBlt( hdc, intWidth - 147 + uiPos, intHeight - 30, 29, 10, hdcPos, 248, 0, SRCCOPY) ;
 			}
 			else
 			{
-				BitBlt( hdc, intWidth - 147 + intTimeBarDrag, intHeight - 30, 29, 10, hdcPos, 278, 0, SRCCOPY) ;
+				BitBlt( hdc, intWidth - 147 + intTimeBarDrag - 15, intHeight - 30, 29, 10, hdcPos, 278, 0, SRCCOPY) ;
 			}
 		}
 	}

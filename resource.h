@@ -26,11 +26,11 @@
 #define IDC_CHK_COMPI                   1015
 #define IDC_LIST_COMPI                  1016
 #define IDC_COMPI_VARIABLE              1017
-#define IDC_FONT                        1020
 #define IDC_URL                         1021
 #define IDC_BMP1                        1022
 #define IDC_BMP2                        1023
-#define IDC_URL2                        1024
+#define IDC_FONT                        1024
+#define IDC_FONTSIZE                    1025
 #define IDM_DISPTAG                     40001
 #define IDM_EXTRACT                     40002
 #define IDM_PLAY                        40003
@@ -50,7 +50,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        114
 #define _APS_NEXT_COMMAND_VALUE         40015
-#define _APS_NEXT_CONTROL_VALUE         1024
+#define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -11,10 +11,13 @@
 #include "Controller.h"
 #include "resource.h"
 #include "Util.h"
+#include "MainWnd.h"
+#include "ListWnd.h"
 
 
 HWND SettingDlg::hwndStatic = NULL ;
 WNDPROC	wpcStatic ;
+
 
 /******************************************************************************/
 //		コンストラクタおよびデストラクタ
@@ -111,7 +114,26 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	SetDlgItemText( hDlg, IDC_LIST_NORMAL, Profile::strListNormal.c_str()) ;
 	SetDlgItemText( hDlg, IDC_LIST_ID3, Profile::strListID3.c_str()) ;
 	SetDlgItemText( hDlg, IDC_LIST_COMPI, Profile::strListCompilation.c_str()) ;
-	SetDlgItemText( hDlg, IDC_FONT, Profile::strFont.c_str()) ;
+
+	// フォント列挙
+	HDC hdc = GetWindowDC( Controller::GetInstance()->GetWindow()->GetHwnd()) ;
+	LOGFONT lf ;
+	memset( &lf, 0, sizeof( LOGFONT)) ;
+	lf.lfCharSet = SHIFTJIS_CHARSET ;//DEFAULT_CHARSET ;
+	EnumFontFamiliesEx( hdc, &lf, (FONTENUMPROC)FontFamEnumProc, (LPARAM)this, 0) ;
+	HWND hwndCombo = GetDlgItem( hDlg, IDC_FONT) ;
+	int intIndex = SendMessage( hwndCombo, CB_FINDSTRING, 0, (LPARAM)Profile::strFont.c_str()) ;
+	if( intIndex != CB_ERR)
+	{
+		SendMessage( hwndCombo, CB_SETCURSEL, intIndex, 0) ;
+	}
+	else
+	{
+		SendMessage( hwndCombo, CB_SETCURSEL, 0, 0) ;
+	}
+
+	// フォントサイズ設定
+	SetFontSize() ;
 
 	Validiate() ;
 	hwndStatic = hDlg ;
@@ -129,6 +151,9 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 
 BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
+	// 旧データを一時的に保存
+	string strOldFont = Profile::strFont ;
+
 	// ダイアログから読みとり
 	Profile::blnShowOnlyZip = IsDlgButtonChecked( hDlg, IDC_SHOW_ONLY_ZIP) ? TRUE : FALSE ;
 	Profile::blnShowOnlyUncompressedZip = IsDlgButtonChecked( hDlg, IDC_SHOW_ONLY_UNCOMPRESS) ? TRUE : FALSE ;
@@ -140,6 +165,11 @@ BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	Profile::blnListCompilation = IsDlgButtonChecked( hDlg, IDC_CHK_COMPI) ? TRUE : FALSE ;
 	Profile::strFont = GetWindowString( GetDlgItem( hDlg, IDC_FONT)) ;
 	Profile::Save() ;
+
+	if(strOldFont != Profile::strFont)
+	{
+		Controller::GetInstance()->GetWindow()->GetListWnd()->SetFont() ;
+	}
 
 	EndDialog( hDlg, TRUE) ;
 	hwndStatic = NULL ;
@@ -235,6 +265,27 @@ BOOL SettingDlg::OnBtnID3( HWND hDlg, WPARAM wParam, LPARAM lParam)
 
 
 /******************************************************************************/
+// フォントファミリー列挙プロシージャ
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+int CALLBACK FontFamEnumProc( ENUMLOGFONTEX* lpelf, NEWTEXTMETRICEX* lpntm, int FontType, LPARAM lParam)
+{
+	SettingDlg* p = (SettingDlg*)lParam ;
+	HWND hwndCombo = GetDlgItem( p->m_hWnd, IDC_FONT) ;
+
+	if( SendMessage( hwndCombo, CB_FINDSTRING, 0, (LPARAM)lpelf->elfLogFont.lfFaceName) == CB_ERR)
+	{
+		SendMessage( hwndCombo, CB_ADDSTRING, 0, (LPARAM)lpelf->elfLogFont.lfFaceName) ;
+	}
+
+	return 1 ;
+}
+
+
+/******************************************************************************/
 // URL をクリック
 //============================================================================//
 // 概要：なし。
@@ -325,6 +376,51 @@ LRESULT CALLBACK LinkStaticProc( HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lP
 
 /******************************************************************************/
 //		その他
+/******************************************************************************/
+// フォントサイズ設定
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void SettingDlg::SetFontSize()
+{
+	// コンボ初期化
+	HWND hwndCombo = GetDlgItem( m_hWnd, IDC_FONT) ;
+	HWND hwndFontSize = GetDlgItem( m_hWnd, IDC_FONTSIZE) ;
+	while( SendMessage( hwndFontSize, CB_GETCOUNT, 0, 0) != 0)
+	{
+		SendMessage( hwndFontSize, CB_DELETESTRING, 0, 0) ;
+	}
+
+	// フォントサイズ取得
+	string strFont = GetWindowString( hwndCombo) ;
+
+	HDC hdc = GetWindowDC( Controller::GetInstance()->GetWindow()->GetHwnd()) ;
+	EnumFonts( hdc, strFont.c_str(), (FONTENUMPROC)FontEnumProc, (LPARAM)this) ;
+}
+
+
+/******************************************************************************/
+// フォントプロシージャ
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+int CALLBACK FontEnumProc( LOGFONT* lplf, TEXTMETRIC* lptm, DWORD dwType, LPARAM lParam)
+{
+	SettingDlg* p = (SettingDlg*)lParam ;
+	HWND hwndCombo = GetDlgItem( p->m_hWnd, IDC_FONTSIZE) ;
+
+	char pszBuf[ 100] ;
+	wsprintf( pszBuf, "%d", lptm->tmHeight) ;
+	SendMessage( hwndCombo, CB_ADDSTRING, 0, (LPARAM)pszBuf) ;
+	return 1 ;
+}
+
+
+
 /******************************************************************************/
 // 正当化
 //============================================================================//

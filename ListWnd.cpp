@@ -58,18 +58,8 @@ ListWnd::~ListWnd()
 
 void ListWnd::Init()
 {
-	int intFontSize = GetPrivateProfileInt( "Winamp", "pe_fontsize", 10, Profile::strWinampIniPath.c_str()) ;
-
 	// フォント作成
-	hFont = CreateFont( intFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, 
-		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
-		VARIABLE_PITCH | FF_MODERN, Profile::strFont.c_str()) ;
-	if(!hFont)
-	{
-		hFont = CreateFont( intFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, 
-			OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
-			VARIABLE_PITCH | FF_MODERN, "MS Pゴシック") ;
-	}
+	SetFont() ;
 	hFontSmall = CreateFont( 9, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, 
 		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
 		VARIABLE_PITCH | FF_MODERN, "MS Pゴシック") ;
@@ -98,6 +88,36 @@ void ListWnd::SetSkin( const string& strIni)
 	colNormalBG = GetColor( pszBuf) ;
 	GetPrivateProfileString( "Text", "SelectedBG", "#0000FF", pszBuf, MAX_PATH, strIni.c_str()) ;
 	colSelectedBG = GetColor( pszBuf) ;
+}
+
+
+/******************************************************************************/
+// フォント設定
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void ListWnd::SetFont()
+{
+	if( hFont)
+	{
+		DeleteObject( hFont) ;
+	}
+
+	int intFontSize = GetPrivateProfileInt( "Winamp", "pe_fontsize", 10, Profile::strWinampIniPath.c_str()) ;
+
+	hFont = CreateFont( intFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, // DEFAULT_CHARSET
+		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
+		VARIABLE_PITCH | FF_MODERN, Profile::strFont.c_str()) ;
+	if(!hFont)
+	{
+		hFont = CreateFont( intFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, 
+			OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
+			VARIABLE_PITCH | FF_MODERN, "ＭＳ Ｐゴシック") ;
+	}
+
+	InvalidateRect( m_hWnd, NULL, FALSE) ;
 }
 
 
