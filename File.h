@@ -10,6 +10,7 @@
 #define  __FILE_H__
 
 #include "include.h"
+#include "define.h"
 
 
 /******************************************************************************/
@@ -78,6 +79,8 @@ public :
 // •\Ž¦–¼Žæ“¾
 	string GetDisplayStr( const string&) ;
 	virtual BOOL HasID3Tag() const{ return FALSE ;}
+	virtual const ID3Tag GetID3Tag() const{ ID3Tag i ;return i ;}
+
 protected:
 	virtual string GetVariable( const string&) ;
 } ;

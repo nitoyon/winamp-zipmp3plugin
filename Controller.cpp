@@ -367,12 +367,49 @@ void Controller::UpdateFileInfo( const string& s)
 		case ZipFile::Status::UNCOMPRESSED :
 		case ZipFile::Status::COMPRESSED :
 		{
+			// コンピレーションアルバムかどうかの判断
+			BOOL blnCompi = FALSE ;
+			if( Profile::blnListCompilation)
+			{
+				string strArtist = "" ;
+				for( int i = 0; i < pZipFile->GetChildFileCount(); i++)
+				{
+					File* pFile = pZipFile->GetChildFile( i) ;
+					if( !pFile->HasID3Tag())
+					{
+						continue ;
+					}
+
+					string s = pFile->GetID3Tag().strArtistName ;
+					if( strArtist == "")
+					{
+						strArtist = s ;
+					}
+					else if( strArtist != s)
+					{
+						blnCompi = TRUE ;
+						break ;
+					}
+				}
+			}
+
+			// リストに追加していく
 			for( int i = 0; i < pZipFile->GetChildFileCount(); i++)
 			{
 				File* pFile = pZipFile->GetChildFile( i) ;
-				pMainWnd->AddList( pFile->GetDisplayStr( 
-					pFile->HasID3Tag() &&  Profile::blnListID3 ? Profile::strListID3 : Profile::strListNormal
-				)) ;
+				
+				if( blnCompi)
+				{
+					pMainWnd->AddList( pFile->GetDisplayStr( Profile::strListCompilation)) ;
+				}
+				else if( pFile->HasID3Tag())
+				{
+					pMainWnd->AddList( pFile->GetDisplayStr( Profile::strListID3)) ;
+				}
+				else
+				{
+					pMainWnd->AddList( pFile->GetDisplayStr( Profile::strListNormal)) ;
+				}
 			}
 			break ;
 		}

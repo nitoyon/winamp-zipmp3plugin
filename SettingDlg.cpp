@@ -1,7 +1,7 @@
 
 // SettingDlg.cpp
 //============================================================================//
-// 更新：02/12/29(日)
+// 更新：03/01/03(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -62,8 +62,10 @@ BEGIN_DLG_MESSAGE_MAP( SettingDlgProc, SettingDlg)
 
 		ON_COMMAND( IDC_CHK_ID3		, OnCheck)
 		ON_COMMAND( IDC_SHOW_ONLY_ZIP	, OnCheck)
+		ON_COMMAND( IDC_CHK_COMPI	, OnCheck)
 		ON_COMMAND( IDC_NORMAL_VARIABLE	, OnBtnNormal)
 		ON_COMMAND( IDC_ID3_VARIABLE	, OnBtnID3)
+		ON_COMMAND( IDC_COMPI_VARIABLE	, OnBtnID3)
 	END_COMMAND_MAP()
 END_DLG_MESSAGE_MAP()
 
@@ -71,7 +73,7 @@ END_DLG_MESSAGE_MAP()
 /******************************************************************************/
 // 初期化
 //============================================================================//
-// 更新：02/12/29(日)
+// 更新：03/01/03(金)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -92,6 +94,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	CheckDlgButton( hDlg, IDC_SHOW_ONLY_ZIP, Profile::blnShowOnlyZip ? BST_CHECKED : 0) ;
 	CheckDlgButton( hDlg, IDC_SHOW_ONLY_UNCOMPRESS, Profile::blnShowOnlyUncompressedZip ? BST_CHECKED : 0) ;
 	CheckDlgButton( hDlg, IDC_CHK_ID3, Profile::blnListID3 ? BST_CHECKED : 0) ;
+	CheckDlgButton( hDlg, IDC_CHK_COMPI, Profile::blnListCompilation ? BST_CHECKED : 0) ;
 
 	// ホットキー
 	SendMessage( hwndHotKey, HKM_SETHOTKEY, Profile::wrdHotKey, 0) ;
@@ -99,6 +102,7 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	// テキスト設定
 	SetDlgItemText( hDlg, IDC_LIST_NORMAL, Profile::strListNormal.c_str()) ;
 	SetDlgItemText( hDlg, IDC_LIST_ID3, Profile::strListID3.c_str()) ;
+	SetDlgItemText( hDlg, IDC_LIST_COMPI, Profile::strListCompilation.c_str()) ;
 
 	Validiate() ;
 	hwndStatic = hDlg ;
@@ -122,6 +126,8 @@ BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	Profile::strListNormal = GetWindowString( GetDlgItem( hDlg, IDC_LIST_NORMAL)) ;
 	Profile::strListID3 = GetWindowString( GetDlgItem( hDlg, IDC_LIST_ID3)) ;
 	Profile::blnListID3 = IsDlgButtonChecked( hDlg, IDC_CHK_ID3) ? TRUE : FALSE ;
+	Profile::strListCompilation = GetWindowString( GetDlgItem( hDlg, IDC_LIST_COMPI)) ;
+	Profile::blnListCompilation = IsDlgButtonChecked( hDlg, IDC_CHK_COMPI) ? TRUE : FALSE ;
 	Profile::Save() ;
 
 	EndDialog( hDlg, TRUE) ;
@@ -204,7 +210,14 @@ BOOL SettingDlg::OnBtnID3( HWND hDlg, WPARAM wParam, LPARAM lParam)
 	vec.push_back( "%YEAR%\t年") ;
 	vec.push_back( "%COMMENT%\tコメント") ;
 
-	VarMenu( vec, IDC_LIST_ID3, IDC_ID3_VARIABLE) ;
+	if( LOWORD( wParam) == IDC_ID3_VARIABLE)
+	{
+		VarMenu( vec, IDC_LIST_ID3, IDC_ID3_VARIABLE) ;
+	}
+	else
+	{
+		VarMenu( vec, IDC_LIST_COMPI, IDC_COMPI_VARIABLE) ;
+	}
 
 	return TRUE ;
 }
@@ -223,9 +236,26 @@ BOOL SettingDlg::OnBtnID3( HWND hDlg, WPARAM wParam, LPARAM lParam)
 void SettingDlg::Validiate()
 {
 	EnableWindow( GetDlgItem( m_hWnd, IDC_SHOW_ONLY_UNCOMPRESS), IsDlgButtonChecked( m_hWnd, IDC_SHOW_ONLY_ZIP) ? TRUE : FALSE) ;
+
+	// IDv3 タグがある場合
 	BOOL b = IsDlgButtonChecked( m_hWnd, IDC_CHK_ID3) ;
 	EnableWindow( GetDlgItem( m_hWnd, IDC_LIST_ID3), b ? TRUE : FALSE) ;
 	EnableWindow( GetDlgItem( m_hWnd, IDC_ID3_VARIABLE), b ? TRUE : FALSE) ;
+
+	// コンピレーション
+	if( b)
+	{
+		EnableWindow( GetDlgItem( m_hWnd, IDC_CHK_COMPI), TRUE) ;
+		BOOL b2 = IsDlgButtonChecked( m_hWnd, IDC_CHK_COMPI) ;
+		EnableWindow( GetDlgItem( m_hWnd, IDC_LIST_COMPI), b2 ? TRUE : FALSE) ;
+		EnableWindow( GetDlgItem( m_hWnd, IDC_COMPI_VARIABLE), b2 ? TRUE : FALSE) ;
+	}
+	else
+	{
+		EnableWindow( GetDlgItem( m_hWnd, IDC_CHK_COMPI), FALSE) ;
+		EnableWindow( GetDlgItem( m_hWnd, IDC_LIST_COMPI), FALSE) ;
+		EnableWindow( GetDlgItem( m_hWnd, IDC_COMPI_VARIABLE), FALSE) ;
+	}
 }
 
 

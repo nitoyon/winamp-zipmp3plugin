@@ -93,6 +93,7 @@ BOOL ZipFile::ReadHeader()
 	else
 	{
 		status = Status::NOT_ZIP ;
+		fclose( fzip) ;
 		return FALSE ;
 	}
 

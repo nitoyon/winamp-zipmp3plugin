@@ -65,6 +65,7 @@ BOOL File::ReadHeader()
 	}
 	if( fseek( fzip, ulCentralDir, SEEK_SET) != 0)
 	{
+		fclose( fzip) ;
 		return FALSE ;
 	}
 
@@ -78,6 +79,7 @@ BOOL File::ReadHeader()
 	}
 	else
 	{
+		fclose( fzip) ;
 		return FALSE ;
 	}
 
@@ -142,6 +144,7 @@ BOOL File::ReadHeader()
 	}
 	else
 	{
+		fclose( fzip) ;
 		return FALSE ;
 	}
 	fread( byte, sizeof( BYTE), LOCAL_HEADER_SIZE, fzip) ;

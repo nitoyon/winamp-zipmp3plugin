@@ -76,6 +76,7 @@ BOOL Mp3File::ReadHeader()
 		 && fgetc( fzip) == 0x03
 		 && fgetc( fzip) == 0x04)
 		{
+			fclose( fzip) ;
 			return FALSE ;
 		}
 
@@ -123,7 +124,7 @@ BOOL Mp3File::FindMpegHeader( FILE* fzip)
 			{
 				if( byte[ j] == 0xff)
 				{
-					if( byte[ j + 1] & 0xe0 == 0xe0)
+					if( ( byte[ j + 1] & 0xe0) == 0xe0)
 					{
 						ulMpegHeader = ulPos + j ;
 						return TRUE ;

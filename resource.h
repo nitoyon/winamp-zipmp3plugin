@@ -18,6 +18,9 @@
 #define IDC_CHK_ID3                     1012
 #define IDC_LIST_ID3                    1013
 #define IDC_ID3_VARIABLE                1014
+#define IDC_CHK_COMPI                   1015
+#define IDC_LIST_COMPI                  1016
+#define IDC_COMPI_VARIABLE              1017
 #define IDM_DISPTAG                     40001
 #define IDM_EXTRACT                     40002
 #define IDM_PLAY                        40003
