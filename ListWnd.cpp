@@ -117,7 +117,7 @@ void ListWnd::SetFont()
 	}
 
 	// ÉtÉHÉìÉgçÏê¨
-	hFont = CreateFont( intFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, // DEFAULT_CHARSET
+	hFont = CreateFont(intFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, // DEFAULT_CHARSET
 		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
 		VARIABLE_PITCH | FF_MODERN, Profile::strListFont.c_str()) ;
 	if(!hFont)

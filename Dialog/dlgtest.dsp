@@ -95,10 +95,6 @@ SOURCE=.\ChildDlg.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\dialog.rc
-# End Source File
-# Begin Source File
-
 SOURCE=.\FontDlg.cpp
 # End Source File
 # Begin Source File
@@ -116,6 +112,10 @@ SOURCE=.\NullDlg.cpp
 # Begin Source File
 
 SOURCE=..\Profile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\resource.rc
 # End Source File
 # Begin Source File
 

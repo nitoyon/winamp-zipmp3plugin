@@ -26,7 +26,7 @@
 //============================================================================//
 
 MainWnd::MainWnd() 
-: hbmpPlaylist( NULL), hbmpText( NULL), hbmpTimebar( NULL), strSkinName( ""), strSkinPath( "")
+: hbmpPlaylist( NULL), hbmpText( NULL), hbmpTimebar( NULL), strSkinName( "")
 , pListWnd( NULL)
 , intMin( -1), intSec( -1)
 , blnFocus(FALSE), blnResize( FALSE), blnMove( FALSE), blnClose( FALSE), blnScroll( FALSE), blnSnapping( -1)
@@ -673,7 +673,6 @@ LRESULT MainWnd::OnSysKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 /******************************************************************************/
 // 現在のスキン読みとり
 //============================================================================//
-// 更新：03/04/20(日)
 // 概要：スキンが変更されていれば、スキン情報を更新する。
 // 補足：なし。
 //============================================================================//
@@ -683,80 +682,146 @@ void MainWnd::UpdateSkin( BOOL blnForce)
 	char pszBuf[ MAX_PATH + 1] ;
 
 	// スキンのパス取得
-	string s ;
-	if( GetFileAttributes( Profile::strOriginalSkin.c_str()) == -1)
+	string strCurSkinName = (char*)SendMessage( hwndWinamp, WM_WA_IPC,(WPARAM)pszBuf, IPC_GETSKIN);
+	string strSkinPath = pszBuf;
+
+	// winamp がスキンを使っているか
+	BOOL bln1 = (strSkinPath == "");
+
+	// plugin のスキン
+	if(bln1 && Profile::intSkin1 == 0 || !bln1 && Profile::intSkin2 == 1)
 	{
-		s = (char*)SendMessage( hwndWinamp, WM_WA_IPC,(WPARAM)pszBuf, IPC_GETSKIN) ;
+		if(blnForce || strSkinName != strCurSkinName)
+		{
+			UnloadSkin();
+			LoadPluginSkin();
+			InvalidateRect( m_hWnd, NULL, TRUE);
+		}
 	}
+	// 外部スキン
+	else if(bln1 && Profile::intSkin1 == 1 || !bln1 && Profile::intSkin2 == 2)
+	{
+		if(blnForce || strSkinName != strCurSkinName)
+		{
+			UnloadSkin();
+			LoadPathSkin(bln1 ? Profile::strSkinDir1 : Profile::strSkinDir2);
+			InvalidateRect( m_hWnd, NULL, TRUE);
+		}
+	}
+	// Winamp と同じスキン
 	else
 	{
-		s = Profile::strOriginalSkin ;
-		strncpy(pszBuf, s.c_str(), MAX_PATH + 1);
+		if(blnForce || strSkinName != strCurSkinName)
+		{
+			UnloadSkin();
+			strSkinName = strCurSkinName;
+			LoadPathSkin(strSkinPath);
+			InvalidateRect( m_hWnd, NULL, TRUE);
+		}
+	}
+}
+
+
+/******************************************************************************/
+// スキンのビットマップをアンロードする
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void MainWnd::UnloadSkin()
+{
+	// オブジェクトの削除
+	if( hbmpPlaylist)
+	{
+		DeleteObject( hbmpPlaylist) ;
+		hbmpPlaylist = NULL ;
+	}
+	if( hbmpText)
+	{
+		DeleteObject( hbmpText) ;
+		hbmpText = NULL ;
+	}
+	if( hbmpTimebar)
+	{
+		DeleteObject( hbmpTimebar) ;
+		hbmpTimebar = NULL ;
+	}
+}
+
+
+/******************************************************************************/
+// 特定のパスのスキンをロードする
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void MainWnd::LoadPathSkin(const string& strSkinPath)
+{
+	// ビットマップのロード
+	DWORD  dw ;
+
+	// プレイリスト
+	string strBmp = strSkinPath + "\\Pledit.bmp";
+	dw = GetFileAttributes( strBmp.c_str()) ;
+	if(hbmpPlaylist == NULL && dw != -1 && ( dw & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
+	{
+		hbmpPlaylist = (HBITMAP)LoadImage( NULL, strBmp.c_str(), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR | LR_LOADFROMFILE) ;
 	}
 
-	if( blnForce || s != strSkinName)
+	// テキスト
+	strBmp = ( strSkinPath + "\\text.bmp") ;
+	dw = GetFileAttributes( strBmp.c_str()) ;
+	if(hbmpText == NULL && dw != -1 && ( dw & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
 	{
-		// オブジェクトの削除
-		if( hbmpPlaylist)
-		{
-			DeleteObject( hbmpPlaylist) ;
-			hbmpPlaylist = NULL ;
-		}
-		if( hbmpText)
-		{
-			DeleteObject( hbmpText) ;
-			hbmpText = NULL ;
-		}
-		if( hbmpTimebar)
-		{
-			DeleteObject( hbmpTimebar) ;
-			hbmpTimebar = NULL ;
-		}
+		hbmpText = (HBITMAP)LoadImage( NULL, strBmp.c_str(), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR | LR_LOADFROMFILE) ;
+	}
 
-		// デフォルトのスキン
-		strSkinPath = pszBuf ;
-		strSkinName = s ;
+	// タイムバー
+	strBmp = ( strSkinPath + "\\Posbar.bmp") ;
+	dw = GetFileAttributes( strBmp.c_str()) ;
+	if(hbmpTimebar == NULL && dw != -1 && ( dw & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
+	{
+		hbmpTimebar = (HBITMAP)LoadImage( NULL, strBmp.c_str(), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR | LR_LOADFROMFILE) ;
+	}
 
-		// ビットマップのロード
-		string strBmp ;
-		DWORD  dw ;
-		strBmp = ( strSkinPath + "\\Pledit.bmp") ;
-		dw = GetFileAttributes( strBmp.c_str()) ;
-		if( dw != -1 && ( dw & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
-		{
-			hbmpPlaylist = (HBITMAP)LoadImage( NULL, strBmp.c_str(), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR | LR_LOADFROMFILE) ;
-		}
-		strBmp = ( strSkinPath + "\\text.bmp") ;
-		dw = GetFileAttributes( strBmp.c_str()) ;
-		if( dw != -1 && ( dw & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
-		{
-			hbmpText = (HBITMAP)LoadImage( NULL, strBmp.c_str(), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR | LR_LOADFROMFILE) ;
-		}
-		strBmp = ( strSkinPath + "\\Posbar.bmp") ;
-		dw = GetFileAttributes( strBmp.c_str()) ;
-		if( dw != -1 && ( dw & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
-		{
-			hbmpTimebar = (HBITMAP)LoadImage( NULL, strBmp.c_str(), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR | LR_LOADFROMFILE) ;
-		}
+	// 色
+	pListWnd->SetSkin( strSkinPath + "\\Pledit.txt") ;
 
-		// 失敗した場合はデフォルトをロード
-		if( hbmpPlaylist == NULL)
-		{
-			hbmpPlaylist = (HBITMAP)LoadImage( Profile::hInstance, MAKEINTRESOURCE( IDB_PLEDIT), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR) ;
-		}
-		if( hbmpText == NULL)
-		{
-			hbmpText = (HBITMAP)LoadImage( Profile::hInstance, MAKEINTRESOURCE( IDB_TEXT), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR) ;
-		}
-		if( hbmpTimebar == NULL)
-		{
-			hbmpTimebar = (HBITMAP)LoadImage( Profile::hInstance, MAKEINTRESOURCE( IDB_POSBAR), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR) ;
-		}
+	// ロードできなかったプラグインは、DLL のもので補う
+	if(hbmpPlaylist == NULL || hbmpText == NULL || hbmpTimebar == NULL)
+	{
+		LoadPluginSkin();
+	}
+}
 
-		// テキストカラー
-		pListWnd->SetSkin( strSkinPath + "\\Pledit.txt") ;
 
-		InvalidateRect( m_hWnd, NULL, TRUE) ;
+/******************************************************************************/
+// プラグインのスキンをロードする
+//============================================================================//
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void MainWnd::LoadPluginSkin()
+{
+	if(hbmpPlaylist == NULL || hbmpText == NULL || hbmpTimebar == NULL)
+	{
+		pListWnd->SetSkin("");
+	}
+
+	if( hbmpPlaylist == NULL)
+	{
+		hbmpPlaylist = (HBITMAP)LoadImage( Profile::hInstance, MAKEINTRESOURCE( IDB_PLEDIT), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR) ;
+	}
+	if( hbmpText == NULL)
+	{
+		hbmpText = (HBITMAP)LoadImage( Profile::hInstance, MAKEINTRESOURCE( IDB_TEXT), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR) ;
+	}
+	if( hbmpTimebar == NULL)
+	{
+		hbmpTimebar = (HBITMAP)LoadImage( Profile::hInstance, MAKEINTRESOURCE( IDB_POSBAR), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR) ;
 	}
 }
 

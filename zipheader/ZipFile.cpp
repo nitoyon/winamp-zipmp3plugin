@@ -74,11 +74,19 @@ ZipFile::~ZipFile()
 // ï‚ë´ÅFÇ»ÇµÅB
 //============================================================================//
 
-ZipFile* ZipFile::GetInstance( const string& s)
+ZipFile* ZipFile::GetInstance(const string& s)
 {
-	if(!pInstance)
+	if(s != "")
 	{
-		pInstance = new ZipFile(s);
+		if(!pInstance)
+		{
+			pInstance = new ZipFile(s);
+		}
+		else
+		{
+			delete pInstance;
+			pInstance = new ZipFile(s);
+		}
 	}
 
 	return pInstance;

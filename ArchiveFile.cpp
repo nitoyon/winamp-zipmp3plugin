@@ -34,7 +34,7 @@
 ArchiveFile::ArchiveFile( const string& s, UINT u)
 : strArchivePath(s), intKindOfArchive(-1)
 {
-	vecHeaderDll.push_back("C:\\Program Files\\Winamp\\Plugins\\gen_zipalbum\\head_zip.dll");
+	vecHeaderDll.push_back("n:\\head_zip.dll");
 }
 
 

@@ -63,7 +63,6 @@ private:
 	HBITMAP		hbmpText ;
 	HBITMAP		hbmpTimebar ;
 	string		strSkinName ;
-	string		strSkinPath ;
 
 	ListWnd*	pListWnd ;
 
@@ -147,6 +146,9 @@ public:
 private:
 // •`‰æ
 	void UpdateSkin( BOOL = FALSE) ;
+	void UnloadSkin();
+	void LoadPluginSkin();
+	void LoadPathSkin(const string&);
 	void DrawSkin( HDC) ;
 	void DrawSkinNormal( HDC) ;
 	void DrawSkinCompact( HDC) ;
