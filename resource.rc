@@ -49,7 +49,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,7,190,50,14
     PUSHBUTTON      "ｷｬﾝｾﾙ",IDCANCEL,66,190,50,14
     GROUPBOX        "バージョン情報",IDC_STATIC,213,7,115,167
-    LTEXT           "zip.mp3 表示プラグイソ。 ver 0.2.2",IDC_STATIC,218,20,
+    LTEXT           "zip.mp3 表示プラグイソ。 ver 0.2.3",IDC_STATIC,218,20,
                     99,8
     LTEXT           "http://www.nitoyon.com/",IDC_STATIC,234,161,75,8
     PUSHBUTTON      "今すぐ表示(&D)",IDC_DISPLAY,127,190,50,14
