@@ -515,6 +515,12 @@ void ListWnd::DrawList( HDC hdc)
 
 void ListWnd::DrawCompactText( HDC hdc)
 {
+	// アイテムがない場合は表示しない
+	if(vecList.size() == 0 || vecTime.size() == 0 || intCurrent < 0)
+	{
+		return ;
+	}
+
 	RECT rc ;
 	rc.left		= 5 ;
 	rc.right	= intWidth - 60;
