@@ -1,7 +1,7 @@
 
 // MainWnd.h
 //============================================================================//
-// 更新：02/12/29(日)
+// 更新：02/12/30(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -51,7 +51,10 @@ public:
 private:
 	HWND		m_hWnd ;
 	HWND		hwndWinamp ;
-	HWND		hwndList ;
+	HWND		hwndWinampEQ ;
+	HWND		hwndWinampPE ;
+	HWND		hwndWinampMB ;
+
 	HBITMAP		hbmpPlaylist ;
 	HBITMAP		hbmpText ;
 	string		strSkinName ;
@@ -75,6 +78,8 @@ private:
 	POINT		ptOffsetMove ;
 	BOOL		blnClose ;
 	BOOL		blnScroll ;
+	BOOL		blnSnapping ;
+	POINT		ptOffsetSnap ;
 
 	int intLeftPos[ Item::LAST] ;
 	int intRightPos[ Item::LAST] ;
@@ -104,6 +109,7 @@ private:
 	LRESULT OnLButtonDblClk	( HWND, WPARAM, LPARAM) ;
 	LRESULT OnMouseWheel	( HWND, WPARAM, LPARAM) ;
 	LRESULT OnKeyDown	( HWND, WPARAM, LPARAM) ;
+	LRESULT OnSysKeyDown	( HWND, WPARAM, LPARAM) ;
 
 public:
 // 設定
@@ -118,6 +124,8 @@ public:
 	HWND GetWinampWindow() const{ return hwndWinamp ;}
 	HWND GetHwnd() const{ return m_hWnd ;}
 	int GetCurSong() const ;
+	BOOL IsSnapping() ;
+	POINT GetOffsetSnap() const{ return ptOffsetSnap ;} ;
 
 // ユーティリティ
 	Item GetItem( POINT) ;
@@ -128,6 +136,9 @@ private:
 	void UpdateSkin( BOOL = FALSE) ;
 	void DrawSkin( HDC) ;
 	void DrawTime( HDC) ;
+
+// 移動
+	POINT CalcSnappedPos( POINT) ;
 } ;
 
 #endif

@@ -1,7 +1,7 @@
 
 // MainWnd.cpp
 //============================================================================//
-// 更新：02/12/29(日)
+// 更新：02/12/30(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -31,7 +31,7 @@ MainWnd::MainWnd()
 : hbmpPlaylist( NULL), hbmpText( NULL), strSkinName( ""), strSkinPath( "")
 , pListWnd( NULL)
 , intMin( -1), intSec( -1)
-, blnResize( FALSE), blnMove( FALSE), blnClose( FALSE), blnScroll( FALSE)
+, blnResize( FALSE), blnMove( FALSE), blnClose( FALSE), blnScroll( FALSE), blnSnapping( -1)
 {
 	intLeftPos[ Item::CLOSE]	= -11 ;		intRightPos[  Item::CLOSE]	= -3 ;
 	intTopPos[  Item::CLOSE]	= 3 ;		intBottomPos[ Item::CLOSE]	= 12 ;
@@ -104,13 +104,14 @@ BEGIN_MESSAGE_MAP( MainWndProc, MainWnd)
 	ON_MESSAGE( WM_LBUTTONDBLCLK		, OnLButtonDblClk)
 	ON_MESSAGE( WM_MOUSEWHEEL		, OnMouseWheel)
 	ON_MESSAGE( WM_KEYDOWN			, OnKeyDown)
+	ON_MESSAGE( WM_SYSKEYDOWN		, OnSysKeyDown)
 END_MESSAGE_MAP()
 
 
 /******************************************************************************/
 // 作成
 //============================================================================//
-// 更新：02/12/29(日)
+// 更新：02/12/30(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -119,16 +120,11 @@ LRESULT MainWnd::OnCreate( HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
 	// ウインドウ作成
 	HINSTANCE hInst = GetModuleHandle( NULL) ;
-	hwndList = CreateWindow( "LISTBOX", "", WS_BORDER | WS_VISIBLE | WS_CHILD, 
-		0, 0, 0, 0, 
-		hWnd, 0, hInst, 0) ;
-
 	pListWnd = new ListWnd( this) ;
 	pListWnd->Init() ;
 	hbmpPlaylist = 0 ;
 
 	SetBlockSize( Profile::intBlockX, Profile::intBlockY) ;
-
 	MoveWindow( hWnd, Profile::intX, Profile::intY, intWidth, intHeight, FALSE) ;
 
 	// 大麻作成
@@ -136,6 +132,11 @@ LRESULT MainWnd::OnCreate( HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 	// スキン読み込み
 	UpdateSkin( TRUE) ;
+
+	// ウインドウハンドル取得
+	hwndWinampEQ = FindWindow( "Winamp EQ", NULL) ;
+	hwndWinampPE = FindWindow( "Winamp PE", NULL) ;
+	hwndWinampMB = FindWindow( "Winamp MB", NULL) ;
 
 	return 0 ;
 }
@@ -446,8 +447,11 @@ LRESULT MainWnd::OnMouseMove( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	{
 		POINT pt ;
 		GetCursorPos( &pt) ;
-		Profile::intX = pt.x - ptOffsetMove.x ;
-		Profile::intY = pt.y - ptOffsetMove.y ;
+		pt.x -= ptOffsetMove.x ;
+		pt.y -= ptOffsetMove.y ;
+		pt = CalcSnappedPos( pt) ;
+		Profile::intX = pt.x ;
+		Profile::intY = pt.y ;
 		SetWindowPos( hWnd, 0, Profile::intX, Profile::intY, 0, 0, SWP_NOSIZE | SWP_NOZORDER) ;
 	}
 	else  if( blnScroll)
@@ -532,6 +536,25 @@ LRESULT MainWnd::OnKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam)
 	}
 
 	return 0 ;
+}
+
+
+/******************************************************************************/
+// システムキーダウン
+//============================================================================//
+// 更新：02/12/30(月)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+LRESULT MainWnd::OnSysKeyDown( HWND hWnd, WPARAM wParam, LPARAM lParam) 
+{
+	if( wParam == 'M' && lParam & 2 << 28)
+	{
+		Controller::GetInstance()->ToggleVisiblity() ;
+		return 0 ;
+	}
+	return -1 ;
 }
 
 
@@ -773,6 +796,8 @@ void MainWnd::AddList( const string& s)
 
 
 /******************************************************************************/
+//		取得
+/******************************************************************************/
 // 現在の曲を取得
 //============================================================================//
 // 更新：02/12/27(金)
@@ -783,6 +808,26 @@ void MainWnd::AddList( const string& s)
 int MainWnd::GetCurSong() const
 {
 	return pListWnd->GetCurrentItem() ;
+}
+
+
+/******************************************************************************/
+// スナップ中か取得
+//============================================================================//
+// 更新：02/12/30(月)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+BOOL MainWnd::IsSnapping()
+{
+	// 起動時の情報がないとき
+	if( blnSnapping == -1)
+	{
+		POINT pt = { Profile::intX, Profile::intY} ;
+		CalcSnappedPos( pt) ;
+	}
+	return blnSnapping ;
 }
 
 
@@ -835,4 +880,106 @@ void MainWnd::InvalidateItem( MainWnd::Item item)
 	rc.bottom = ( intBottomPos[ item] >= 0 ? intBottomPos[ item] : intHeight + intBottomPos[ item]) ;
 
 	InvalidateRect( m_hWnd, &rc, TRUE) ;
+}
+
+
+/******************************************************************************/
+// 移動時の位置補正
+//============================================================================//
+// 更新：02/12/30(月)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+POINT MainWnd::CalcSnappedPos( POINT pt)
+{
+	int intIsSnap = GetPrivateProfileInt( "Winamp", "snap", 1, Profile::strWinampIniPath.c_str()) ;
+	int intSnap = GetPrivateProfileInt( "Winamp", "snaplen", 10, Profile::strWinampIniPath.c_str()) ;
+	if( intIsSnap != 1)
+	{
+		intSnap = 0 ;
+	}
+
+	RECT rcWnd = { pt.x, pt.y, pt.x + intWidth, pt.y + intHeight} ;
+	HWND hwnd[] = { hwndWinamp, hwndWinampEQ, hwndWinampPE, hwndWinampMB} ;
+	RECT rcWinamp ;
+	GetWindowRect( hwndWinamp, &rcWinamp) ;
+	blnSnapping = FALSE ;
+	for( int intIndex = 0; intIndex < sizeof( hwnd) / sizeof( HWND); intIndex++)
+	{
+		if( IsWindowVisible( hwnd[ intIndex]))
+		{
+			RECT rc ;
+			GetWindowRect( hwnd[ intIndex], &rc) ;
+
+			// 角のチェック
+			int i ;
+			for( i = 0; i < 4; i++)
+			{
+				POINT ptCorner = { i / 2 ? rc.right : rc.left, i % 2 ? rc.bottom : rc.top} ;
+				for( int j = 0; j < 4; j++)
+				{
+					if( i == j)
+					{
+						continue ;
+					}
+
+					POINT ptWnd = { j / 2 ? rcWnd.right : rcWnd.left, j % 2 ? rcWnd.bottom : rcWnd.top} ;
+
+					if( ptCorner.x - intSnap <= ptWnd.x && ptWnd.x <= ptCorner.x + intSnap
+					 && ptCorner.y - intSnap <= ptWnd.y && ptWnd.y <= ptCorner.y + intSnap)
+					{
+						blnSnapping = TRUE ;
+						pt.x += ptCorner.x - ptWnd.x ;
+						pt.y += ptCorner.y - ptWnd.y ;
+						ptOffsetSnap.x = pt.x - rcWinamp.left ;
+						ptOffsetSnap.y = pt.y - rcWinamp.top ;
+						return pt ;
+					}
+				}
+			}
+
+			// 縁のチェック
+			BOOL blnY = rc.top <= rcWnd.top && rcWnd.top <= rc.bottom || rc.top <= rcWnd.bottom && rcWnd.bottom <= rc.bottom ;
+			BOOL blnX = rc.left <= rcWnd.left && rcWnd.left <= rc.right || rc.left <= rcWnd.right && rcWnd.right <= rc.right ;
+
+			// 右辺
+			if( rc.right - intSnap <= rcWnd.left && rcWnd.left <= rc.right + intSnap && blnY)
+			{
+				blnSnapping = TRUE ;
+				pt.x = rc.right ;
+				ptOffsetSnap.x = pt.x - rcWinamp.left ;
+				ptOffsetSnap.y = pt.y - rcWinamp.top ;
+			}
+
+			// 左辺
+			if( rc.left - intSnap <= rcWnd.right && rcWnd.right <= rc.left + intSnap && blnY)
+			{
+				blnSnapping = TRUE ;
+				pt.x = rc.left - intWidth ;
+				ptOffsetSnap.x = pt.x - rcWinamp.left ;
+				ptOffsetSnap.y = pt.y - rcWinamp.top ;
+			}
+
+			// 上辺
+			if( rc.top - intSnap <= rcWnd.bottom && rcWnd.bottom <= rc.top + intSnap && blnX)
+			{
+				blnSnapping = TRUE ;
+				pt.y = rc.top - intHeight ;
+				ptOffsetSnap.x = pt.x - rcWinamp.left ;
+				ptOffsetSnap.y = pt.y - rcWinamp.top ;
+			}
+
+			// 下辺
+			if( rc.bottom - intSnap <= rcWnd.top && rcWnd.top <= rc.bottom + intSnap && blnX)
+			{
+				blnSnapping = TRUE ;
+				pt.y = rc.bottom ;
+				ptOffsetSnap.x = pt.x - rcWinamp.left ;
+				ptOffsetSnap.y = pt.y - rcWinamp.top ;
+			}
+		}
+	}
+
+	return pt ;
 }

@@ -36,10 +36,8 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,13,19,90,10
     CONTROL         "無圧縮のときだけ表示(&U)",IDC_SHOW_ONLY_UNCOMPRESS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,24,33,90,10
-    LTEXT           "表示/非表示切り替えのホットキー(&H)",IDC_STATIC,13,56,
-                    131,11
-    CONTROL         "HotKey1",IDC_HOTKEY,"msctls_hotkey32",WS_BORDER | 
-                    WS_TABSTOP,22,68,80,14
+    LTEXT           "表示/非表示切り替えのホットキー(&H)\n   → ver 0.2.2 から Alt + M に割り当て",
+                    IDC_STATIC,13,56,131,23
     GROUPBOX        "ファイル一覧に表示する文字(&L) [リスト再読込後に有効]",
                     IDC_STATIC,7,97,195,77
     EDITTEXT        IDC_LIST_NORMAL,13,111,139,14,ES_AUTOHSCROLL
@@ -51,7 +49,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,7,190,50,14
     PUSHBUTTON      "ｷｬﾝｾﾙ",IDCANCEL,66,190,50,14
     GROUPBOX        "バージョン情報",IDC_STATIC,213,7,115,167
-    LTEXT           "zip.mp3 表示プラグイソ。 ver 0.2.1",IDC_STATIC,218,20,
+    LTEXT           "zip.mp3 表示プラグイソ。 ver 0.2.2",IDC_STATIC,218,20,
                     99,8
     LTEXT           "http://www.nitoyon.com/",IDC_STATIC,234,161,75,8
     PUSHBUTTON      "今すぐ表示(&D)",IDC_DISPLAY,127,190,50,14
@@ -116,8 +114,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,2,1,0
- PRODUCTVERSION 0,2,1,0
+ FILEVERSION 0,2,2,0
+ PRODUCTVERSION 0,2,2,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -135,14 +133,14 @@ BEGIN
             VALUE "Comments", "zip.mp3 の中身を見せろや(ﾟДﾟ)ｺﾞﾙｧ!!\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "ZIP.MP3 再生プラグイソ。\0"
-            VALUE "FileVersion", "0, 2, 1, 0\0"
+            VALUE "FileVersion", "0, 2, 2, 0\0"
             VALUE "InternalName", "gen_zipalbum\0"
             VALUE "LegalCopyright", "Copyright (C) 2002 nitoyon + 協力者募集中\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "gen_zipalbum.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "  gen_zipalbum\0"
-            VALUE "ProductVersion", "0, 2, 1, 0\0"
+            VALUE "ProductVersion", "0, 2, 2, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -168,6 +166,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "ファイル情報(&I)\tAlt+3",     IDM_DISPTAG, GRAYED
         MENUITEM "解凍(&E)",                    IDM_EXTRACT, GRAYED
+        MENUITEM "&MiniBroserで開く",           IDM_OPENMINI
     END
 END
 

@@ -1,7 +1,7 @@
 
 // Controller.cpp
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：02/12/31(火)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -10,6 +10,7 @@
 #include "ZipFile.h"
 #include "MainWnd.h"
 #include "Profile.h"
+#include <wininet.h>
 
 
 /******************************************************************************/
@@ -24,13 +25,13 @@ Controller* Controller::pInstance = NULL ;
 /******************************************************************************/
 // 
 //============================================================================//
-// 更新：02/12/23(月)
+// 更新：02/12/31(火)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 Controller::Controller() 
-: strFilePath( ""), pZipFile( NULL), blnUseHotKey( FALSE)
+: strFilePath( ""), strPrevTmpPath( ""), pZipFile( NULL), blnUseHotKey( FALSE)
 {
 }
 
@@ -38,13 +39,17 @@ Controller::Controller()
 /******************************************************************************/
 // デストラクタ
 //============================================================================//
-// 更新：02/12/23(月)
+// 更新：02/12/31(火)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 Controller::~Controller() 
 {
+	if( GetFileAttributes( strPrevTmpPath.c_str()) != -1)
+	{
+		DeleteFile( strPrevTmpPath.c_str()) ;
+	}
 }
 
 
@@ -110,31 +115,25 @@ void Controller::SetVisiblity( BOOL blnShow, BOOL blnForce)
 
 
 /******************************************************************************/
-// ホットキーの登録
+// 表示/非表示切り替え
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：02/12/30(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
-LRESULT Controller::SetHotKey( WORD wHotKey)
+void Controller::ToggleVisiblity()
 {
-	if( blnUseHotKey)
+	HWND hwnd = pMainWnd->GetHwnd() ;
+	if( IsWindowVisible( hwnd))
 	{
-		UnregisterHotKey( pMainWnd->GetHwnd(), HOTKEY_SHOW) ;
+		ShowWindow( hwnd, SW_HIDE) ;
 	}
-
-	// 形式変換
-	UINT uModifiers = (UINT)HIBYTE(wHotKey);
-	UINT uVirtual   = (UINT)LOBYTE(wHotKey);
-	UINT uMod = 0 ;
-	if( uModifiers & HOTKEYF_ALT)		uMod |= MOD_ALT ;
-	if( uModifiers & HOTKEYF_CONTROL)	uMod |= MOD_CONTROL ;
-	if( uModifiers & HOTKEYF_SHIFT)		uMod |= MOD_SHIFT ;
-
-	HWND h = pMainWnd->GetHwnd() ;
-	blnUseHotKey = RegisterHotKey( pMainWnd->GetHwnd(), HOTKEY_SHOW, uMod, uVirtual) ;
-	return blnUseHotKey ;
+	else
+	{
+		ShowWindow( hwnd, SW_SHOW) ;
+		SetFocus( hwnd) ;
+	}
 }
 
 
@@ -150,6 +149,10 @@ LRESULT Controller::SetHotKey( WORD wHotKey)
 
 void Controller::Play()
 {
+	if( !pZipFile)
+	{
+		return ;
+	}
 	ULONG ulMilisec = pZipFile->GetSongHead( pMainWnd->GetCurSong()) ;
 	SendMessage( pMainWnd->GetWinampWindow(), WM_COMMAND, WINAMP_BUTTON2, 0) ;
 	SendMessage( pMainWnd->GetWinampWindow(), WM_WA_IPC, ulMilisec, IPC_JUMPTOTIME) ;
@@ -166,6 +169,10 @@ void Controller::Play()
 
 void Controller::Go( UINT u)
 {
+	if( !pZipFile)
+	{
+		return ;
+	}
 	if( u < 0 || u >= pZipFile->GetChildFileCount())
 	{
 		return;
@@ -188,9 +195,93 @@ void Controller::Go( UINT u)
 
 
 /******************************************************************************/
+// 解凍する
+//============================================================================//
+// 更新：02/12/31(火)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+BOOL Controller::Extract( UINT ui, const string& strPath)
+{
+	File* pFile = pZipFile->GetChildFile( ui) ;
+	if( !pFile)
+	{
+		return FALSE ;
+	}
+
+	if( pZipFile->GetStatus() != ZipFile::Status::UNCOMPRESSED)
+	{
+		return FALSE ;
+	}
+
+
+	FILE* fExtract = fopen( strPath.c_str(), "wb") ;
+	FILE* fZip = fopen( pFile->GetZipPath().c_str(), "rb") ;
+	if( fExtract && fZip)
+	{
+		ULONG ulHead = pFile->GetFileHead() ;
+		ZipChildHeader zch = pFile->GetHeader() ;
+		ULONG ulFileLength = zch.ulCompressedSize ;
+
+#define BUF_SIZE 4048
+		BYTE pbyte[ BUF_SIZE] ;
+		if( fseek( fZip, ulHead, SEEK_SET) == 0)
+		{
+			ULONG ulSize = ( BUF_SIZE < ulFileLength ? BUF_SIZE : ulFileLength) ;
+			fread( pbyte, sizeof( BYTE), ulSize, fZip) ;
+			fwrite( pbyte, sizeof( BYTE), ulSize, fExtract) ;
+		}
+	}
+	fclose( fZip) ;
+	fclose( fExtract) ;
+
+	return TRUE ;
+}
+
+
+/******************************************************************************/
+// ミニブラウザーで開く
+//============================================================================//
+// 更新：02/12/31(火)
+// 概要：なし。
+// 補足：なし。
+//============================================================================//
+
+void Controller::OpenInMiniBrowser( UINT i)
+{
+	File* pFile = pZipFile->GetChildFile( i) ;
+	if( !pFile)
+	{
+		return ;
+	}
+
+	// ファイル名取得
+	string str = "zipmp3tmp" ;
+	char pszTmpPath[ MAX_PATH + 1] ;
+	GetTempPath( MAX_PATH, pszTmpPath) ;
+	char pszPath[ MAX_PATH + 1] ;
+	GetTempFileName( pszTmpPath, str.c_str(), 0, pszPath) ;
+
+	// 解凍
+	if( Extract( i, pszPath))
+	{
+		if( GetFileAttributes( strPrevTmpPath.c_str()) != -1)
+		{
+			DeleteFile( strPrevTmpPath.c_str()) ;
+		}
+		strPrevTmpPath = pszPath ;
+
+		// 開く
+		SendMessage( pMainWnd->GetWinampWindow(), WM_WA_IPC, (WPARAM)pszPath, IPC_MBOPENREAL) ;
+		SendMessage( pMainWnd->GetWinampWindow(), WM_WA_IPC, (WPARAM)NULL, IPC_MBOPENREAL) ;
+	}
+}
+
+
+/******************************************************************************/
 // 時刻設定
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：02/12/31(火)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -205,9 +296,6 @@ void Controller::SetMp3Pos( const string& s, ULONG ulMil)
 
 	if( pZipFile->GetStatus() == ZipFile::Status::UNCOMPRESSED)
 	{
-
-		ulMil ;
-
 		// ファイル番号更新
 		ULONG ulCurFileNum = pZipFile->GetSongIndex( ulMil) ;
 		if( pMainWnd->GetCurSong() != ulCurFileNum)

@@ -2,7 +2,7 @@
 // Profile.cpp
 // アプリケーションの設定
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：02/12/30(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -18,7 +18,7 @@ string	Profile::strPath = "" ;
 
 // 参照用
 HINSTANCE	Profile::hInstance = 0 ;
-string		Profile::strDefaultSkin = "" ;
+string		Profile::strWinampIniPath = "" ;
 
 // ウインドウ
 BOOL	Profile::blnShowOnlyZip = FALSE ;
@@ -46,7 +46,7 @@ int	Profile::intBlockY = 0 ;
 /******************************************************************************/
 // 保存
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：02/12/30(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -60,8 +60,9 @@ void Profile::Save()
 		strPath = pszPath ;
 		strPath.replace( strPath.rfind( "."), 4, ".ini", 5) ;
 
-		strDefaultSkin = pszPath ;
-		strDefaultSkin = strDefaultSkin.substr( 0, strDefaultSkin.rfind( '\\')) + "\\gen_zipalbum" ;
+		GetModuleFileName( GetModuleHandle( NULL), pszPath, MAX_PATH) ;
+		strWinampIniPath = pszPath ;
+		strWinampIniPath.replace( strPath.rfind( "."), 4, ".ini", 5) ;
 	}
 	const char* pszFile = strPath.c_str() ;
 
@@ -98,13 +99,14 @@ void Profile::Load()
 {
 	if( strPath == "")
 	{
-		char pszPath[ MAX_PATH] ;
+		char pszPath[ MAX_PATH + 1] ;
 		GetModuleFileName( hInstance, pszPath, MAX_PATH) ;
 		strPath = pszPath ;
 		strPath.replace( strPath.rfind( "."), 4, ".ini", 5) ;
 
-		strDefaultSkin = pszPath ;
-		strDefaultSkin = strDefaultSkin.substr( 0, strDefaultSkin.rfind( '\\')) + "\\gen_zipalbum" ;
+		GetModuleFileName( GetModuleHandle( NULL), pszPath, MAX_PATH) ;
+		strWinampIniPath = pszPath ;
+		strWinampIniPath.replace( strWinampIniPath.rfind( "."), 4, ".ini", 5) ;
 	}
 	const char* pszFile = strPath.c_str() ;
 	char	pszBuf[ MAX_PATH] ;

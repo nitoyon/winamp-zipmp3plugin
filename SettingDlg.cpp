@@ -116,26 +116,9 @@ BOOL SettingDlg::OnInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam)
 
 BOOL SettingDlg::OnOk( HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
-	// ホットキー設定
-	WORD w = SendMessage( hwndHotKey, HKM_GETHOTKEY, 0, 0) ;
-	if( !Controller::GetInstance()->SetHotKey( w))
-	{
-		LPVOID lpMsgBuf;
-		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, 
-			NULL, GetLastError(), 
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, NULL) ;
-		string s = string( "ホットキーを登録できませんでした。\n理由：") + (char*)lpMsgBuf ;
-		LocalFree(lpMsgBuf);
-
-		MessageBox( hDlg, s.c_str(), "エラー", MB_OK) ;
-		SendMessage( hwndHotKey, HKM_SETHOTKEY, 0, 0) ;
-		return TRUE ;
-	}
-
 	// ダイアログから読みとり
 	Profile::blnShowOnlyZip = IsDlgButtonChecked( hDlg, IDC_SHOW_ONLY_ZIP) ? TRUE : FALSE ;
 	Profile::blnShowOnlyUncompressedZip = IsDlgButtonChecked( hDlg, IDC_SHOW_ONLY_UNCOMPRESS) ? TRUE : FALSE ;
-	Profile::wrdHotKey = SendMessage( hwndHotKey, HKM_GETHOTKEY, 0, 0) ;
 	Profile::strListNormal = GetWindowString( GetDlgItem( hDlg, IDC_LIST_NORMAL)) ;
 	Profile::strListID3 = GetWindowString( GetDlgItem( hDlg, IDC_LIST_ID3)) ;
 	Profile::blnListID3 = IsDlgButtonChecked( hDlg, IDC_CHK_ID3) ? TRUE : FALSE ;

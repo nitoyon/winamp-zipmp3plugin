@@ -9,6 +9,7 @@
 #include "main.h"
 #include "Controller.h"
 #include "MainWnd.h"
+#include "WinampHook.h"
 #include "SettingDlg.h"
 #include "Profile.h"
 #include "resource.h"
@@ -115,18 +116,10 @@ int init()
 
 	Controller* pController = Controller::GetInstance() ;
 	pController->SetWindow( pMainWnd) ;
-	if( Profile::wrdHotKey != 0 && !pController->SetHotKey( Profile::wrdHotKey))
-	{
-		LPVOID lpMsgBuf;
-		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, 
-			NULL, GetLastError(), 
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, NULL) ;
-		string s = string( "ホットキーを登録できませんでした。\n理由：") + (char*)lpMsgBuf ;
-		LocalFree(lpMsgBuf);
 
-		MessageBox( plugin.hwndParent, s.c_str(), "ZIP.MP3 プラグイソ。", MB_OK) ;
-		Profile::wrdHotKey = 0 ;	
-	}
+	// フック開始
+	WinampHook* pwh = new WinampHook( pMainWnd) ;
+	pwh->Init( plugin.hwndParent) ;
 
 	// show the window
 	ShowWindow( hMainWnd, Profile::blnShowOnlyZip ? SW_HIDE : SW_SHOW) ;
@@ -145,5 +138,6 @@ int init()
 void quit()
 {
 	Profile::Save() ;
+	delete Controller::GetInstance() ;
 	return ;
 }

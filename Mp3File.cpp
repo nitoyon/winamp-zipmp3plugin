@@ -305,7 +305,7 @@ string Mp3File::StripSpace( const char* pszBuf)
 {
 	string s = pszBuf ;
 
-	for( int i = ID3_DATA_SIZE - 1; i >= 0; i++)
+	for( int i = ID3_DATA_SIZE - 1; i >= 0; i--)
 	{
 		if( s[ i] != ' ')
 		{
@@ -313,7 +313,7 @@ string Mp3File::StripSpace( const char* pszBuf)
 		}
 	}
 
-	return s.substr( 0, i) ;
+	return s.substr( 0, i + 1) ;
 }
 
 

@@ -2,7 +2,7 @@
 // Profile.h
 // アプリケーションの設定
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：02/12/30(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -25,7 +25,7 @@ private:
 public:
 // 参照用
 	static HINSTANCE hInstance ;
-	static string strDefaultSkin ;
+	static string strWinampIniPath ;
 
 // 表示
 	static BOOL blnShowOnlyZip ;

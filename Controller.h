@@ -1,7 +1,7 @@
 
 // Controller.h
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：02/12/31(火)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -32,6 +32,7 @@ private:
 	MainWnd*	pMainWnd ;
 
 	string		strFilePath ;
+	string		strPrevTmpPath ;
 	ZipFile*	pZipFile ;
 	ULONG		ulCurSongLength ;
 	vector<ULONG>	vecSongHeadTime ;
@@ -48,12 +49,14 @@ public:
 // ウインドウ
 	void SetWindow( MainWnd* p){ pMainWnd = p ;} ;
 	void SetVisiblity( BOOL, BOOL = TRUE) ;
-	LRESULT SetHotKey( WORD) ;
+	void ToggleVisiblity() ;
 
-// 設定
+// 動作
 	void Go( UINT) ;
 	void Play() ;
 	void SetMp3Pos( const string&, ULONG) ;
+	BOOL Extract( UINT, const string&) ;
+	void OpenInMiniBrowser( UINT) ;
 private:
 	void UpdateFileInfo( const string&) ;
 	string GetDisplayStr( File*) ;

@@ -1,7 +1,7 @@
 
 // ListWnd.cpp
 //============================================================================//
-// 更新：02/12/28(土)
+// 更新：02/12/30(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
@@ -53,18 +53,14 @@ ListWnd::~ListWnd()
 /******************************************************************************/
 // 初期化
 //============================================================================//
-// 更新：02/12/27(金)
+// 更新：02/12/30(月)
 // 概要：なし。
 // 補足：なし。
 //============================================================================//
 
 void ListWnd::Init()
 {
-	char pszPath[ MAX_PATH + 1] ;
-	GetModuleFileName( GetModuleHandle( NULL), pszPath, MAX_PATH) ;
-	string strPath = pszPath ;
-	strPath.replace( strPath.rfind( "."), 4, ".ini", 5) ;
-	int intFontSize = GetPrivateProfileInt( "Winamp", "pe_fontsize", 10, strPath.c_str()) ;
+	int intFontSize = GetPrivateProfileInt( "Winamp", "pe_fontsize", 10, Profile::strWinampIniPath.c_str()) ;
 
 	hFont = CreateFont( intFontSize, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, 
 		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 
@@ -409,6 +405,12 @@ LRESULT ListWnd::OnRButtonDown( WPARAM wParam, LPARAM lParam)
 		case IDM_PLAY:
 			ScreenToClient( m_hWnd, &pt) ;
 			OnLButtonDblClk( 0, MAKELPARAM( pt.x, pt.y)) ;
+			break ;
+		case IDM_OPENMINI:
+			if( i != NO_ITEM)
+			{
+				Controller::GetInstance()->OpenInMiniBrowser( i) ;
+			}
 			break ;
 	}
 
